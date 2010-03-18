@@ -1,0 +1,95 @@
+! file:     ~/.Xdefaults
+! author:   Simon Gomizelj
+! modified: November 2008
+! vim:enc=utf-8:nu:ai:si:et:ts=4:sw=4:ft=xdefaults:
+! ----------------------------------------------------------------------------
+
+Xcursor*theme:          Neutral
+Xcusror*size:           22
+
+Xft*dpi:                82
+Xft*antialias:          true
+Xft*rgba:               rgb
+Xft*hinting:            true
+Xft*hintstyle:          hinting
+
+URxvt*font:             -*-terminus-medium-r-normal-*-12-*-*-*-*-*-*-*
+URxvt*italicFont:       -*-terminus-medium-r-normal-*-12-*-*-*-*-*-*-*
+URxvt*buffered:         true
+URxvt*termName:         xterm-256color
+URxvt*scrollBar:        false
+URxvt*loginShell:       true
+URxvt*saveLines:        262144
+URxvt*boldMode:         true
+URxvt*jumpScroll:       true
+
+URxvt*cursorBlink:      false
+URxvt*cursorColor:      #ff9900
+URxvt*cursorColor2:     #000000
+
+URxvt*inheritPixmap:    true
+URxvt*tintColor:        grey
+URxvt*shading:          20
+
+URxvt*perl-ext:         default,matcher
+URxvt*urlLauncher:      /usr/bin/chromium
+URxvt*matcher.button:   1
+
+!*background:            #262626
+!*foreground:            #686868
+
+!!!! thayer !!!!
+!!black
+!*color0:                #262729
+!*color8:                #554444
+!!red
+!*color1:                #f92672
+!*color9:                #ff669d
+!!green
+!*color2:                #a6e22e
+!*color10:               #beed5f
+!!yellow
+!*color3:                #fd971f
+!*color11:               #e6db74
+!!blue
+!*color4:                #66d9ef
+!*color12:               #66d9ef
+!!magenta
+!*color5:                #9e6ffe
+!*color13:               #9e6ffe
+!!cyan
+!*color6:                #5e7175
+!*color14:               #a3babf
+!!white
+!*color7:                #ccccc6
+!*color15:               #f8f8f2
+
+! terminal colours
+*foreground:#a0a0a0
+*background:#1b1d1e
+
+!!!! molokai inspired colors !!!!
+!black
+*color0:    #1b1d1e
+*color8:    #505354
+!red
+*color1:    #f92672
+*color9:    #ff5995
+!green
+*color2:    #82b414
+*color10:   #b6e354
+!yellow
+*color3:    #fd971f
+*color11:   #feed6c
+!blue
+*color4:    #56c2d6
+*color12:   #8cedff
+!magenta
+*color5:    #8c54fe
+*color13:   #9e6ffe
+!cyan
+*color6:    #465457
+*color14:   #899ca1
+!white
+*color7:    #ccccc6
+*color15:   #f8f8f2
