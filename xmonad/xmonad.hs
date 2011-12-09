@@ -37,24 +37,24 @@ myTerm = "urxvtc"
 
 main = do
     xmproc <- spawnPipe "xmobar"
-    xmonad 	$ withUrgencyHook NoUrgencyHook $ defaultConfig
+    xmonad  $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook = myManageHook
         , layoutHook = myLayoutRules
-		, logHook = dynamicLogWithPP $ myPP xmproc
-		, modMask = mod4Mask
-		, keys = myKeys
-		, terminal = myTerm
-		, borderWidth = 2
-		, normalBorderColor = "#333333"
-		, focusedBorderColor = "#bf1e2d"
-		, workspaces = myWorkspaces
+        , logHook = dynamicLogWithPP $ myPP xmproc
+        , modMask = mod4Mask
+        , keys = myKeys
+        , terminal = myTerm
+        , borderWidth = 2
+        , normalBorderColor = "#333333"
+        , focusedBorderColor = "#bf1e2d"
+        , workspaces = myWorkspaces
         , focusFollowsMouse = True
-		}
+        }
 
 myLayoutRules =
-	onWorkspace "web" tabbedLayout $
-	onWorkspace "doc" tabbedLayout $
-	standardLayouts
+    onWorkspace "web" tabbedLayout $
+    onWorkspace "doc" tabbedLayout $
+    standardLayouts
 
 standardLayouts = avoidStruts $
     tiled ||| reflectTiled ||| Mirror tiled ||| Grid ||| full
@@ -72,8 +72,8 @@ tabbedLayout = avoidStruts $ smartBorders $
 myManageHook :: ManageHook
 myManageHook = composeAll
     [ manageHook defaultConfig
-	, manageDocks
-	, myRules
+    , manageDocks
+    , myRules
     ]
 
 q ~? x = fmap (=~ x) q
@@ -110,9 +110,9 @@ myKeys conf = mkKeymap conf $
     , ("M-S-c", kill)
     , ("M-S-q", restart "xmonad" True)
 
-	-- screenshot
-	, ("C-<Print>", spawn "sleep 0.2; scrot -s -e 'mv $f ~/images/screenshots/'")
-	, ("<Print>", spawn "scrot -e 'mv $f ~/images/screenshots/'")
+    -- screenshot
+    , ("C-<Print>", spawn "sleep 0.2; scrot -s -e 'mv $f ~/images/screenshots/'")
+    , ("<Print>", spawn "scrot -e 'mv $f ~/images/screenshots/'")
 
     -- launcher
     , ("M-<Space>", shellPrompt myXPConfig)
@@ -147,10 +147,10 @@ myKeys conf = mkKeymap conf $
     , ("M-h", sendMessage Shrink)
     , ("M-l", sendMessage Expand)
 
-	-- multimedia keys
-	, ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3dB-")
-	, ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master 3dB+")
-	, ("<XF86AudioMute>", spawn "amixer -q set Master toggle")
+    -- multimedia keys
+    , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3dB-")
+    , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master 3dB+")
+    , ("<XF86AudioMute>", spawn "amixer -q set Master toggle")
 
     -- backlight hack
     , ("M-x", spawn "xbacklight -set 100%")
@@ -188,15 +188,15 @@ myTheme = defaultTheme
 
 myPP output = defaultPP
     { ppCurrent = xmobarColor "#7B79B1" "#0F141F" . wrap "[" "]"
-	, ppVisible = wrap "(" ")"
-	, ppHiddenNoWindows = const ""
-	, ppSep    = " -> "
-	, ppTitle  = xmobarColor "#7B79B1" "" . shorten 50
-	, ppUrgent = xmobarColor "#2BA624" "0FA3A3"
-	, ppWsSep  = " "
-	, ppLayout = const ""
-	, ppOrder  = \(ws:_:t:_) -> [ws,t]
-	, ppOutput = hPutStrLn output
+    , ppVisible = wrap "(" ")"
+    , ppHiddenNoWindows = const ""
+    , ppSep    = " -> "
+    , ppTitle  = xmobarColor "#7B79B1" "" . shorten 50
+    , ppUrgent = xmobarColor "#2BA624" "0FA3A3"
+    , ppWsSep  = " "
+    , ppLayout = const ""
+    , ppOrder  = \(ws:_:t:_) -> [ws,t]
+    , ppOutput = hPutStrLn output
     }
 
 -- some nice colors for the prompt
