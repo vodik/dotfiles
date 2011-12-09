@@ -1,5 +1,6 @@
 ! file:     ~/.Xdefaults
 ! author:   Simon Gomizelj
+! vim:      ft=xdefautlts
 ! ----------------------------------------------------------------------------
 
 Xft*dpi:       82
