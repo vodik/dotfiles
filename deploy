@@ -1,16 +1,16 @@
 #!/bin/bash
 
-pwd=$PWD
+dotfiles=$PWD
 cd ~
 
 # Vim
-ln -fs $pwd/vim  .vim
-ln -fs .vim/vimrc  .vimrc
+ln -fs $dotfiles/vim .vim
+ln -fs .vim/vimrc .vimrc
 ln -fs .vim/gvimrc .gvimrc
 
-ln -fs $pwd/ncmpcpp .ncmpcpp
-ln -fs $pwd/xmonad .xmonad
-ln -fs $pwd/xmobarrc .xmobarrc
-ln -fs $pwd/Xresources .Xresources
+ln -fs $dotfiles/ncmpcpp .ncmpcpp
+ln -fs $dotfiles/xmonad .xmonad
+ln -fs $dotfiles/xmobarrc .xmobarrc
+ln -fs $dotfiles/Xresources .Xresources
 
-ln -fs $pwd/xinitrc .xinitrc
+ln -fs $dotfiles/xinitrc .xinitrc
