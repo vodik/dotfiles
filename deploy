@@ -3,14 +3,27 @@
 dotfiles=$PWD
 cd ~
 
-# Vim
-ln -fs $dotfiles/vim .vim
-ln -fs .vim/vimrc .vimrc
-ln -fs .vim/gvimrc .gvimrc
-
-ln -fs $dotfiles/ncmpcpp .ncmpcpp
-ln -fs $dotfiles/xmonad .xmonad
-ln -fs $dotfiles/xmobarrc .xmobarrc
-ln -fs $dotfiles/Xresources .Xresources
-
-ln -fs $dotfiles/xinitrc .xinitrc
+while (($#)); do
+  case "$1" in
+    "vim")
+      ln -fs $dotfiles/vim .vim
+      ln -fs .vim/vimrc .vimrc
+      ln -fs .vim/gvimrc .gvimrc
+      ;;
+    "ncmpcpp")
+      ln -fs $dotfiles/ncmpcpp .ncmpcpp
+      ;;
+    "xmonad")
+      ln -fs $dotfiles/xmonad .xmonad
+      ln -fs $dotfiles/xmobarrc .xmobarrc
+      ;;
+    "x"|"xorg")
+      ln -fs $dotfiles/Xresources .Xresources
+      ln -fs $dotfiles/xinitrc .xinitrc
+      ;;
+    *)
+      echo "$0: deploy command $1 not understood"
+      ;;
+  esac
+  shift
+done
