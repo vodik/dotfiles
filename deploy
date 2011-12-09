@@ -21,6 +21,9 @@ while (($#)); do
       ln -fs $dotfiles/Xresources .Xresources
       ln -fs $dotfiles/xinitrc .xinitrc
       ;;
+    "tmux")
+      ln -fs $dotfiles/tmux.conf .tmux.conf
+      ;;
     *)
       echo "$0: deploy command $1 not understood"
       ;;
