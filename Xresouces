@@ -1,46 +1,80 @@
-xft.dpi: 86
-Xft.antialias: 1
-Xft.hinting: 1
-/* Xft.hintstyle: hintslight */
-/* Xft.lcdfilter: lcddefault */
+! file:     ~/.Xdefaults
+! author:   Simon Gomizelj
+! ----------------------------------------------------------------------------
 
-URxvt.scrollBar: off
-URxvt.font: xft:Envy Code R:size=9
+Xft*dpi:       82
+Xft*antialias: true
+Xft*rgba:      rgb
+Xft*hinting:   true
+Xft*hintstyle: hinting
 
+URxvt.font:         xft:Envy Code R:size=9
+URxvt*buffered:     true
+URxvt*termName:     xterm-256color
+URxvt*scrollBar:    false
+URxvt*loginShell:   true
+URxvt*saveLines:    262144
+URxvt*boldMode:     true
+URxvt*jumpScroll:   true
 
-*foreground: #DDCCBB
+URxvt*cursorBlink:  false
+URxvt*cursorColor:  #ff9900
+URxvt*cursorColor2: #000000
 
-! Brown BG
-!*background: #30251D
-
-! Grey BG
-*background: #151515
-
-
-!black
-*color0:     #393939
-*color8:     #AF875F
-!red
-*color1:     #BF1E2D
-*color9:     #E7212A
-!green
-*color2:     #9DBA3A
-*color10:    #A9C938
-!yellow
-*color3:     #F5B915
-*color11:    #F7D325
-!blue
-*color4:     #1CA1DB
-*color12:    #00AFDA
-!magenta
-*color5:     #652F90
-*color13:    #894E9F
-!cyan
-*color6:     #EA7D24
-*color14:    #F79321
-!white
-*color7:     #E7E8E9
-*color15:    #F3F3F4
 URxvt.perl-ext-common:  default,matcher
 URxvt.urlLauncher:      /usr/bin/firefox
 URxvt.matcher.button:   1
+
+*foreground: #DDCCBB
+!*background: #30251D
+*background: #151515
+!*foreground:#a0a0a0
+!*background:#1b1d1e
+
+!black
+!*color0:    #393939
+!*color8:    #AF875F
+*color0:    #1b1d1e
+*color8:    #505354
+
+!red
+!*color1:    #BF1E2D
+!*color9:    #E7212A
+*color1:    #f92672
+*color9:    #ff5995
+
+!green
+!*color2:    #9DBA3A
+!*color10:   #A9C938
+*color2:    #82b414
+*color10:   #b6e354
+
+!yellow
+!*color3:    #F5B915
+!*color11:   #F7D325
+*color3:    #fd971f
+*color11:   #feed6c
+
+!blue
+!*color4:    #1CA1DB
+!*color12:   #00AFDA
+*color4:    #56c2d6
+*color12:   #8cedff
+
+!magenta
+!*color5:    #652F90
+!*color13:   #894E9F
+*color5:    #8c54fe
+*color13:   #9e6ffe
+
+!cyan
+!*color6:    #EA7D24
+!*color14:   #F79321
+*color6:    #465457
+*color14:   #899ca1
+
+!white
+!*color7:    #E7E8E9
+!*eolor15:   #F3F3F4
+*color7:    #ccccc6
+*color15:   #f8f8f2
