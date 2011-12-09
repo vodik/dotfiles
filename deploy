@@ -1,0 +1,16 @@
+#!/bin/bash
+
+pwd=$PWD
+cd ~
+
+# Vim
+ln -fs $pwd/vim  .vim
+ln -fs .vim/vimrc  .vimrc
+ln -fs .vim/gvimrc .gvimrc
+
+ln -fs $pwd/ncmpcpp .ncmpcpp
+ln -fs $pwd/xmonad .xmonad
+ln -fs $pwd/xmobarrc .xmobarrc
+ln -fs $pwd/Xresources .Xresources
+
+ln -fs $pwd/xinitrc .xinitrc
