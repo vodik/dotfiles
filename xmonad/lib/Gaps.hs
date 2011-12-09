@@ -27,5 +27,5 @@ shrinkRect s g (Rectangle sx sy sw sh) (Rectangle x y w h) =
         y' = if y == sy then y + (fi s) else y
         w' = if x == sx then w - (fi s) - gX else w - gX
         h' = if y == sy then h - (fi s) - gY else h - gY
-        gX = if x + (fi w) == fi sw then fi s else fi g
+        gX = if x + (fi w) - sx == fi sw then fi s else fi g
         gY = if y + (fi h) - sy == fi sh then fi s else fi g
