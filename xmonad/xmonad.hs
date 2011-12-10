@@ -148,8 +148,8 @@ myKeys conf = mkKeymap conf $
     , ("M-l", sendMessage Expand)
 
     -- multimedia keys
-    , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3dB-")
-    , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master 3dB+")
+    , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 5%-")
+    , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master 5%+")
     , ("<XF86AudioMute>", spawn "amixer -q set Master toggle")
 
     -- backlight hack
