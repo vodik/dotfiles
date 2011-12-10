@@ -1,13 +1,11 @@
 ! file:     ~/.Xdefaults
 ! author:   Simon Gomizelj
-! vim:      ft=xdefautlts
+! vim:      ft=xdefaults
 ! ----------------------------------------------------------------------------
 
 Xft*dpi:       82
 Xft*antialias: true
-Xft*rgba:      rgb
-Xft*hinting:   true
-Xft*hintstyle: hinting
+Xft*rgba:      vrgb
 
 URxvt.font:         xft:Envy Code R:size=9
 URxvt*buffered:     true
