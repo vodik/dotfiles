@@ -136,7 +136,7 @@ myKeys conf = mkKeymap conf $
     , ("M-S-<Down>",  shiftToNext >> nextWS)
     , ("M-S-<Left>",  shiftToPrev >> prevWS)
     , ("M-S-<Right>", shiftToNext >> nextWS)
-    , ("M-q",         toggleWS)
+    , ("M-q",         toggleWS' ["NSP"])
 
     -- swapping
     , ("M-S-<Return>", windows W.swapMaster)
