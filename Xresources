@@ -24,56 +24,30 @@ URxvt.perl-ext-common:  default,matcher
 URxvt.urlLauncher:      /usr/bin/firefox
 URxvt.matcher.button:   1
 
-*foreground: #DDCCBB
-!*background: #30251D
+*foreground: #ddccbb
 *background: #151515
-!*foreground:#a0a0a0
-!*background:#1b1d1e
 
 !black
-!*color0:    #393939
-!*color8:    #AF875F
-*color0:    #3b3d3e
-*color8:    #505354
-
+*color0:     #3b3d3e
+*color8:     #505354
 !red
-!*color1:    #BF1E2D
-!*color9:    #E7212A
-*color1:    #f92672
-*color9:    #ff5995
-
+*color1:     #f92672
+*color9:     #ff5995
 !green
-!*color2:    #9DBA3A
-!*color10:   #A9C938
-*color2:    #82b414
-*color10:   #b6e354
-
+*color2:     #82b414
+*color10:    #b6e354
 !yellow
-!*color3:    #F5B915
-!*color11:   #F7D325
-*color3:    #fd971f
-*color11:   #feed6c
-
+*color3:     #fd971f
+*color11:    #feed6c
 !blue
-!*color4:    #1CA1DB
-!*color12:   #00AFDA
-*color4:    #56c2d6
-*color12:   #8cedff
-
+*color4:     #56c2d6
+*color12:    #8cedff
 !magenta
-!*color5:    #652F90
-!*color13:   #894E9F
-*color5:    #8c54fe
-*color13:   #9e6ffe
-
+*color5:     #8c54fe
+*color13:    #9e6ffe
 !cyan
-*color6:    #EA7D24
-*color14:   #F79321
-!*color6:    #465457
-!*color14:   #899ca1
-
+*color6:     #6664a7
+kcolor14:    #888cb1
 !white
-!*color7:    #E7E8E9
-!*eolor15:   #F3F3F4
-*color7:    #ccccc6
-*color15:   #f8f8f2
+*color7:     #ccccc6
+*color15:    #f8f8f2
