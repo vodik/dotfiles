@@ -33,7 +33,7 @@ URxvt.matcher.button:   1
 !black
 !*color0:    #393939
 !*color8:    #AF875F
-*color0:    #1b1d1e
+*color0:    #3b3d3e
 *color8:    #505354
 
 !red
@@ -67,10 +67,10 @@ URxvt.matcher.button:   1
 *color13:   #9e6ffe
 
 !cyan
-!*color6:    #EA7D24
-!*color14:   #F79321
-*color6:    #465457
-*color14:   #899ca1
+*color6:    #EA7D24
+*color14:   #F79321
+!*color6:    #465457
+!*color14:   #899ca1
 
 !white
 !*color7:    #E7E8E9
