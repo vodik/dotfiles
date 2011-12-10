@@ -4,9 +4,9 @@ Config { font = "xft:Envy Code R:size=9"
        , position =  TopW L 102
        , lowerOnStart = True
        , commands = [ Run StdinReader
-					, Run MultiCpu ["-t","CPU: <total0>% <total1>% <total2>% <total3>% <total4>% <total5>% <total6>% <total7>%","-L","5","-H","50","-l","green","--normal","orange","--high","red"] 10
+                    , Run MultiCpu ["-t","CPU: <total0>/<total1>/<total2>/<total3>/<total4>/<total5>/<total6>/<total7>%","-L","5","-H","50","-l","green","--normal","orange","--high","red"] 20
                     , Run Memory ["-t","Mem: <usedratio>%","-l","green","--normal","orange","--high","red"] 100
-                    , Run Network "eth0" ["-L","0","-H","32","-l","green","--normal","orange","--high","red"] 10
+                    , Run Network "eth0" ["-L","0","-H","32","-l","green","--normal","orange","--high","red"] 20
                     , Run Date "%d.%m.%Y %H:%M" "date" 600
                     ]
        , sepChar = "%"
