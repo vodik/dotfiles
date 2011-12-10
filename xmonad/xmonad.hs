@@ -134,8 +134,8 @@ myKeys conf = mkKeymap conf $
     , ("M-<Right>",   nextWS)
     , ("M-S-<Up>",    shiftToPrev >> prevWS)
     , ("M-S-<Down>",  shiftToNext >> nextWS)
-    , ("M-S-<Left>",  shiftToPrev >> nextWS)
-    , ("M-S-<Right>", shiftToNext >> prevWS)
+    , ("M-S-<Left>",  shiftToPrev >> prevWS)
+    , ("M-S-<Right>", shiftToNext >> nextWS)
     , ("M-q",         toggleWS)
 
     -- swapping
