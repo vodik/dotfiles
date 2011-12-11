@@ -13,7 +13,6 @@ Config { font = "xft:Envy Code R:size=9"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %multicpu% | %memory% | %eth0% | %date%  "
        , template = "%StdinReader% }{ BAT: %battery% | %multicpu% @ %cpufreq% | %memory% | %wlan0% | %date%  "
        }
 
