@@ -4,16 +4,14 @@ Config { font = "xft:Envy Code R:size=9"
        , position =  TopW L 102
        , lowerOnStart = True
        , commands = [ Run StdinReader
-                    , Run BatteryP ["BAT1"] ["-t","<left>%","-L","10","-H","45","-l","red","-n","orange","-h","green"] 20
-                    , Run Cpu ["cpu0","-L","5","-H","50","-l","green","--normal","orange","--high","red"] 50
-                    , Run CpuFreq ["-t","<cpu0>/<cpu1> GHz","-L","1","-H","2","-l","green","-n","orange","-h","red"] 101010101010101010100
-                    , Run Memory ["-t","Mem: <usedratio>%","-l","green","--normal","orange","--high","red"] 300
-                    , Run Network "eth0" ["-L","0","-H","32","-l","green","--normal","orange","--high","red"] 50
-                    , Run Network "wlan0" ["-L","0","-H","32","-l","green","--normal","orange","--high","red"] 50
+                    , Run MultiCpu ["-t","CPU: <total0>/<total1>/<total2>/<total3>/<total4>/<total5>/<total6>/<total7>%","-L","5","-H","50","-l","green","--normal","orange","--high","red"] 20
+                    , Run Memory ["-t","Mem: <usedratio>%","-l","green","--normal","orange","--high","red"] 100
+                    , Run Network "eth0" ["-L","0","-H","32","-l","green","--normal","orange","--high","red"] 20
                     , Run Date "%d.%m.%Y %H:%M" "date" 600
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ BAT: %battery% | %cpu% @ %cpufreq% | %memory% | %wlan0% | %date%  "
+       , template = "%StdinReader% }{ %multicpu% | %memory% | %eth0% | %date%  "
        }
 
+-- vim: ft=haskell
