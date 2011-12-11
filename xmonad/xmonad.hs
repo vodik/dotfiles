@@ -14,6 +14,7 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Grid
 import XMonad.Layout.ResizableTile
@@ -39,6 +40,7 @@ main = do
     xmproc <- spawnPipe "xmobar"
     xmonad  $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook = myManageHook
+        , handleEventHook = fullscreenEventHook
         , layoutHook = myLayoutRules
         , logHook = dynamicLogWithPP $ myPP xmproc
         , modMask = mod4Mask
