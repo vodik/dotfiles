@@ -154,6 +154,16 @@ myKeys conf = mkKeymap conf $
     , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master on 5%+")
     , ("<XF86AudioMute>", spawn "amixer -q set Master toggle")
 
+    -- mpd controls
+    , ("<XF86AudioPlay>", spawn "mpc toggle")
+    , ("<XF86AudioNext>", spawn "mpc next")
+    , ("<XF86AudioPrev>", spawn "mpc prev")
+
+    -- mplayer controls
+    , ("C-<XF86AudioPlay>", mPlay "pause")
+    , ("C-<XF86AudioNext>", mPlay "pt_step 1")
+    , ("C-<XF86AudioPrev>", mPlay "pt_step -1")
+
     -- backlight hack
     , ("M-x", spawn "xbacklight -set 100%")
     ]
@@ -165,6 +175,8 @@ myKeys conf = mkKeymap conf $
                                   , ("M-S-", windows . W.shift)
                                   ]
     ]
+
+mPlay cmd = spawn $ unwords ["echo", cmd, "> ~/.mplayer_fifo"]
 
 searchList :: [([Char], S.SearchEngine)]
 searchList = [ ("g",   S.google)
