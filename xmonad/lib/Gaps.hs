@@ -27,30 +27,26 @@ instance LayoutModifier Gaps a where
 --
 shrinkRect :: Gaps a -> Rectangle -> Rectangle -> Rectangle
 shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
-    Rectangle x' y' w' h'
+    Rectangle (x + dl) (y + dt) (w - fi dl - dr) (h - fi dt - db)
     where
-        x' = x + xyCalcGap gap x sx
-        y' = y + xyCalcGap gap y sy
-        w' = xyCalcWidth gap x w sx sw
-        h' = xyCalcWidth gap y h sy sh
+        dl = xyCalcGapLeft gap x sx
+        dt = xyCalcGapLeft gap y sy
+        dr = xyCalcGapRight gap x w sx sw
+        db = xyCalcGapRight gap y h sy sh
 
 -- | Calculate the offset from either the left or from the top to add
 -- a gap.
 --
-xyCalcGap (Gaps s g) x sx
+xyCalcGapLeft (Gaps s g) x sx
     | x == sx   = fi s
     | otherwise = halfGap g
 
--- | Calculate the new width of the window to account to make the
--- gaps.
+-- | Calculate the new width of the window. This depends on the size
+-- of the gap on either side
 --
-xyCalcWidth (Gaps s g) x w sx sw = w - xyCalcLeftGap - xyCalcRightGap
-    where xyCalcLeftGap  | onLeft    = fi s
-                         | otherwise = halfGap g
-          xyCalcRightGap | onRight   = fi s
-                         | otherwise = halfGap g
-          onLeft  = x == sx
-          onRight = x + fi w - sx == fi sw
+xyCalcGapRight (Gaps s g) x w sx sw
+    | x + fi w - sx == fi sw = fi s
+    | otherwise              = halfGap g
 
 halfGap :: Integral a => Int -> a
 halfGap = truncate . (/2) . fi
