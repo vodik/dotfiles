@@ -19,7 +19,7 @@ instance LayoutModifier Gaps a where
     pureModifier gap r _ wrs = (map (second $ shrinkRect gap r) wrs, Nothing)
     modifierDescription (Gaps g) = "Gaps " ++ show g
 
--- | Shrink the window's rectangle to add a nice gaps between windows.
+-- | Shrink the window's rectangle to add a nice gap between windows.
 --
 shrinkRect :: Gaps a -> Rectangle -> Rectangle -> Rectangle
 shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
@@ -30,15 +30,13 @@ shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
         dr = xyCalcGapRight gap x w sx sw
         db = xyCalcGapRight gap y h sy sh
 
--- | Calculate the offset from either the left or from the top to add
--- a gap.
+-- | Calculate the gap's offset from the left/top.
 --
 xyCalcGapLeft (Gaps g) x sx
     | x == sx   = fi g
     | otherwise = halfGap g
 
--- | Calculate the new width of the window. This depends on the size
--- of the gap on either side
+-- | Calculate the gap's offset from the right/bottom.
 --
 xyCalcGapRight (Gaps g) x w sx sw
     | x + fi w - sx == fi sw = fi g
