@@ -3,9 +3,7 @@
 module Gaps ( gaps
             , Gaps ) where
 
-import Data.Int
-import Data.Word
-import Graphics.X11 (Rectangle(..), Position, Dimension)
+import Graphics.X11 (Rectangle(..))
 import Control.Arrow (second)
 import XMonad.Util.Font (fi)
 import XMonad.Layout.LayoutModifier
