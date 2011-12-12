@@ -23,22 +23,22 @@ shrinkRect :: Gaps a -> Rectangle -> Rectangle -> Rectangle
 shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
     Rectangle (x + dl) (y + dt) (w - fi dl - dr) (h - fi dt - db)
     where
-        dl = xyCalcGapLeft gap x sx
-        dt = xyCalcGapLeft gap y sy
-        dr = xyCalcGapRight gap x w sx sw
-        db = xyCalcGapRight gap y h sy sh
+        dl = gapLeft gap x sx
+        dt = gapLeft gap y sy
+        dr = gapRight gap x w sx sw
+        db = gapRight gap y h sy sh
 
 -- | Calculate the gap's offset from the left/top.
 --
-xyCalcGapLeft :: Integral a => Gaps t -> Position -> Position -> a
-xyCalcGapLeft (Gaps g) x sx
+gapLeft :: Integral a => Gaps t -> Position -> Position -> a
+gapLeft (Gaps g) x sx
     | x == sx   = fi g
     | otherwise = halfGap g
 
 -- | Calculate the gap's offset from the right/bottom.
 --
-xyCalcGapRight :: Integral a => Gaps t -> Position -> Dimension -> Position -> Dimension -> a
-xyCalcGapRight (Gaps g) x w sx sw
+gapRight :: Integral a => Gaps t -> Position -> Dimension -> Position -> Dimension -> a
+gapRight (Gaps g) x w sx sw
     | x + fi w - sx == fi sw = fi g
     | otherwise              = halfGap g
 
