@@ -59,10 +59,11 @@ myLayoutRules =
     standardLayouts
 
 standardLayouts = avoidStruts $
-    tiled ||| reflectTiled ||| Mirror tiled ||| Grid ||| full
+    tiled ||| reflectTiled ||| Mirror tiled ||| grid ||| full
 
 -- Layouts
 tiled        = gaps 5 $ smartBorders $ ResizableTall 1 (2/100) (1/2) []
+grid         = gaps 5 $ Grid
 reflectTiled = reflectHoriz tiled
 full         = noBorders Full
 tabLayout    = tabbedBottom shrinkText myTheme
