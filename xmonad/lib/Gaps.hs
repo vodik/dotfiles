@@ -3,7 +3,7 @@
 module Gaps ( gaps
             , Gaps ) where
 
-import Graphics.X11 (Rectangle(..))
+import Graphics.X11 (Rectangle(..), Position, Dimension)
 import Control.Arrow (second)
 import XMonad.Util.Font (fi)
 import XMonad.Layout.LayoutModifier
@@ -30,12 +30,14 @@ shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
 
 -- | Calculate the gap's offset from the left/top.
 --
+xyCalcGapLeft :: Integral a => Gaps t -> Position -> Position -> a
 xyCalcGapLeft (Gaps g) x sx
     | x == sx   = fi g
     | otherwise = halfGap g
 
 -- | Calculate the gap's offset from the right/bottom.
 --
+xyCalcGapRight :: Integral a => Gaps t -> Position -> Dimension -> Position -> Dimension -> a
 xyCalcGapRight (Gaps g) x w sx sw
     | x + fi w - sx == fi sw = fi g
     | otherwise              = halfGap g
