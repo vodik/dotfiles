@@ -118,7 +118,7 @@ myKeys conf = mkKeymap conf $
     , ("<Print>", spawn "scrot -e 'mv $f ~/images/screenshots/'")
 
     -- launcher
-    , ("M-<Space>", shellPrompt myXPConfig)
+    , ("M-p", shellPrompt myXPConfig)
 
     -- layout
     , ("M-n", sendMessage NextLayout)
