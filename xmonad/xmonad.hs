@@ -95,7 +95,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8)
     <+> manageDocks
 
 floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen" ]
-web    = [ "Firefox" ]
+web    = [ "Firefox", "Chromium" ]
 doc    = [ "Zathura" ]
 games  = [ "Sol", "net-minecraft-LauncherFrame"]
 
