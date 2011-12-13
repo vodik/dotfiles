@@ -32,7 +32,7 @@ import XMonad.Util.Run
 
 import Gaps
 
-myWorkspaces = [ "web", "term", "code", "chat", "doc", "games", "stuff" ]
+myWorkspaces = [ "web", "term", "code", "chat", "doc", "virt", "games" ]
 myBrowser = "firefox"
 myTerm = "urxvtc"
 
@@ -56,6 +56,7 @@ main = do
 myLayoutRules =
     onWorkspace "web" tabbedLayout $
     onWorkspace "doc" tabbedLayout $
+    onWorkspace "virt" (avoidStruts $ full) $
     standardLayouts
 
 standardLayouts = avoidStruts $
@@ -85,6 +86,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8)
         [ [ className =? c --> doCenterFloat   | c <- floats ]
         , [ className =? c --> doShift "web"   | c <- web ]
         , [ className =? c --> doShift "doc"   | c <- doc ]
+        , [ className =? c --> doShift "virt"  | c <- virt ]
         , [ className =? c --> doShift "games" | c <- games ]
         , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "doc"
           , resource  =? "desktop_window"     --> doIgnore
@@ -97,6 +99,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8)
 floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen" ]
 web    = [ "Firefox", "Chromium" ]
 doc    = [ "Zathura" ]
+virt   = [ "VirtualBox" ]
 games  = [ "Sol", "net-minecraft-LauncherFrame"]
 
 myKeys conf = mkKeymap conf $
