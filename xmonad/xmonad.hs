@@ -129,6 +129,7 @@ myKeys conf = mkKeymap conf $
     , ("M-j", windows W.focusDown)
     , ("M-k", windows W.focusUp)
     , ("M-m", windows W.focusMaster)
+    , ("M-f", withFocused $ windows . W.sink)
 
     -- cycle windows
     , ("M-<Up>",      prevWS)
