@@ -71,9 +71,9 @@ myKeys browser conf = mkKeymap conf $
 
     -- browser
     , ("M-w",     spawn browser)
-    , ("M-S-w w", spawn $ unwords [ browser, "http://www.gmail.com" ])
-    , ("M-S-w r", spawn $ unwords [ browser, "http://www.reddit.com" ])
-    , ("M-S-w a", spawn $ unwords [ browser, "http://www.arstechnica.com" ])
+    , ("M-C-w w", spawn $ unwords [ browser, "http://www.gmail.com" ])
+    , ("M-C-w r", spawn $ unwords [ browser, "http://www.reddit.com" ])
+    , ("M-C-w a", spawn $ unwords [ browser, "http://www.arstechnica.com" ])
 
     -- quit, or restart
     , ("M-S-q", io $ exitWith ExitSuccess)
@@ -142,8 +142,8 @@ searchList =
     , ("w",   S.wikipedia)
     , ("y",   S.youtube)
     , ("h",   S.hoogle)
-    , ("S-w", S.alpha)
-    , ("S-a", S.amazon)
+    , ("C-w", S.alpha)
+    , ("C-a", S.amazon)
     , ("a",   S.searchEngine "archwiki" "http://wiki.archlinux.org/index.php/Special:Search?search=")
     , ("r",   S.searchEngine "reddit" "http://www.reddit.com/search?q=")
     , ("d",   S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
