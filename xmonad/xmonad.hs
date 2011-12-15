@@ -136,7 +136,7 @@ myKeys browser conf = mkKeymap conf $
                                   ]
     ]
 
-searchList :: [([Char], S.SearchEngine)]
+searchList :: [(String, S.SearchEngine)]
 searchList =
     [ ("g",   S.google)
     , ("w",   S.wikipedia)
