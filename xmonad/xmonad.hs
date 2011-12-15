@@ -26,11 +26,10 @@ import Gaps
 
 q ~? x = fmap (=~ x) q
 
-myTerminal      = "urxvtc"
-myBorderWidth   = 2
-myModMask       = mod4Mask
-myWorkspaces    = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
-
+myTerminal    = "urxvtc"
+myBorderWidth = 2
+myModMask     = mod4Mask
+myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
 myNormalBorderColor  = "#333333"
 myFocusedBorderColor = "#bf1e2d"
 
@@ -158,7 +157,7 @@ main = do
         , handleEventHook = fullscreenEventHook
         , layoutHook = myLayoutRules
         , logHook = dynamicLogWithPP $ myPP xmproc
-        , modMask = mod4Mask
+        , modMask = myModMask
         , keys = myKeys browser
         , terminal = myTerminal
         , borderWidth = 2
