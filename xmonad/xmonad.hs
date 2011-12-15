@@ -53,9 +53,11 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8)
           , resource  =? "desktop_window"     --> doIgnore
           , isFullscreen                      --> doFullFloat
           , isDialog                          --> doCenterFloat
+          , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
           ]
         ])
     where
+        role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen" ]
         work   = [ "Firefox", "Chromium", "Zathura" ]
         virt   = [ "VirtualBox" ]
