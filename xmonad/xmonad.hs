@@ -32,6 +32,7 @@ myNormalBorderColor  = "#333333"
 myFocusedBorderColor = "#bf1e2d"
 
 myLayoutRules = avoidStruts $
+    lessBorders OnlyFloat $
     onWorkspace "work"  (tabbed ||| tiled) $
     onWorkspace "virt"  full $
     onWorkspace "games" full $
@@ -67,7 +68,7 @@ myKeys browser conf = mkKeymap conf $
     , ("M-p", shellPrompt myXPConfig)
 
     -- browser
-    , ("M-w",     spawn $ browser)
+    , ("M-w",     spawn browser)
     , ("M-S-w w", spawn $ unwords [ browser, "http://www.gmail.com" ])
     , ("M-S-w r", spawn $ unwords [ browser, "http://www.reddit.com" ])
     , ("M-S-w a", spawn $ unwords [ browser, "http://www.arstechnica.com" ])
