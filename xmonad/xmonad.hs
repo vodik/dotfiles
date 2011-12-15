@@ -104,7 +104,7 @@ myKeys browser conf = mkKeymap conf $
     , ("M-q",         toggleWS' ["NSP"])
 
     -- swapping
-    , ("M-S-<Return>", windows W.swapMaster)
+    , ("M-S-m", windows W.swapMaster)
     , ("M-S-j", windows W.swapDown)
     , ("M-S-k", windows W.swapUp)
 
