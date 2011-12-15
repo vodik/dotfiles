@@ -24,6 +24,9 @@ while (($#)); do
     "tmux")
       ln -fs $dotfiles/tmux.conf .tmux.conf
       ;;
+    "git")
+      ln -fs $dotfiles/gitconfig .gitconfig
+      ;;
     *)
       echo "$0: deploy command $1 not understood"
       ;;
