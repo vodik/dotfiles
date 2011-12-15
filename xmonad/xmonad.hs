@@ -61,7 +61,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Pavucontrol" ]
         work   = [ "Firefox", "Chromium", "Zathura" ]
         virt   = [ "VirtualBox" ]
-        games  = [ "Sol", "net-minecraft-LauncherFrame"]
+        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame"]
 
 myKeys browser conf = mkKeymap conf $
     -- terminal
