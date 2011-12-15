@@ -76,9 +76,9 @@ myKeys browser conf = mkKeymap conf $
     , ("M-S-w a", spawn $ unwords [ browser, "http://www.arstechnica.com" ])
 
     -- quit, or restart
-    , ("M-C-q", io $ exitWith ExitSuccess)
+    , ("M-S-q", io $ exitWith ExitSuccess)
     , ("M-S-c", kill)
-    , ("M-S-q", restart "xmonad" True)
+    , ("M-q", restart "xmonad" True)
 
     -- layout
     , ("M-n",   sendMessage NextLayout)
@@ -89,7 +89,6 @@ myKeys browser conf = mkKeymap conf $
     , ("M-l", sendMessage Expand)
 
     -- focus
-    , ("M-<Tab>", windows W.focusDown)
     , ("M-j", windows W.focusDown)
     , ("M-k", windows W.focusUp)
     , ("M-m", windows W.focusMaster)
@@ -104,7 +103,7 @@ myKeys browser conf = mkKeymap conf $
     , ("M-S-<Down>",  shiftToNext >> nextWS)
     , ("M-S-<Left>",  shiftToPrev >> prevWS)
     , ("M-S-<Right>", shiftToNext >> nextWS)
-    , ("M-q",         toggleWS' ["NSP"])
+    , ("M-<Tab>",     toggleWS' ["NSP"])
 
     -- swapping
     , ("M-S-m", windows W.swapMaster)
