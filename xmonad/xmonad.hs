@@ -64,7 +64,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8)
 myKeys browser conf = mkKeymap conf $
     -- terminal
     [ ("M-<Return>", spawn $ XMonad.terminal conf)
-    , ("M-e", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
+    , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
     , ("M-p", shellPrompt myXPConfig)
 
     -- browser
