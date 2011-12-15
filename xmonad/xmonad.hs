@@ -129,9 +129,9 @@ myKeys browser conf = mkKeymap conf $
     [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
     ++
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                       , (m, f) <- [ ("M-", windows . W.greedyView)
-                                   , ("M-S-", windows . W.shift)
-                                   ]
+                      , (m, f) <- [ ("M-", windows . W.greedyView)
+                                  , ("M-S-", windows . W.shift)
+                                  ]
     ]
 
 searchList :: [([Char], S.SearchEngine)]
