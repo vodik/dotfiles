@@ -24,8 +24,6 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 
-q ~? x = fmap (=~ x) q
-
 myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
@@ -43,6 +41,7 @@ myLayoutRules = avoidStruts $
         full   = noBorders Full
         tabbed = noBorders $ tabbedBottom shrinkText myTheme
 
+q ~? x = fmap (=~ x) q
 myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8)
     <+> (composeAll . concat $
         [ [ className =? c --> doCenterFloat   | c <- floats ]
@@ -171,7 +170,7 @@ myPP output = defaultPP
     { ppCurrent = xmobarColor "#7b79b1" "#0f141f" . wrap "[" "]"
     , ppVisible = wrap "(" ")"
     , ppHiddenNoWindows = const ""
-    , ppSep    = " | "
+    , ppSep    = " -> "
     , ppTitle  = xmobarColor "#7b79b1" "" . shorten 150
     , ppUrgent = xmobarColor "#f92672" "#0f141f"
     , ppWsSep  = " "
