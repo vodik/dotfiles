@@ -39,7 +39,7 @@ gapLeft (Gaps g) x sx
 --
 gapRight :: Integral a => Gaps t -> Position -> Dimension -> Position -> Dimension -> a
 gapRight (Gaps g) x w sx sw
-    | x + fi w - sx == fi sw = fi g
+    | x + fi w == sx + fi sw = fi g
     | otherwise              = halfGap g
 
 halfGap :: Integral a => Int -> a
