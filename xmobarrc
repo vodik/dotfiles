@@ -11,7 +11,7 @@ Config { font = "xft:Envy Code R:size=9"
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %multicpu% | %memory% | %eth0% | %date%  "
+       , template = "%StdinReader% }{ %multicpu% | %memory% | %eth0% | %date%"
        }
 
 -- vim: ft=haskell
