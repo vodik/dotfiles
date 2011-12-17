@@ -1,8 +1,11 @@
 import Text.Regex.Posix ((=~))
 import System.Exit
+import System.Directory (getCurrentDirectory)
+
+import Graphics.X11 (Rectangle(..))
+import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
-
 import XMonad.Actions.CycleWS
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.UrgencyHook
@@ -23,6 +26,7 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import Gaps
+import Dzen2
 
 myTerminal    = "urxvtc"
 myBorderWidth = 2
@@ -150,14 +154,43 @@ searchList =
     , ("t",   S.searchEngine "piratebay" "http://thepiratebay.org/search/")
     ]
 
+dzenFont = "-*-envy code r-medium-r-normal-*-17-*-*-*-*-*-*-*"
+colorBlack          = "#000000"
+colorBlackAlt       = "#050505"
+colorGray           = "#484848"
+colorGrayAlt        = "#b8bcb8"
+colorDarkGray       = "#161616"
+colorWhite          = "#ffffff"
+colorWhiteAlt       = "#9d9d9d"
+colorDarkWhite      = "#444444"
+colorMagenta        = "#8e82a2"
+colorMagentaAlt     = "#a488d9"
+colorBlue           = "#60a0c0"
+colorBlueAlt        = "#007b8c"
+colorRed            = "#d74b73"
+
+myDzen (Rectangle x y sw sh) =
+    "dzen2 -x "  ++ show x
+      ++ " -w "  ++ show sw
+      ++ " -y "  ++ (show $ sh - 16)
+      ++ " -h "  ++ show 16
+      ++ " -fn " ++ "'" ++ dzenFont ++ "'"
+      ++ " -bg " ++ "'" ++ colorWhite ++ "'"
+      ++ " -fg " ++ "'" ++ colorBlackAlt ++ "'"
+      ++ " -ta l"
+      -- normal dzen config --
+      ++ " -e 'onstart=lower'"
+
 main = do
+    cwd     <- getCurrentDirectory
+    putStrLn cwd
     browser <- getBrowser
-    xmproc  <- spawnPipe "xmobar"
+    xmproc  <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook = manageHook defaultConfig <+> manageDocks <+> myRules
         , handleEventHook = docksEventHook <+> fullscreenEventHook
         , layoutHook = myLayoutRules
-        , logHook = dynamicLogWithPP $ myPP xmproc
+        , logHook = dynamicLogWithPP $ myPP cwd xmproc
         , modMask = myModMask
         , keys = myKeys browser
         , terminal = myTerminal
@@ -168,18 +201,31 @@ main = do
         , focusFollowsMouse = True
         }
 
-myPP output = defaultPP
-    { ppCurrent = xmobarColor "#7b79b1" "#0f141f" . wrap "[" "]"
-    , ppVisible = wrap "(" ")"
-    , ppHiddenNoWindows = const ""
+myPP path output = defaultPP
+    { ppCurrent = dzenColor "#7b79b1" "#0f141f" . wrap "[" "]" . iconify True path
+    , ppVisible = iconify True path
+    , ppHiddenNoWindows = iconify False path
+    , ppHidden = iconify True path
     , ppSep    = " » "
-    , ppTitle  = xmobarColor "#7b79b1" "" . shorten 150
-    , ppUrgent = xmobarColor "#f92672" "#0f141f"
+    , ppTitle  = dzenColor "#7b79b1" "" . shorten 150
+    , ppUrgent = dzenColor "#f92672" "#0f141f" . iconify True path
     , ppWsSep  = " "
     , ppLayout = const ""
     , ppOrder  = \(ws:_:t:_) -> [ws,t]
     , ppOutput = hPutStrLn output
     }
+
+iconify v path c
+    | c == "work" = icon "world"
+    | c == "term" = icon "terminal"
+    | c == "code" = icon "binder"
+    | c == "chat" = icon "balloon"
+    | c == "virt" = icon "wrench"
+    | c == "games" = icon "ghost"
+    | v == False  = ""
+    | otherwise   = c
+    where
+        icon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm)"
 
 myTheme = defaultTheme
     { decoHeight = 18
