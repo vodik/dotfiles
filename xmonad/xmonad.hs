@@ -20,6 +20,7 @@ import XMonad.Prompt.Shell
 import XMonad.Prompt
 import XMonad.Util.EZConfig
 import XMonad.Util.Scratchpad
+import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run
 
 import qualified XMonad.StackSet as W
@@ -154,7 +155,7 @@ searchList =
     , ("t",   S.searchEngine "piratebay" "http://thepiratebay.org/search/")
     ]
 
-dzenFont = "-*-envy code r-medium-r-normal-*-17-*-*-*-*-*-*-*"
+dzenFont = "-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
 colorBlack          = "#000000"
 colorBlackAlt       = "#050505"
 colorGray           = "#484848"
@@ -175,15 +176,13 @@ myDzen (Rectangle x y sw sh) =
       ++ " -y "  ++ (show $ sh - 16)
       ++ " -h "  ++ show 16
       ++ " -fn " ++ "'" ++ dzenFont ++ "'"
-      ++ " -bg " ++ "'" ++ colorWhite ++ "'"
-      ++ " -fg " ++ "'" ++ colorBlackAlt ++ "'"
+      ++ " -fg " ++ "'" ++ colorWhite ++ "'"
+      ++ " -bg " ++ "'" ++ colorBlackAlt ++ "'"
       ++ " -ta l"
-      -- normal dzen config --
       ++ " -e 'onstart=lower'"
 
 main = do
     cwd     <- getCurrentDirectory
-    putStrLn cwd
     browser <- getBrowser
     xmproc  <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
@@ -202,30 +201,31 @@ main = do
         }
 
 myPP path output = defaultPP
-    { ppCurrent = dzenColor "#7b79b1" "#0f141f" . wrap "[" "]" . iconify True path
-    , ppVisible = iconify True path
-    , ppHiddenNoWindows = iconify False path
-    , ppHidden = iconify True path
-    , ppSep    = " » "
-    , ppTitle  = dzenColor "#7b79b1" "" . shorten 150
-    , ppUrgent = dzenColor "#f92672" "#0f141f" . iconify True path
-    , ppWsSep  = " "
-    , ppLayout = const ""
-    , ppOrder  = \(ws:_:t:_) -> [ws,t]
-    , ppOutput = hPutStrLn output
+    { ppCurrent         = dzenColor colorWhite colorBlue . iconify True path
+    , ppUrgent          = dzenColor colorWhite colorRed . iconify True path
+    , ppVisible         = dzenColor colorWhite colorGray . iconify True path
+    , ppHidden          = dzenColor colorGrayAlt colorGray . iconify True path
+    , ppHiddenNoWindows = dzenColor colorGray colorBlackAlt . iconify False path
+    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
+    , ppSep             = " » "
+    , ppSort            = fmap (namedScratchpadFilterOutWorkspace.) (ppSort xmobarPP)
+    , ppWsSep           = ""
+    , ppLayout          = const ""
+    , ppOrder           = \(ws:_:t:_) -> [ws,t]
+    , ppOutput          = hPutStrLn output
     }
 
 iconify v path c
-    | c == "work" = icon "world"
+    | c == "work" = icon "arch"
     | c == "term" = icon "terminal"
     | c == "code" = icon "binder"
     | c == "chat" = icon "balloon"
     | c == "virt" = icon "wrench"
     | c == "games" = icon "ghost"
     | v == False  = ""
-    | otherwise   = c
+    | otherwise   = wrap " " " " c
     where
-        icon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm)"
+        icon i = " ^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c ++ " "
 
 myTheme = defaultTheme
     { decoHeight = 18
