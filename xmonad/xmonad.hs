@@ -3,6 +3,8 @@ import System.Exit
 import System.Directory (getCurrentDirectory)
 import System.Posix.Unistd (getSystemID, nodeName)
 
+import qualified Data.Map as M
+
 import Graphics.X11 (Rectangle(..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
@@ -29,16 +31,16 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import Gaps
-import Dzen2
 
-myVodikWorkspaces = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
-myWorkspaces      = [ "work", "term", "code", "chat", "games" ] ++ map show [6..9]
-
+myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
+myIcons       = [ "arch", "terminal", "binder", "balloon", "wrench", "ghost" ]
 myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
 myNormalBorderColor  = "#333333"
 myFocusedBorderColor = "#bf1e2d"
+
+iconLookup = M.fromList $ zip myWorkspaces myIcons
 
 myLayoutRules = avoidStruts $
     lessBorders OnlyFloat $
@@ -191,7 +193,7 @@ myDzen (Rectangle x y sw sh) =
       ++ " -e 'onstart=lower'"
 
 main = do
-    host    <-  getSystemID
+    -- sysID   <- getSystemID
     cwd     <- getCurrentDirectory
     browser <- getBrowser
     xmproc  <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
@@ -206,9 +208,7 @@ main = do
         , borderWidth = 2
         , normalBorderColor = myNormalBorderColor
         , focusedBorderColor = myFocusedBorderColor
-        , workspaces = case nodeName host of
-            "vodik" -> myVodikWorkspaces
-            _       -> myWorkspaces
+        , workspaces = myWorkspaces
         , focusFollowsMouse = True
         }
 
@@ -227,15 +227,12 @@ myPP path output = defaultPP
     , ppOutput          = hPutStrLn output
     }
 
-iconify v path c
-    | c == "work" = icon "arch"
-    | c == "term" = icon "terminal"
-    | c == "code" = icon "binder"
-    | c == "chat" = icon "balloon"
-    | c == "virt" = icon "wrench"
-    | c == "games" = icon "ghost"
-    | v == False  = ""
-    | otherwise   = wrap " " " " c
+iconify v path c =
+    case (M.lookup c iconLookup) of
+        Just i  -> icon i
+        Nothing -> case v of
+            True -> wrap " " " " c
+            _    -> ""
     where
         icon i = " ^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c ++ " "
 
