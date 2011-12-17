@@ -22,6 +22,7 @@ import XMonad.Util.EZConfig
 import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run
+import XMonad.Util.WorkspaceCompare (getSortByIndex)
 
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
@@ -155,20 +156,20 @@ searchList =
     , ("t",   S.searchEngine "piratebay" "http://thepiratebay.org/search/")
     ]
 
-dzenFont = "-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
-colorBlack          = "#000000"
-colorBlackAlt       = "#050505"
-colorGray           = "#484848"
-colorGrayAlt        = "#b8bcb8"
-colorDarkGray       = "#161616"
-colorWhite          = "#ffffff"
-colorWhiteAlt       = "#9d9d9d"
-colorDarkWhite      = "#444444"
-colorMagenta        = "#8e82a2"
-colorMagentaAlt     = "#a488d9"
-colorBlue           = "#60a0c0"
-colorBlueAlt        = "#007b8c"
-colorRed            = "#d74b73"
+dzenFont        = "-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
+colorBlack      = "#000000"
+colorBlackAlt   = "#050505"
+colorGray       = "#484848"
+colorGrayAlt    = "#b8bcb8"
+colorDarkGray   = "#161616"
+colorWhite      = "#ffffff"
+colorWhiteAlt   = "#9d9d9d"
+colorDarkWhite  = "#444444"
+colorMagenta    = "#8e82a2"
+colorMagentaAlt = "#a488d9"
+colorBlue       = "#60a0c0"
+colorBlueAlt    = "#007b8c"
+colorRed        = "#d74b73"
 
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
@@ -201,14 +202,14 @@ main = do
         }
 
 myPP path output = defaultPP
-    { ppCurrent         = dzenColor colorWhite colorBlue . iconify True path
-    , ppUrgent          = dzenColor colorWhite colorRed . iconify True path
-    , ppVisible         = dzenColor colorWhite colorGray . iconify True path
-    , ppHidden          = dzenColor colorGrayAlt colorGray . iconify True path
-    , ppHiddenNoWindows = dzenColor colorGray colorBlackAlt . iconify False path
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True path
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True path
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True path
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True path
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False path
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppSep             = " » "
-    , ppSort            = fmap (namedScratchpadFilterOutWorkspace.) (ppSort xmobarPP)
+    , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
+    , ppSort            = fmap (.namedScratchpadFilterOutWorkspace) getSortByIndex
     , ppWsSep           = ""
     , ppLayout          = const ""
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
