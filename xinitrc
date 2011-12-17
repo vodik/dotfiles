@@ -1,5 +1,6 @@
 cd
 
+start-pulseaudio-x11 &
 xrdb -merge ~/.Xresources &
 nitrogen --restore &
 urxvtd &

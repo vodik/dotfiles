@@ -155,7 +155,7 @@ main = do
     xmproc  <- spawnPipe "xmobar"
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook = manageHook defaultConfig <+> manageDocks <+> myRules
-        , handleEventHook = fullscreenEventHook
+        , handleEventHook = docksEventHook <+> fullscreenEventHook
         , layoutHook = myLayoutRules
         , logHook = dynamicLogWithPP $ myPP xmproc
         , modMask = myModMask
