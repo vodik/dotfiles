@@ -63,77 +63,75 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
         virt   = [ "VirtualBox" ]
         games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame" ]
 
-myKeys browser conf = mkKeymap conf $
+myKeys browser conf = mkKeymap conf $ concat
     -- terminal
-    [ ("M-<Return>", spawn $ XMonad.terminal conf)
-    , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
-    , ("M-p", shellPrompt myXPConfig)
+    [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
+      , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
+      , ("M-p", shellPrompt myXPConfig)
 
-    -- browser
-    , ("M-w",     spawn browser)
-    , ("M-C-w w", spawn $ unwords [ browser, "http://www.gmail.com" ])
-    , ("M-C-w r", spawn $ unwords [ browser, "http://www.reddit.com" ])
-    , ("M-C-w a", spawn $ unwords [ browser, "http://www.arstechnica.com" ])
+      -- browser
+      , ("M-w",     spawn browser)
 
-    -- quit, or restart
-    , ("M-S-q", io $ exitWith ExitSuccess)
-    , ("M-S-c", kill)
-    , ("M-q", restart "xmonad" True)
+      -- quit, or restart
+      , ("M-S-q", io $ exitWith ExitSuccess)
+      , ("M-S-c", kill)
+      , ("M-q", restart "xmonad" True)
 
-    -- layout
-    , ("M-n",   sendMessage NextLayout)
-    , ("M-S-n", sendMessage FirstLayout)
+      -- layout
+      , ("M-n",   sendMessage NextLayout)
+      , ("M-S-n", sendMessage FirstLayout)
 
-    -- resizing
-    , ("M-h", sendMessage Shrink)
-    , ("M-l", sendMessage Expand)
+      -- resizing
+      , ("M-h", sendMessage Shrink)
+      , ("M-l", sendMessage Expand)
 
-    -- focus
-    , ("M-j", windows W.focusDown)
-    , ("M-k", windows W.focusUp)
-    , ("M-m", windows W.focusMaster)
-    , ("M-f", withFocused $ windows . W.sink)
+      -- focus
+      , ("M-j", windows W.focusDown)
+      , ("M-k", windows W.focusUp)
+      , ("M-m", windows W.focusMaster)
+      , ("M-f", withFocused $ windows . W.sink)
 
-    -- cycle windows
-    , ("M-<Up>",      prevWS)
-    , ("M-<Down>",    nextWS)
-    , ("M-<Left>",    prevWS)
-    , ("M-<Right>",   nextWS)
-    , ("M-S-<Up>",    shiftToPrev >> prevWS)
-    , ("M-S-<Down>",  shiftToNext >> nextWS)
-    , ("M-S-<Left>",  shiftToPrev >> prevWS)
-    , ("M-S-<Right>", shiftToNext >> nextWS)
-    , ("M-<Tab>",     toggleWS' ["NSP"])
+      -- cycle windows
+      , ("M-<Up>",      prevWS)
+      , ("M-<Down>",    nextWS)
+      , ("M-<Left>",    prevWS)
+      , ("M-<Right>",   nextWS)
+      , ("M-S-<Up>",    shiftToPrev >> prevWS)
+      , ("M-S-<Down>",  shiftToNext >> nextWS)
+      , ("M-S-<Left>",  shiftToPrev >> prevWS)
+      , ("M-S-<Right>", shiftToNext >> nextWS)
+      , ("M-<Tab>",     toggleWS' ["NSP"])
 
-    -- swapping
-    , ("M-S-m", windows W.swapMaster)
-    , ("M-S-j", windows W.swapDown)
-    , ("M-S-k", windows W.swapUp)
+      -- swapping
+      , ("M-S-m", windows W.swapMaster)
+      , ("M-S-j", windows W.swapDown)
+      , ("M-S-k", windows W.swapUp)
 
-    -- multimedia keys
-    , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 5%-")
-    , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master on 5%+")
-    , ("<XF86AudioMute>",        spawn "amixer -q set Master toggle")
+      -- multimedia keys
+      , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 5%-")
+      , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master on 5%+")
+      , ("<XF86AudioMute>",        spawn "amixer -q set Master toggle")
 
-    -- mpd controls
-    , ("<XF86AudioPlay>", spawn "mpc toggle")
-    , ("<XF86AudioNext>", spawn "mpc next")
-    , ("<XF86AudioPrev>", spawn "mpc prev")
+      -- mpd controls
+      , ("<XF86AudioPlay>", spawn "mpc toggle")
+      , ("<XF86AudioNext>", spawn "mpc next")
+      , ("<XF86AudioPrev>", spawn "mpc prev")
 
-    -- screenshot
-    , ("C-<Print>", spawn "sleep 0.1; scrot -s -e 'mv $f ~/pictures/screenshots/'")
-    , ("<Print>",   spawn "scrot -e 'mv $f ~/pictures/screenshots/'")
+      -- screenshot
+      , ("C-<Print>", spawn "sleep 0.1; scrot -s -e 'mv $f ~/pictures/screenshots/'")
+      , ("<Print>",   spawn "scrot -e 'mv $f ~/pictures/screenshots/'")
 
-    -- backlight hack
-    , ("M-x", spawn "xbacklight -set 100%")
+      -- backlight hack
+      , ("M-x", spawn "xbacklight -set 100%")
+      ]
+    , shiftWorkspaceKeys conf
+    , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
+    , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
-    ++
-    [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
-    ++
+
+shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-", windows . W.greedyView)
-                                  , ("M-S-", windows . W.shift)
-                                  ]
+                      , (m, f) <- [ ("M-", windows . W.greedyView), ("M-S-", windows . W.shift)]
     ]
 
 searchList :: [(String, S.SearchEngine)]
@@ -148,6 +146,13 @@ searchList =
     , ("r",   S.searchEngine "reddit" "http://www.reddit.com/search?q=")
     , ("d",   S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
     , ("t",   S.searchEngine "piratebay" "http://thepiratebay.org/search/")
+    ]
+
+favouritesList :: [(String, String)]
+favouritesList =
+    [ ("w", "http://www.gmail.com")
+    , ("r", "http://www.reddit.com")
+    , ("a", "http://www.arstechnica.com")
     ]
 
 main = do
