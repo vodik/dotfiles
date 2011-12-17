@@ -1,6 +1,7 @@
 import Text.Regex.Posix ((=~))
 import System.Exit
 import System.Directory (getCurrentDirectory)
+import System.Posix.Unistd (getSystemID, nodeName)
 
 import Graphics.X11 (Rectangle(..))
 import Graphics.X11.Xinerama (getScreenInfo)
@@ -30,10 +31,12 @@ import qualified XMonad.Actions.Search as S
 import Gaps
 import Dzen2
 
+myVodikWorkspaces = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
+myWorkspaces      = [ "work", "term", "code", "chat", "games" ] ++ map show [6..9]
+
 myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
-myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
 myNormalBorderColor  = "#333333"
 myFocusedBorderColor = "#bf1e2d"
 
@@ -188,6 +191,7 @@ myDzen (Rectangle x y sw sh) =
       ++ " -e 'onstart=lower'"
 
 main = do
+    host    <-  getSystemID
     cwd     <- getCurrentDirectory
     browser <- getBrowser
     xmproc  <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
@@ -202,7 +206,9 @@ main = do
         , borderWidth = 2
         , normalBorderColor = myNormalBorderColor
         , focusedBorderColor = myFocusedBorderColor
-        , workspaces = myWorkspaces
+        , workspaces = case nodeName host of
+            "vodik" -> myVodikWorkspaces
+            _       -> myWorkspaces
         , focusFollowsMouse = True
         }
 
