@@ -58,7 +58,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
     ])
     where
         role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Pavucontrol" ]
+        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol" ]
         work   = [ "Firefox", "Chromium", "Zathura" ]
         virt   = [ "VirtualBox" ]
         games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame"]
