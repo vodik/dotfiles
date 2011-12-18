@@ -75,13 +75,10 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
         games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame" ]
 
 myKeys browser conf = mkKeymap conf $ concat
-    -- terminal
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
+      , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
       , ("M-p", shellPrompt myXPConfig)
-
-      -- browser
-      , ("M-w",     spawn browser)
 
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
