@@ -1,8 +1,7 @@
 import Text.Regex.Posix ((=~))
-import System.Exit
 import System.Directory (getCurrentDirectory)
+import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
-
 import qualified Data.Map as M
 
 import Graphics.X11 (Rectangle(..))
@@ -26,7 +25,6 @@ import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare (getSortByIndex)
-
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
@@ -195,18 +193,18 @@ main = do
     browser <- getBrowser
     xmproc  <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook = manageHook defaultConfig <+> manageDocks <+> myRules
-        , handleEventHook = docksEventHook <+> fullscreenEventHook
-        , layoutHook = myLayoutRules
-        , logHook = dynamicLogWithPP $ myPP cwd xmproc
-        , modMask = myModMask
-        , keys = myKeys browser
-        , terminal = myTerminal
-        , borderWidth = 2
-        , normalBorderColor = myNormalBorderColor
+        { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules
+        , handleEventHook    = docksEventHook <+> fullscreenEventHook
+        , layoutHook         = myLayoutRules
+        , logHook            = dynamicLogWithPP $ myPP cwd xmproc
+        , modMask            = myModMask
+        , keys               = myKeys browser
+        , terminal           = myTerminal
+        , borderWidth        = 2
+        , normalBorderColor  = myNormalBorderColor
         , focusedBorderColor = myFocusedBorderColor
-        , workspaces = myWorkspaces
-        , focusFollowsMouse = True
+        , workspaces         = myWorkspaces
+        , focusFollowsMouse  = True
         }
 
 myPP path output = defaultPP
@@ -232,7 +230,7 @@ iconify v path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c iconLookup
               | otherwise = ""
 
 myTheme = defaultTheme
-    { decoHeight = 18
+    { decoHeight        = 18
     , activeColor       = "#bf1e2d"
     , activeBorderColor = "#ff0000"
     , activeTextColor   = "#000000"
