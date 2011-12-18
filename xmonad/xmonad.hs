@@ -40,6 +40,21 @@ myFocusedBorderColor = "#bf1e2d"
 
 iconLookup = M.fromList $ zip myWorkspaces myIcons
 
+dzenFont        = "-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
+colorBlack      = "#000000"
+colorBlackAlt   = "#050505"
+colorGray       = "#484848"
+colorGrayAlt    = "#b8bcb8"
+colorDarkGray   = "#161616"
+colorWhite      = "#ffffff"
+colorWhiteAlt   = "#9d9d9d"
+colorDarkWhite  = "#444444"
+colorMagenta    = "#8e82a2"
+colorMagentaAlt = "#a488d9"
+colorBlue       = "#60a0c0"
+colorBlueAlt    = "#007b8c"
+colorRed        = "#d74b73"
+
 myLayoutRules = avoidStruts $
     lessBorders OnlyFloat $
     onWorkspace "work"  (tabbed ||| tiled) $
@@ -49,7 +64,7 @@ myLayoutRules = avoidStruts $
     where
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         full   = noBorders Full
-        tabbed = noBorders $ tabbedBottom shrinkText myTheme
+        tabbed = noBorders $ tabbedBottom shrinkText myTabTheme
 
 q ~? x = fmap (=~ x) q
 myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
@@ -161,21 +176,6 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-dzenFont        = "-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
-colorBlack      = "#000000"
-colorBlackAlt   = "#050505"
-colorGray       = "#484848"
-colorGrayAlt    = "#b8bcb8"
-colorDarkGray   = "#161616"
-colorWhite      = "#ffffff"
-colorWhiteAlt   = "#9d9d9d"
-colorDarkWhite  = "#444444"
-colorMagenta    = "#8e82a2"
-colorMagentaAlt = "#a488d9"
-colorBlue       = "#60a0c0"
-colorBlueAlt    = "#007b8c"
-colorRed        = "#d74b73"
-
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
       ++ " -w "  ++ show sw
@@ -229,11 +229,16 @@ iconify v path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c iconLookup
         blank | v         = wrapSpace c
               | otherwise = ""
 
-myTheme = defaultTheme
-    { decoHeight        = 18
-    , activeColor       = "#bf1e2d"
-    , activeBorderColor = "#ff0000"
-    , activeTextColor   = "#000000"
+myTabTheme = defaultTheme
+    { decoHeight          = 18
+    , inactiveBorderColor = colorGrayAlt
+    , inactiveColor       = colorGray
+    , inactiveTextColor   = colorGrayAlt
+    , activeBorderColor   = colorGrayAlt
+    , activeColor         = colorBlue
+    , activeTextColor     = colorDarkGray
+    , urgentBorderColor   = colorBlackAlt
+    , urgentTextColor     = colorWhite
     }
 
 myXPConfig = defaultXPConfig
