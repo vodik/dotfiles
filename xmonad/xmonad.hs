@@ -137,7 +137,7 @@ myKeys browser conf = mkKeymap conf $ concat
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-", windows . W.greedyView), ("M-S-", windows . W.shift)]
+                      , (m, f) <- [ ("M-", windows . W.greedyView), ("M-S-", windows . W.shift) ]
     ]
 
 searchList :: [(String, S.SearchEngine)]
@@ -179,7 +179,7 @@ colorRed        = "#d74b73"
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
       ++ " -w "  ++ show sw
-      ++ " -y "  ++ (show $ sh - 16)
+      ++ " -y "  ++ show (sh - 16)
       ++ " -h "  ++ show 16
       ++ " -fn " ++ "'" ++ dzenFont ++ "'"
       ++ " -fg " ++ "'" ++ colorWhite ++ "'"
@@ -226,7 +226,7 @@ iconify v path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c iconLookup
     where
         wrapSpace  = wrap " " " "
         wrapIcon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c
-        blank | v == True = wrapSpace c
+        blank | v         = wrapSpace c
               | otherwise = ""
 
 myTheme = defaultTheme
