@@ -33,7 +33,7 @@ import qualified XMonad.Actions.Search as S
 import Gaps
 
 myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
-myIcons       = [ "arch", "terminal", "binder", "balloon", "wrench", "ghost" ]
+myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
 myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
@@ -227,14 +227,12 @@ myPP path output = defaultPP
     , ppOutput          = hPutStrLn output
     }
 
-iconify v path c =
-    case (M.lookup c iconLookup) of
-        Just i  -> icon i
-        Nothing -> case v of
-            True -> wrap " " " " c
-            _    -> ""
+iconify v path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c iconLookup
     where
-        icon i = " ^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c ++ " "
+        wrapSpace  = wrap " " " "
+        wrapIcon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c
+        blank | v == True = wrapSpace c
+              | otherwise = ""
 
 myTheme = defaultTheme
     { decoHeight = 18
