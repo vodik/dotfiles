@@ -15,8 +15,10 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Layout.ResizableTile
-import XMonad.Layout.Tabbed
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Grid
+import XMonad.Layout.IM
+import XMonad.Layout.Tabbed
 import XMonad.Layout.NoBorders
 import XMonad.Prompt.Shell
 import XMonad.Prompt
@@ -40,7 +42,7 @@ myFocusedBorderColor = "#bf1e2d"
 
 iconLookup = M.fromList $ zip myWorkspaces myIcons
 
-dzenFont        = "-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
+dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
 colorBlackAlt   = "#050505"
 colorGray       = "#484848"
@@ -58,22 +60,27 @@ colorRed        = "#d74b73"
 myLayoutRules = avoidStruts $
     lessBorders OnlyFloat $
     onWorkspace "work"  (tabbed ||| tiled) $
+    onWorkspace "chat"  (chat ||| tiled ||| full) $
     onWorkspace "virt"  full $
     onWorkspace "games" full $
     tiled ||| Mirror tiled ||| full
     where
-        tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        full   = noBorders Full
         tabbed = noBorders $ tabbedBottom shrinkText myTabTheme
+        tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
+        chat   = gaps 5 $ withIM (2/10) client $ GridRatio (2/3)
+        full   = noBorders Full
+        client = ClassName "Empathy" `And` Role "contact_list"
 
 q ~? x = fmap (=~ x) q
 myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
     (composeAll . concat $
     [ [ className =? c --> doCenterFloat   | c <- floats ]
     , [ className =? c --> doShift "work"  | c <- work ]
+    , [ className =? c --> doShift "chat"  | c <- chat ]
     , [ className =? c --> doShift "virt"  | c <- virt ]
     , [ className =? c --> doShift "games" | c <- games ]
     , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
+      , className ~? "Wine"               --> doFloat
       , resource  =? "desktop_window"     --> doIgnore
       , isFullscreen                      --> doFullFloat
       , isDialog                          --> doCenterFloat
@@ -82,10 +89,13 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
     ])
     where
         role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol" ]
+        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
+                 , "Gcolor2", "Pavucontrol", "Nvidia-settings"
+                 ]
         work   = [ "Firefox", "Chromium", "Zathura" ]
+        chat   = [ "Empathy" ]
         virt   = [ "VirtualBox" ]
-        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame" ]
+        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
@@ -242,7 +252,7 @@ myTabTheme = defaultTheme
     }
 
 myXPConfig = defaultXPConfig
-    { font     = "xft:Envy Code R:size=9"
+    { font     = "xft:Envy Code R:size=11"
     , fgColor  = "#8cedff"
     , bgColor  = "black"
     , bgHLight = "black"

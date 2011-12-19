@@ -7,7 +7,7 @@
 Xft*antialias: true
 Xft*rgba:      vrgb
 
-URxvt.font:         xft:Envy Code R:size=9
+URxvt.font:         xft:Envy Code R:size=11
 URxvt*buffered:     true
 URxvt*termName:     rxvt-256color
 URxvt*scrollBar:    false
