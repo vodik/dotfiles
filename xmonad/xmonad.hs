@@ -16,9 +16,12 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Master
 import XMonad.Layout.Grid
 import XMonad.Layout.IM
 import XMonad.Layout.Tabbed
+import XMonad.Layout.MultiToggle
+import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Prompt.Shell
 import XMonad.Prompt
@@ -55,19 +58,23 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
+empathy = ClassName "Empathy" `And` Role "contact_list"
+pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
+
 myLayoutRules = avoidStruts $
     lessBorders OnlyFloat $
-    onWorkspace "work"  (tabbed ||| tiled) $
+    mkToggle (single NBFULL) $
+    onWorkspace "work"  (tabs ||| wtab ||| tiled) $
     onWorkspace "chat"  (chat ||| tiled ||| full) $
     onWorkspace "virt"  full $
     onWorkspace "games" full $
     tiled ||| Mirror tiled ||| full
     where
-        tabbed = noBorders $ tabbedBottom shrinkText myTabTheme
+        tabs   = noBorders $ tabbed shrinkText myTabTheme
+        wtab   = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        chat   = gaps 5 $ withIM (2/10) client $ GridRatio (2/3)
+        chat   = gaps 5 $ withIM (2/10) empathy $ GridRatio (2/3)
         full   = noBorders Full
-        client = ClassName "Empathy" `And` Role "contact_list"
 
 q ~? x = fmap (=~ x) q
 myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
@@ -108,6 +115,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- layout
       , ("M-n",   sendMessage NextLayout)
       , ("M-S-n", sendMessage FirstLayout)
+      , ("M-z",   sendMessage $ Toggle NBFULL)
 
       -- resizing
       , ("M-h", sendMessage Shrink)
