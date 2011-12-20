@@ -61,19 +61,19 @@ colorRed        = "#d74b73"
 empathy = ClassName "Empathy" `And` Role "contact_list"
 pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
 
-myLayoutRules = avoidStruts $
+myLayoutRules imClient = avoidStruts $
     lessBorders OnlyFloat $
     mkToggle (single NBFULL) $
-    onWorkspace "work"  (tabs ||| wtab ||| tiled) $
+    onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| tiled) $
     onWorkspace "chat"  (chat ||| tiled ||| full) $
     onWorkspace "virt"  full $
     onWorkspace "games" full $
     tiled ||| Mirror tiled ||| full
     where
         tabs   = noBorders $ tabbed shrinkText myTabTheme
-        wtab   = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
+        wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        chat   = gaps 5 $ withIM (2/10) empathy $ GridRatio (2/3)
+        chat   = withIM (2/10) imClient $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 q ~? x = fmap (=~ x) q
@@ -210,7 +210,7 @@ main = do
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules
+        , layoutHook         = myLayoutRules empathy
         , logHook            = dynamicLogWithPP $ myPP cwd xmproc
         , modMask            = myModMask
         , keys               = myKeys browser
