@@ -73,7 +73,7 @@ myLayoutRules imClient = avoidStruts $
         tabs   = noBorders $ tabbed shrinkText myTabTheme
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        chat   = withIM (2/10) imClient $ gaps 5 $ GridRatio (2/3)
+        chat   = withIM (3/10) imClient $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 q ~? x = fmap (=~ x) q
@@ -97,9 +97,10 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
                  , "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
         work   = [ "Firefox", "Chromium", "Zathura" ]
-        chat   = [ "Empathy" ]
+        chat   = [ "Empathy", "Pidgin" ]
         virt   = [ "VirtualBox" ]
-        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
+        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame"
+                 , "Wine" ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
@@ -115,7 +116,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- layout
       , ("M-n",   sendMessage NextLayout)
       , ("M-S-n", sendMessage FirstLayout)
-      , ("M-z",   sendMessage $ Toggle NBFULL)
+      , ("M-a",   sendMessage $ Toggle NBFULL)
 
       -- resizing
       , ("M-h", sendMessage Shrink)
@@ -139,7 +140,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- swapping
-      , ("M-S-m", windows W.swapMaster)
+      , ("M-S-m", windows W.shiftMaster)
       , ("M-S-j", windows W.swapDown)
       , ("M-S-k", windows W.swapUp)
 
@@ -210,7 +211,7 @@ main = do
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules empathy
+        , layoutHook         = myLayoutRules pidgin
         , logHook            = dynamicLogWithPP $ myPP cwd xmproc
         , modMask            = myModMask
         , keys               = myKeys browser
