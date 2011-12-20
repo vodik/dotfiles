@@ -40,8 +40,6 @@ myModMask     = mod4Mask
 myNormalBorderColor  = "#333333"
 myFocusedBorderColor = "#bf1e2d"
 
-iconLookup = M.fromList $ zip myWorkspaces myIcons
-
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
 colorBlackAlt   = "#050505"
@@ -90,8 +88,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
     where
         role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
-                 , "Gcolor2", "Pavucontrol", "Nvidia-settings"
-                 ]
+                 , "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
         work   = [ "Firefox", "Chromium", "Zathura" ]
         chat   = [ "Empathy" ]
         virt   = [ "VirtualBox" ]
@@ -234,6 +231,7 @@ myPP path output = defaultPP
 
 iconify v path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c iconLookup
     where
+        iconLookup = M.fromList $ zip myWorkspaces myIcons
         wrapSpace  = wrap " " " "
         wrapIcon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c
         blank | v         = wrapSpace c
