@@ -65,6 +65,7 @@ myLayoutRules imClient = avoidStruts $
     lessBorders OnlyFloat $
     mkToggle (single NBFULL) $
     onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| tiled) $
+    onWorkspace "term"  (mtiled ||| tiled ||| full) $
     onWorkspace "chat"  (chat ||| tiled ||| full) $
     onWorkspace "virt"  full $
     onWorkspace "games" full $
@@ -73,7 +74,8 @@ myLayoutRules imClient = avoidStruts $
         tabs   = noBorders $ tabbed shrinkText myTabTheme
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        chat   = withIM (3/10) imClient $ gaps 5 $ GridRatio (2/3)
+        mtiled = gaps 5 $ Mirror $ ResizableTall 2 (2/100) (1/2) []
+        chat   = withIM (2/10) imClient $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 q ~? x = fmap (=~ x) q
@@ -84,8 +86,9 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
     , [ className =? c --> doShift "chat"  | c <- chat ]
     , [ className =? c --> doShift "virt"  | c <- virt ]
     , [ className =? c --> doShift "games" | c <- games ]
-    , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-      , className ~? "Wine"               --> doFloat
+    , [ className =? "URxvt"              --> doF W.swapDown
+      , className =? "Wine"               --> doFloat
+      , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
       , resource  =? "desktop_window"     --> doIgnore
       , isFullscreen                      --> doFullFloat
       , isDialog                          --> doCenterFloat
@@ -168,8 +171,10 @@ myKeys browser conf = mkKeymap conf $ concat
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-", windows . W.greedyView), ("M-S-", windows . W.shift) ]
+                      , (m, f) <- [ ("M-", greedyView'), ("M-S-", windows . W.shift) ]
     ]
+    where
+        greedyView' = toggleOrDoSkip ["NSP"] W.greedyView
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
@@ -207,12 +212,12 @@ main = do
     -- sysID   <- getSystemID
     cwd     <- getCurrentDirectory
     browser <- getBrowser
-    xmproc  <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
+    dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules pidgin
-        , logHook            = dynamicLogWithPP $ myPP cwd xmproc
+        , layoutHook         = myLayoutRules empathy --pidgin
+        , logHook            = dynamicLogWithPP $ myPP cwd dzenbar
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
@@ -231,7 +236,7 @@ myPP path output = defaultPP
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False path
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
-    , ppSort            = fmap (.namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
     , ppWsSep           = ""
     , ppLayout          = const ""
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
