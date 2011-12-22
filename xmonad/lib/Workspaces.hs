@@ -1,6 +1,7 @@
 module Workspaces ( getWSName
                   , getWSIcon
                   , getIconMap
+                  , filterWS
                   , workspaceRules
                   , Workspace(..) ) where
 
@@ -18,6 +19,9 @@ getWSName (Workspace n _ _) = n
 
 getWSIcon :: Workspace -> String
 getWSIcon (Workspace _ i _) = i
+
+filterWS :: String -> [Workspace] -> [Workspace]
+filterWS name = filter $ (name /=) . getWSName
 
 -- TODO: there's a more efficient way of doing this
 getIconMap :: [Workspace] -> M.Map String String

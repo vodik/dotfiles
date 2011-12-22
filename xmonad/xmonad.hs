@@ -94,7 +94,7 @@ instance Profile Vodik where
 
 instance Profile Gmzlj where
     getIMWidth _ = 3/10
-    getWS      _ = filter (\x -> (getWSName x) /="virt") myWorkspaces
+    getWS      _ = filterWS "virt" myWorkspaces
 
 instance Profile Beno where
     getIM      _ = empathy
