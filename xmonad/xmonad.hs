@@ -45,8 +45,6 @@ import Gaps
 myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
-myNormalBorderColor  = "#333333"
-myFocusedBorderColor = "#bf1e2d"
 
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
@@ -98,7 +96,7 @@ myLayoutRules profile = avoidStruts $
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall 2 (2/100) (1/2) []
-        chat   = withIM (2/10) (getIM profile) $ gaps 5 $ GridRatio (2/3)
+        chat   = withIM (3/10) (getIM profile) $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 q ~? x = fmap (=~ x) q
@@ -245,8 +243,8 @@ main = do
         , keys               = myKeys browser
         , terminal           = myTerminal
         , borderWidth        = 2
-        , normalBorderColor  = myNormalBorderColor
-        , focusedBorderColor = myFocusedBorderColor
+        , normalBorderColor  = colorGray
+        , focusedBorderColor = colorBlue
         , workspaces         = getWorkspaces host
         , focusFollowsMouse  = True
         }
