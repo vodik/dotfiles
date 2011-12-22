@@ -12,7 +12,7 @@ import XMonad
 import XMonad.Hooks.ManageHelpers
 import XMonad.Util.WindowProperties
 
-data Workspace = Workspace String String [Property]
+data Workspace = Workspace String String [String]
 
 getWSName :: Workspace -> String
 getWSName (Workspace n _ _) = n
@@ -31,5 +31,5 @@ getIconMap ws = M.fromList $ zip names icons
 
 workspaceRules :: [Workspace] -> Query (Endo WindowSet)
 workspaceRules (Workspace n _ prop:xs) =
-    composeAll [ propertyToQuery p --> doShift n | p <- prop ] <+> workspaceRules xs
+    composeAll [ propertyToQuery (ClassName p) --> doShift n | p <- prop ] <+> workspaceRules xs
 workspaceRules [] = idHook

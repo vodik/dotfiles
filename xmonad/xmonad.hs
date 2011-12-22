@@ -42,12 +42,12 @@ import Workspaces
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  "arch"     $ map ClassName [ "Firefox", "Chromium", "Zathura" ]
-    , Workspace "term"  "terminal" []
-    , Workspace "code"  "flask2"   []
-    , Workspace "chat"  "balloon"  $ map ClassName [ "Empathy", "Pidgin" ]
-    , Workspace "virt"  "wrench"   $ map ClassName [ "VirtualBox" ]
-    , Workspace "games" "ghost"    $ map ClassName [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
+    [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
+    , Workspace "term"  "terminal" [ ]
+    , Workspace "code"  "flask2"   [ ]
+    , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  "wrench"   [ "VirtualBox" ]
+    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
     ]
 
 myTerminal      = "urxvtc"
