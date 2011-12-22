@@ -1,11 +1,8 @@
-{-# LANGUAGE ExistentialQuantification #-}
-
 import Data.Maybe (fromMaybe)
 import Text.Regex.Posix ((=~))
 import System.Directory (getCurrentDirectory)
 import System.Exit
 import System.Environment (getEnvironment)
-import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
 
 import Graphics.X11 (Rectangle(..))
@@ -39,16 +36,7 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 import Workspaces
-
-myWorkspaces :: [Workspace]
-myWorkspaces =
-    [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
-    , Workspace "term"  "terminal" [ ]
-    , Workspace "code"  "flask2"   [ ]
-    , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
-    , Workspace "virt"  "wrench"   [ "VirtualBox" ]
-    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
-    ]
+import Profiles
 
 myTerminal      = "urxvtc"
 myBorderWidth   = 3
@@ -68,49 +56,6 @@ colorMagentaAlt = "#a488d9"
 colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
-
-empathy = ClassName "Empathy" `And` Role "contact_list"
-pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
-
-
-data AnyProfile = forall a. (Profile a) => AnyProfile a
-
-data Vodik = Vodik
-data Gmzlj = Gmzlj
-data Beno = Beno
-
-class Profile a where
-    getIM :: a -> Property
-    getIM _ = pidgin
-    getIMWidth :: a -> Rational
-    getIMWidth _ = 2/10
-    getTermM :: a -> Int
-    getTermM  _ = 1
-    getWS :: a -> [Workspace]
-    getWS _ = myWorkspaces
-
-instance Profile Vodik where
-
-instance Profile Gmzlj where
-    getIMWidth _ = 3/10
-    getWS      _ = filterWS "virt" myWorkspaces
-
-instance Profile Beno where
-    getIM      _ = empathy
-    getTermM   _ = 2
-
-instance Profile AnyProfile where
-    getIM (AnyProfile a)      = getIM a
-    getIMWidth (AnyProfile a) = getIMWidth a
-    getTermM (AnyProfile a)   = getTermM a
-    getWS (AnyProfile a)      = getWS a
-
-
-to9 ws = to9' ws 1
-    where
-        to9' (x:xs) c = x : to9' xs (c + 1)
-        to9' [] c | c < 10    = show c : to9' [] (c + 1)
-                  | otherwise = []
 
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
@@ -250,6 +195,26 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
+main = do
+    profile <- getProfile
+    home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
+    browser <- getBrowser
+    dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
+    xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
+        { manageHook         = myRules $ getWS profile
+        , handleEventHook    = docksEventHook <+> fullscreenEventHook
+        , layoutHook         = myLayoutRules profile
+        , logHook            = dynamicLogWithPP $ myPP home profile dzenbar
+        , modMask            = myModMask
+        , keys               = myKeys browser
+        , terminal           = myTerminal
+        , borderWidth        = 2
+        , normalBorderColor  = colorGray
+        , focusedBorderColor = colorBlue
+        , workspaces         = to9 $ map getWSName $ getWS profile
+        , focusFollowsMouse  = True
+        }
+
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
       ++ " -w "  ++ show sw
@@ -261,34 +226,11 @@ myDzen (Rectangle x y sw sh) =
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
 
-getHost :: IO AnyProfile
-getHost = do
-    hostName <- nodeName `fmap` getSystemID
-    return $ case hostName of
-        "vodik" -> AnyProfile Vodik
-        "gmzlj" -> AnyProfile Gmzlj
-        "beno"  -> AnyProfile Beno
-        _       -> AnyProfile Vodik
-
-main = do
-    host    <- getHost
-    home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
-    browser <- getBrowser
-    dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
-    xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules $ getWS host
-        , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules host
-        , logHook            = dynamicLogWithPP $ myPP home host dzenbar
-        , modMask            = myModMask
-        , keys               = myKeys browser
-        , terminal           = myTerminal
-        , borderWidth        = 2
-        , normalBorderColor  = colorGray
-        , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ map getWSName $ getWS host
-        , focusFollowsMouse  = True
-        }
+to9 ws = to9' ws 1
+    where
+        to9' (x:xs) c = x : to9' xs (c + 1)
+        to9' [] c | c < 10    = show c : to9' [] (c + 1)
+                  | otherwise = []
 
 myPP path profile output = defaultPP
     { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons path

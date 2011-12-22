@@ -3,7 +3,7 @@ module Workspaces ( getWSName
                   , getIconMap
                   , filterWS
                   , workspaceRules
-                  , Workspace(..) ) where
+                  , Workspace (..) ) where
 
 import Data.Monoid
 import qualified Data.Map as M
