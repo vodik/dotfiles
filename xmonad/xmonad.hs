@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances, ExistentialQuantification #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
 import Data.Maybe (fromMaybe)
 import Text.Regex.Posix ((=~))
@@ -38,9 +38,17 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import Gaps
+import Workspaces
 
-myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ]
-myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
+myWorkspace' =
+    [ Workspace "work"  "arch"     [ ClassName "Firefox", ClassName "Chromium", ClassName "Zathura" ]
+    , Workspace "term"  "terminal" [ ]
+    , Workspace "code"  "flask2"   [ ]
+    , Workspace "chat"  "balloon"  [ ClassName "Empathy", ClassName "Pidgin" ]
+    , Workspace "virt"  "wrench"   [ ClassName "VirtualBox" ]
+    , Workspace "games" "ghost"    [ ClassName "Sol", ClassName "Pychess", ClassName "net-minecraft=LauncherFrame", ClassName "Wine" ]
+    ]
+
 myTerminal    = "urxvtc"
 myBorderWidth = 3
 myModMask     = mod4Mask
@@ -77,17 +85,14 @@ class Profile a where
     getIMWidth _ = 2/10
     getTermM :: a -> Int
     getTermM  _ = 1
-    getWS :: a -> [String]
-    getWS _ = to9 myWorkspaces
-    getIcons :: a -> [String]
-    getIcons _ = myIcons
+    getWS :: a -> [Workspace]
+    getWS _ = myWorkspace'
 
 instance Profile Vodik where
 
 instance Profile Gmzlj where
     getIMWidth _ = 3/10
-    getWS      _ = to9 $ filter (/= "virt") myWorkspaces
-    getIcons   _ = filter (/= "wrench") myIcons
+    getWS      _ = filter (\x -> (getWSName x) /="virt") myWorkspace'
 
 instance Profile Beno where
     getIM      _ = empathy
@@ -98,7 +103,7 @@ instance Profile AnyProfile where
     getIMWidth (AnyProfile a) = getIMWidth a
     getTermM (AnyProfile a)   = getTermM a
     getWS (AnyProfile a)      = getWS a
-    getIcons (AnyProfile a)   = getIcons a
+    -- getIcons (AnyProfile a)   = getIcons a
 
 
 to9 ws = to9' ws 1
@@ -134,11 +139,7 @@ myScratchPads =
 
 q ~? x = fmap (=~ x) q
 myRules = (composeAll . concat $
-    [ [ className =? c --> doCenterFloat   | c <- floats ]
-    , [ className =? c --> doShift "work"  | c <- work ]
-    , [ className =? c --> doShift "chat"  | c <- chat ]
-    , [ className =? c --> doShift "virt"  | c <- virt ]
-    , [ className =? c --> doShift "games" | c <- games ]
+    [ [ className =? c --> doCenterFloat | c <- floats ]
     , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
       , className =? "URxvt"              --> doF W.swapDown
       , className =? "Wine"               --> doFloat
@@ -152,11 +153,6 @@ myRules = (composeAll . concat $
         role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
                  , "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
-        work   = [ "Firefox", "Chromium", "Zathura" ]
-        chat   = [ "Empathy", "Pidgin" ]
-        virt   = [ "VirtualBox" ]
-        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame"
-                 , "Wine" ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
@@ -276,7 +272,7 @@ main = do
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules <+> namedScratchpadManageHook myScratchPads
+        { manageHook         = manageHook defaultConfig <+> manageDocks <+> workspaceRules (getWS host) <+> myRules <+> namedScratchpadManageHook myScratchPads
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules host
         , logHook            = dynamicLogWithPP $ myPP home host dzenbar
@@ -286,7 +282,7 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = getWS host
+        , workspaces         = to9 $ map getWSName $ getWS host
         , focusFollowsMouse  = True
         }
 
@@ -305,7 +301,7 @@ myPP path profile output = defaultPP
     , ppOutput          = hPutStrLn output
     }
     where
-        icons = M.fromList $ zip (getWS profile) (getIcons profile)
+        icons = getIconMap $ getWS profile
 
 iconify v icons path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c icons
     where
