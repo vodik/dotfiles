@@ -124,9 +124,16 @@ myLayoutRules p = avoidStruts $
         chat   = withIM (getIMWidth p) (getIM p) $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
+myScratchPads =
+    [ NS "term"  scratchpad (resource =? "scratchpad") scatchpadFloating
+    , NS "steam" "steam"    (className =? "Wine")      defaultFloating
+    ]
+    where
+        scratchpad = myTerminal ++ " -name scratchpad"
+        scatchpadFloating = customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3)
+
 q ~? x = fmap (=~ x) q
-myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
-    (composeAll . concat $
+myRules = (composeAll . concat $
     [ [ className =? c --> doCenterFloat   | c <- floats ]
     , [ className =? c --> doShift "work"  | c <- work ]
     , [ className =? c --> doShift "chat"  | c <- chat ]
@@ -154,7 +161,7 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
       , ("M-w", spawn browser)
-      , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
+      , ("M-`", namedScratchpadAction myScratchPads "term")
       , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
@@ -254,7 +261,6 @@ myDzen (Rectangle x y sw sh) =
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
 
--- getHost :: IO Maybe AnyProfile
 getHost :: IO AnyProfile
 getHost = do
     hostName <- nodeName `fmap` getSystemID
@@ -262,6 +268,7 @@ getHost = do
         "vodik" -> AnyProfile Vodik
         "gmzlj" -> AnyProfile Gmzlj
         "beno"  -> AnyProfile Beno
+        _       -> AnyProfile Vodik
 
 main = do
     host    <- getHost
@@ -269,7 +276,7 @@ main = do
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules
+        { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules <+> namedScratchpadManageHook myScratchPads
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules host
         , logHook            = dynamicLogWithPP $ myPP home host dzenbar
