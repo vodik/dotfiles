@@ -40,16 +40,15 @@ import qualified XMonad.Actions.Search as S
 import Gaps
 import Workspaces
 
+myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  "arch"     $ classNames [ "Firefox", "Chromium", "Zathura" ]
+    [ Workspace "work"  "arch"     $ map ClassName [ "Firefox", "Chromium", "Zathura" ]
     , Workspace "term"  "terminal" []
     , Workspace "code"  "flask2"   []
-    , Workspace "chat"  "balloon"  $ classNames [ "Empathy", "Pidgin" ]
-    , Workspace "virt"  "wrench"   $ classNames [ "VirtualBox" ]
-    , Workspace "games" "ghost"    $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
+    , Workspace "chat"  "balloon"  $ map ClassName [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  "wrench"   $ map ClassName [ "VirtualBox" ]
+    , Workspace "games" "ghost"    $ map ClassName [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
     ]
-    where
-        classNames = map ClassName
 
 myTerminal      = "urxvtc"
 myBorderWidth   = 3
