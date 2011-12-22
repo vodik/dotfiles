@@ -1,5 +1,4 @@
-{-# LANGUAGE ExistentialQuantification, FlexibleInstances, GeneralizedNewtypeDeriving, FlexibleContexts,
-             MultiParamTypeClasses, TypeSynonymInstances, CPP, DeriveDataTypeable #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 import Data.Maybe (fromMaybe)
 import Text.Regex.Posix ((=~))
@@ -40,10 +39,10 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 
--- myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
--- myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
+myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ]
+myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
 myTerminal    = "urxvtc"
-myBorderWidth = 2
+myBorderWidth = 3
 myModMask     = mod4Mask
 
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
@@ -67,22 +66,35 @@ pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
 
 class Profile a where
     getIM :: a -> Property
-    getIM _ = pidgin
-
-    getWorkspaces :: a -> [String]
-    getWorkspaces _ = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
-
+    getIMWidth :: a -> Rational
+    getTermM :: a -> Int
+    getWS :: a -> [String]
     getIcons :: a -> [String]
-    getIcons _ = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
 
 instance Profile String where
-    getIM "beno" = empathy
+    getIM      "beno" = empathy
+    getIM      _ = pidgin
 
-    getWorkspaces "gmzlj" = [ "work", "term", "code", "chat", "games" ] ++ map show [6..9]
-    getIcons      "gmzlj" = [ "arch", "terminal", "flask2", "balloon", "ghost" ]
+    getTermM   "beno" = 2
+    getTermM   _ = 1
+
+    getIMWidth "gmzlj" = (3/10)
+    getIMWidth _ = (2/10)
+
+    getWS      "gmzlj" = to9 $ filter (/= "virt") myWorkspaces
+    getWS      _ = to9 $ myWorkspaces
+
+    getIcons   "gmzlj" = filter (/= "wrench") myIcons
+    getIcons   _ = myIcons
 
 
-myLayoutRules profile = avoidStruts $
+to9 ws = to9' ws 1
+    where
+        to9' (x:xs) c = x : to9' xs (c + 1)
+        to9' [] c | c < 10    = show c : to9' [] (c + 1)
+                  | otherwise = []
+
+myLayoutRules p = avoidStruts $
     lessBorders OnlyFloat $
     mkToggle (single NBFULL) $
     onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| tiled) $
@@ -95,8 +107,8 @@ myLayoutRules profile = avoidStruts $
         tabs   = noBorders $ tabbed shrinkText myTabTheme
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        mtiled = gaps 5 $ Mirror $ ResizableTall 2 (2/100) (1/2) []
-        chat   = withIM (3/10) (getIM profile) $ gaps 5 $ GridRatio (2/3)
+        mtiled = gaps 5 $ Mirror $ ResizableTall (getTermM p) (2/100) (1/2) []
+        chat   = withIM (getIMWidth p) (getIM p) $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 q ~? x = fmap (=~ x) q
@@ -107,9 +119,9 @@ myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
     , [ className =? c --> doShift "chat"  | c <- chat ]
     , [ className =? c --> doShift "virt"  | c <- virt ]
     , [ className =? c --> doShift "games" | c <- games ]
-    , [ className =? "URxvt"              --> doF W.swapDown
+    , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
+      , className =? "URxvt"              --> doF W.swapDown
       , className =? "Wine"               --> doFloat
-      , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
       , resource  =? "desktop_window"     --> doIgnore
       , isFullscreen                      --> doFullFloat
       , isDialog                          --> doCenterFloat
@@ -245,7 +257,7 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = getWorkspaces host
+        , workspaces         = getWS host
         , focusFollowsMouse  = True
         }
 
@@ -264,7 +276,7 @@ myPP path profile output = defaultPP
     , ppOutput          = hPutStrLn output
     }
     where
-        icons = M.fromList $ zip (getWorkspaces profile) (getIcons profile)
+        icons = M.fromList $ zip (getWS profile) (getIcons profile)
 
 iconify v icons path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c icons
     where
