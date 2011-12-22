@@ -36,7 +36,17 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 import Workspaces
-import Profiles
+import Tweaks
+
+myWorkspaces :: [Workspace]
+myWorkspaces =
+    [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
+    , Workspace "term"  "terminal" [ ]
+    , Workspace "code"  "flask2"   [ ]
+    , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  "wrench"   [ "VirtualBox" ]
+    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
+    ]
 
 myTerminal      = "urxvtc"
 myBorderWidth   = 3
@@ -70,8 +80,8 @@ myLayoutRules p = avoidStruts
         tabs   = noBorders $ tabbed shrinkText myTabTheme
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        mtiled = gaps 5 $ Mirror $ ResizableTall (getTermM p) (2/100) (1/2) []
-        chat   = withIM (getIMWidth p) (getIM p) $ gaps 5 $ GridRatio (2/3)
+        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []
+        chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 myScratchPads =
@@ -196,24 +206,26 @@ favouritesList =
     ]
 
 main = do
-    profile <- getProfile
+    profile <- getTweaks
     home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules $ getWS profile
+        { manageHook         = myRules $ wsFilter profile myWorkspaces
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules profile
-        , logHook            = dynamicLogWithPP $ myPP home profile dzenbar
+        , logHook            = dynamicLogWithPP $ myPP home (icons profile) dzenbar
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ map getWSName $ getWS profile
+        , workspaces         = to9 $ map getWSName $ wsFilter profile myWorkspaces
         , focusFollowsMouse  = True
         }
+    where
+        icons profile = getIconMap $ wsFilter profile myWorkspaces
 
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
@@ -232,7 +244,7 @@ to9 ws = to9' ws 1
         to9' [] c | c < 10    = show c : to9' [] (c + 1)
                   | otherwise = []
 
-myPP path profile output = defaultPP
+myPP path icons output = defaultPP
     { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons path
     , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True icons path
     , ppVisible         = dzenColor colorWhite    colorGray     . iconify True icons path
@@ -246,8 +258,6 @@ myPP path profile output = defaultPP
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
     , ppOutput          = hPutStrLn output
     }
-    where
-        icons = getIconMap $ getWS profile
 
 iconify v icons path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c icons
     where
