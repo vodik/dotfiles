@@ -41,13 +41,15 @@ import Gaps
 import Workspaces
 
 myWorkspaces =
-    [ Workspace "work"  "arch"     [ ClassName "Firefox", ClassName "Chromium", ClassName "Zathura" ]
-    , Workspace "term"  "terminal" [ ]
-    , Workspace "code"  "flask2"   [ ]
-    , Workspace "chat"  "balloon"  [ ClassName "Empathy", ClassName "Pidgin" ]
-    , Workspace "virt"  "wrench"   [ ClassName "VirtualBox" ]
-    , Workspace "games" "ghost"    [ ClassName "Sol", ClassName "Pychess", ClassName "net-minecraft=LauncherFrame", ClassName "Wine" ]
+    [ Workspace "work"  "arch"     $ classNames [ "Firefox", "Chromium", "Zathura" ]
+    , Workspace "term"  "terminal" []
+    , Workspace "code"  "flask2"   []
+    , Workspace "chat"  "balloon"  $ classNames [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  "wrench"   $ classNames [ "VirtualBox" ]
+    , Workspace "games" "ghost"    $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
     ]
+    where
+        classNames = map ClassName
 
 myTerminal      = "urxvtc"
 myBorderWidth   = 3

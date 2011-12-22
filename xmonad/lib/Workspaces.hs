@@ -4,6 +4,7 @@ module Workspaces ( getWSName
                   , workspaceRules
                   , Workspace(..) ) where
 
+import Data.Monoid
 import qualified Data.Map as M
 
 import XMonad
@@ -18,11 +19,13 @@ getWSName (Workspace n _ _) = n
 getWSIcon :: Workspace -> String
 getWSIcon (Workspace _ i _) = i
 
+-- TODO: there's a more efficient way of doing this
 getIconMap :: [Workspace] -> M.Map String String
 getIconMap ws = M.fromList $ zip names icons
     where names = map getWSName ws
           icons = map getWSIcon ws
 
-workspaceRules ((Workspace n _ prop):xs) =
+workspaceRules :: [Workspace] -> Query (Endo WindowSet)
+workspaceRules (Workspace n _ prop:xs) =
     composeAll [ propertyToQuery p --> doShift n | p <- prop ] <+> workspaceRules xs
 workspaceRules [] = idHook
