@@ -40,7 +40,7 @@ import qualified XMonad.Actions.Search as S
 import Gaps
 import Workspaces
 
-myWorkspace' =
+myWorkspaces =
     [ Workspace "work"  "arch"     [ ClassName "Firefox", ClassName "Chromium", ClassName "Zathura" ]
     , Workspace "term"  "terminal" [ ]
     , Workspace "code"  "flask2"   [ ]
@@ -49,9 +49,9 @@ myWorkspace' =
     , Workspace "games" "ghost"    [ ClassName "Sol", ClassName "Pychess", ClassName "net-minecraft=LauncherFrame", ClassName "Wine" ]
     ]
 
-myTerminal    = "urxvtc"
-myBorderWidth = 3
-myModMask     = mod4Mask
+myTerminal      = "urxvtc"
+myBorderWidth   = 3
+myModMask       = mod4Mask
 
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
@@ -86,13 +86,13 @@ class Profile a where
     getTermM :: a -> Int
     getTermM  _ = 1
     getWS :: a -> [Workspace]
-    getWS _ = myWorkspace'
+    getWS _ = myWorkspaces
 
 instance Profile Vodik where
 
 instance Profile Gmzlj where
     getIMWidth _ = 3/10
-    getWS      _ = filter (\x -> (getWSName x) /="virt") myWorkspace'
+    getWS      _ = filter (\x -> (getWSName x) /="virt") myWorkspaces
 
 instance Profile Beno where
     getIM      _ = empathy
