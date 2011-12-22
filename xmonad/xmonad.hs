@@ -39,6 +39,8 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 
+type Host = String
+
 myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ]
 myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
 myTerminal    = "urxvtc"
@@ -71,18 +73,18 @@ class Profile a where
     getWS :: a -> [String]
     getIcons :: a -> [String]
 
-instance Profile String where
+instance Profile Host where
     getIM      "beno" = empathy
     getIM      _ = pidgin
 
     getTermM   "beno" = 2
     getTermM   _ = 1
 
-    getIMWidth "gmzlj" = (3/10)
-    getIMWidth _ = (2/10)
+    getIMWidth "gmzlj" = 3/10
+    getIMWidth _ = 2/10
 
     getWS      "gmzlj" = to9 $ filter (/= "virt") myWorkspaces
-    getWS      _ = to9 $ myWorkspaces
+    getWS      _ = to9 myWorkspaces
 
     getIcons   "gmzlj" = filter (/= "wrench") myIcons
     getIcons   _ = myIcons
@@ -97,7 +99,7 @@ to9 ws = to9' ws 1
 myLayoutRules p = avoidStruts $
     lessBorders OnlyFloat $
     mkToggle (single NBFULL) $
-    onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| tiled) $
+    onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| full) $
     onWorkspace "term"  (mtiled ||| tiled ||| full) $
     onWorkspace "chat"  (chat ||| tiled ||| full) $
     onWorkspace "virt"  full $
@@ -241,8 +243,11 @@ myDzen (Rectangle x y sw sh) =
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
 
+getHost :: IO Host
+getHost = nodeName `fmap` getSystemID
+
 main = do
-    host    <- fmap nodeName getSystemID
+    host    <- getHost
     home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
