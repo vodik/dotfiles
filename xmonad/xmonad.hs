@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE TypeSynonymInstances, ExistentialQuantification #-}
 
 import Data.Maybe (fromMaybe)
 import Text.Regex.Posix ((=~))
@@ -39,8 +39,6 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 
-type Host = String
-
 myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ]
 myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
 myTerminal    = "urxvtc"
@@ -66,28 +64,41 @@ empathy = ClassName "Empathy" `And` Role "contact_list"
 pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
 
 
+data AnyProfile = forall a. (Profile a) => AnyProfile a
+
+data Vodik = Vodik
+data Gmzlj = Gmzlj
+data Beno = Beno
+
 class Profile a where
     getIM :: a -> Property
+    getIM _ = pidgin
     getIMWidth :: a -> Rational
-    getTermM :: a -> Int
-    getWS :: a -> [String]
-    getIcons :: a -> [String]
-
-instance Profile Host where
-    getIM      "beno" = empathy
-    getIM      _ = pidgin
-
-    getTermM   "beno" = 2
-    getTermM   _ = 1
-
-    getIMWidth "gmzlj" = 3/10
     getIMWidth _ = 2/10
+    getTermM :: a -> Int
+    getTermM  _ = 1
+    getWS :: a -> [String]
+    getWS _ = to9 myWorkspaces
+    getIcons :: a -> [String]
+    getIcons _ = myIcons
 
-    getWS      "gmzlj" = to9 $ filter (/= "virt") myWorkspaces
-    getWS      _ = to9 myWorkspaces
+instance Profile Vodik where
 
-    getIcons   "gmzlj" = filter (/= "wrench") myIcons
-    getIcons   _ = myIcons
+instance Profile Gmzlj where
+    getIMWidth _ = 3/10
+    getWS      _ = to9 $ filter (/= "virt") myWorkspaces
+    getIcons   _ = filter (/= "wrench") myIcons
+
+instance Profile Beno where
+    getIM      _ = empathy
+    getTermM   _ = 2
+
+instance Profile AnyProfile where
+    getIM (AnyProfile a)      = getIM a
+    getIMWidth (AnyProfile a) = getIMWidth a
+    getTermM (AnyProfile a)   = getTermM a
+    getWS (AnyProfile a)      = getWS a
+    getIcons (AnyProfile a)   = getIcons a
 
 
 to9 ws = to9' ws 1
@@ -243,8 +254,14 @@ myDzen (Rectangle x y sw sh) =
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
 
-getHost :: IO Host
-getHost = nodeName `fmap` getSystemID
+-- getHost :: IO Maybe AnyProfile
+getHost :: IO AnyProfile
+getHost = do
+    hostName <- nodeName `fmap` getSystemID
+    return $ case hostName of
+        "vodik" -> AnyProfile Vodik
+        "gmzlj" -> AnyProfile Gmzlj
+        "beno"  -> AnyProfile Beno
 
 main = do
     host    <- getHost
