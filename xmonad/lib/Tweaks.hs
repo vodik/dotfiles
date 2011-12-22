@@ -30,11 +30,20 @@ defaultTweaks = Tweaks
     , wsFilter = id
     }
 
+gmzljTweaks = defaultTweaks
+    { imWidth  = 3/10
+    , wsFilter = filterWS "virt"
+    }
+
+benoTweaks = defaultTweaks
+    { imClient = empathy
+    , masterN  = 2
+    }
+
 getTweaks :: IO Tweaks
 getTweaks = do
     hostName <- nodeName `fmap` getSystemID
     return $ case hostName of
-        "vodik" -> defaultTweaks
-        "gmzlj" -> defaultTweaks
-        "beno"  -> defaultTweaks
+        "gmzlj" -> gmzljTweaks
+        "beno"  -> benoTweaks
         _       -> defaultTweaks
