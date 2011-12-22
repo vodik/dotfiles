@@ -29,7 +29,7 @@ getIconMap ws = M.fromList $ zip names icons
     where names = map getWSName ws
           icons = map getWSIcon ws
 
-workspaceRules :: [Workspace] -> Query (Endo WindowSet)
-workspaceRules (Workspace n _ prop:xs) =
-    composeAll [ propertyToQuery (ClassName p) --> doShift n | p <- prop ] <+> workspaceRules xs
-workspaceRules [] = idHook
+workspaceRules :: (String -> Property) -> [Workspace] -> Query (Endo WindowSet)
+workspaceRules c (Workspace n _ prop:xs) =
+    composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
+workspaceRules _ [] = idHook

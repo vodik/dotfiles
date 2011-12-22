@@ -104,7 +104,6 @@ instance Profile AnyProfile where
     getIMWidth (AnyProfile a) = getIMWidth a
     getTermM (AnyProfile a)   = getTermM a
     getWS (AnyProfile a)      = getWS a
-    -- getIcons (AnyProfile a)   = getIcons a
 
 
 to9 ws = to9' ws 1
@@ -113,15 +112,15 @@ to9 ws = to9' ws 1
         to9' [] c | c < 10    = show c : to9' [] (c + 1)
                   | otherwise = []
 
-myLayoutRules p = avoidStruts $
-    lessBorders OnlyFloat $
-    mkToggle (single NBFULL) $
-    onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| full) $
-    onWorkspace "term"  (mtiled ||| tiled ||| full) $
-    onWorkspace "chat"  (chat ||| tiled ||| full) $
-    onWorkspace "virt"  full $
-    onWorkspace "games" full $
-    tiled ||| Mirror tiled ||| full
+myLayoutRules p = avoidStruts
+    $ lessBorders OnlyFloat
+    $ mkToggle (single NBFULL)
+    $ onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| full)
+    $ onWorkspace "term"  (mtiled ||| tiled ||| full)
+    $ onWorkspace "chat"  (chat ||| tiled ||| full)
+    $ onWorkspace "virt"  full
+    $ onWorkspace "games" full
+    $ tiled ||| Mirror tiled ||| full
     where
         tabs   = noBorders $ tabbed shrinkText myTabTheme
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
@@ -139,17 +138,21 @@ myScratchPads =
         scatchpadFloating = customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3)
 
 q ~? x = fmap (=~ x) q
-myRules = (composeAll . concat $
-    [ [ className =? c --> doCenterFloat | c <- floats ]
-    , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-      , className =? "URxvt"              --> doF W.swapDown
-      , className =? "Wine"               --> doFloat
-      , resource  =? "desktop_window"     --> doIgnore
-      , isFullscreen                      --> doFullFloat
-      , isDialog                          --> doCenterFloat
-      , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
-      ]
-    ])
+myRules ws = manageHook defaultConfig
+    <+> manageDocks
+    <+> workspaceRules ClassName ws
+    <+> (composeAll . concat $
+        [ [ className =? c --> doCenterFloat | c <- floats ]
+        , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
+          , className =? "URxvt"              --> doF W.swapDown
+          , className =? "Wine"               --> doFloat
+          , resource  =? "desktop_window"     --> doIgnore
+          , isFullscreen                      --> doFullFloat
+          , isDialog                          --> doCenterFloat
+          , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
+          ]
+        ])
+    <+> namedScratchpadManageHook myScratchPads
     where
         role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
@@ -273,7 +276,7 @@ main = do
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = manageHook defaultConfig <+> manageDocks <+> workspaceRules (getWS host) <+> myRules <+> namedScratchpadManageHook myScratchPads
+        { manageHook         = myRules $ getWS host
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules host
         , logHook            = dynamicLogWithPP $ myPP home host dzenbar
