@@ -1,6 +1,11 @@
+{-# LANGUAGE ExistentialQuantification, FlexibleInstances, GeneralizedNewtypeDeriving, FlexibleContexts,
+             MultiParamTypeClasses, TypeSynonymInstances, CPP, DeriveDataTypeable #-}
+
+import Data.Maybe (fromMaybe)
 import Text.Regex.Posix ((=~))
 import System.Directory (getCurrentDirectory)
 import System.Exit
+import System.Environment (getEnvironment)
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
 
@@ -35,8 +40,8 @@ import qualified XMonad.Actions.Search as S
 
 import Gaps
 
-myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
-myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
+-- myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
+-- myIcons       = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
 myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
@@ -61,7 +66,25 @@ colorRed        = "#d74b73"
 empathy = ClassName "Empathy" `And` Role "contact_list"
 pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
 
-myLayoutRules imClient = avoidStruts $
+
+class Profile a where
+    getIM :: a -> Property
+    getIM _ = pidgin
+
+    getWorkspaces :: a -> [String]
+    getWorkspaces _ = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
+
+    getIcons :: a -> [String]
+    getIcons _ = [ "arch", "terminal", "flask2", "balloon", "wrench", "ghost" ]
+
+instance Profile String where
+    getIM "beno" = empathy
+
+    getWorkspaces "gmzlj" = [ "work", "term", "code", "chat", "games" ] ++ map show [6..9]
+    getIcons      "gmzlj" = [ "arch", "terminal", "flask2", "balloon", "ghost" ]
+
+
+myLayoutRules profile = avoidStruts $
     lessBorders OnlyFloat $
     mkToggle (single NBFULL) $
     onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| tiled) $
@@ -75,7 +98,7 @@ myLayoutRules imClient = avoidStruts $
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall 2 (2/100) (1/2) []
-        chat   = withIM (2/10) imClient $ gaps 5 $ GridRatio (2/3)
+        chat   = withIM (2/10) (getIM profile) $ gaps 5 $ GridRatio (2/3)
         full   = noBorders Full
 
 q ~? x = fmap (=~ x) q
@@ -209,31 +232,31 @@ myDzen (Rectangle x y sw sh) =
       ++ " -e 'onstart=lower'"
 
 main = do
-    -- sysID   <- getSystemID
-    cwd     <- getCurrentDirectory
+    host    <- fmap nodeName getSystemID
+    home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = manageHook defaultConfig <+> manageDocks <+> myRules
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules empathy --pidgin
-        , logHook            = dynamicLogWithPP $ myPP cwd dzenbar
+        , layoutHook         = myLayoutRules host
+        , logHook            = dynamicLogWithPP $ myPP home host dzenbar
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
         , borderWidth        = 2
         , normalBorderColor  = myNormalBorderColor
         , focusedBorderColor = myFocusedBorderColor
-        , workspaces         = myWorkspaces
+        , workspaces         = getWorkspaces host
         , focusFollowsMouse  = True
         }
 
-myPP path output = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True path
-    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True path
-    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True path
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True path
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False path
+myPP path profile output = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons path
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True icons path
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True icons path
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True icons path
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons path
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
@@ -242,10 +265,11 @@ myPP path output = defaultPP
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
     , ppOutput          = hPutStrLn output
     }
-
-iconify v path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c iconLookup
     where
-        iconLookup = M.fromList $ zip myWorkspaces myIcons
+        icons = M.fromList $ zip (getWorkspaces profile) (getIcons profile)
+
+iconify v icons path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c icons
+    where
         wrapSpace  = wrap " " " "
         wrapIcon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c
         blank | v         = wrapSpace c
