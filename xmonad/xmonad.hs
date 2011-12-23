@@ -129,6 +129,8 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-k", windows W.focusUp)
       , ("M-m", windows W.focusMaster)
       , ("M-f", withFocused $ windows . W.sink)
+      , ("M-,", sendMessage $ IncMasterN (-1))
+      , ("M-.", sendMessage $ IncMasterN 1)
 
       -- cycle windows
       , ("M-<Up>",      prevWS)
