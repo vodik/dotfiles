@@ -84,17 +84,10 @@ myLayoutRules p = avoidStruts
         chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
 
-myScratchPads =
-    [ NS "term"  scratchpad (resource =? "scratchpad") scatchpadFloating
-    , NS "steam" "steam"    (className =? "Wine")      defaultFloating
-    ]
-    where
-        scratchpad = myTerminal ++ " -name scratchpad"
-        scatchpadFloating = customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3)
-
 q ~? x = fmap (=~ x) q
 myRules ws = manageHook defaultConfig
     <+> manageDocks
+    <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ClassName ws
     <+> (composeAll . concat $
         [ [ className =? c --> doCenterFloat | c <- floats ]
@@ -107,7 +100,6 @@ myRules ws = manageHook defaultConfig
           , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
           ]
         ])
-    <+> namedScratchpadManageHook myScratchPads
     where
         role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
@@ -116,7 +108,7 @@ myRules ws = manageHook defaultConfig
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
       , ("M-w", spawn browser)
-      , ("M-`", namedScratchpadAction myScratchPads "term")
+      , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
       , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
