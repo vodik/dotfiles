@@ -102,8 +102,7 @@ myRules ws = manageHook defaultConfig
         ])
     where
         role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen"
-                 , "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
+        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
