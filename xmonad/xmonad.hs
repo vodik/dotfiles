@@ -1,8 +1,8 @@
 import Data.Maybe (fromMaybe)
 import Text.Regex.Posix ((=~))
 import System.Directory (getCurrentDirectory)
-import System.Exit
 import System.Environment (getEnvironment)
+import System.Exit
 import qualified Data.Map as M
 
 import Graphics.X11 (Rectangle(..))
@@ -26,10 +26,10 @@ import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Prompt.Shell
 import XMonad.Prompt
+import XMonad.Util.Run
 import XMonad.Util.EZConfig
 import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
@@ -81,7 +81,7 @@ myLayoutRules p = avoidStruts
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []
-        chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (2/3)
+        chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
 
 myScratchPads =
@@ -206,26 +206,26 @@ favouritesList =
     ]
 
 main = do
-    profile <- getTweaks
+    tweaks  <- getTweaks
     home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules $ wsFilter profile myWorkspaces
+        { manageHook         = myRules $ wsMod tweaks myWorkspaces
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules profile
-        , logHook            = dynamicLogWithPP $ myPP home (icons profile) dzenbar
+        , layoutHook         = myLayoutRules tweaks
+        , logHook            = dynamicLogWithPP $ myPP home (icons tweaks) dzenbar
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ map getWSName $ wsFilter profile myWorkspaces
+        , workspaces         = to9 $ map getWSName $ wsMod tweaks myWorkspaces
         , focusFollowsMouse  = True
         }
     where
-        icons profile = getIconMap $ wsFilter profile myWorkspaces
+        icons tweaks = getIconMap $ wsMod tweaks myWorkspaces
 
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x

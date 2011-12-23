@@ -19,20 +19,23 @@ pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
 data Tweaks = Tweaks
     { imClient :: Property
     , imWidth  :: Rational
+    , imGrid   :: Double
     , masterN  :: Int
-    , wsFilter :: [Workspace] -> [Workspace]
+    , wsMod    :: [Workspace] -> [Workspace]
     }
 
 defaultTweaks = Tweaks
     { imClient = pidgin
     , imWidth  = 2/10
+    , imGrid   = 2/3
     , masterN  = 1
-    , wsFilter = id
+    , wsMod    = id
     }
 
 gmzljTweaks = defaultTweaks
-    { imWidth  = 3/10
-    , wsFilter = filterWS "virt"
+    { imWidth = 3/10
+    , imGrid  = 3/2
+    , wsMod   = filterWS "virt"
     }
 
 benoTweaks = defaultTweaks
