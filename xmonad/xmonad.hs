@@ -239,11 +239,11 @@ to9 ws = to9' ws 1
                   | otherwise = []
 
 myPP icons output = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons
-    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True icons
-    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True icons
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True icons
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
@@ -254,7 +254,7 @@ myPP icons output = defaultPP
     }
 
 iconify :: Bool -> Icons -> String -> String
-iconify showAll icons c =
+iconify icons showAll c =
     maybe blank (wrapSpace . (++ " " ++ c)) $ getIcon icons c
     where
         wrapSpace  = wrap " " " "
