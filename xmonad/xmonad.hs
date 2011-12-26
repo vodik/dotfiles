@@ -253,7 +253,7 @@ myPP icons output = defaultPP
     , ppOutput          = hPutStrLn output
     }
 
-iconify :: Bool -> Icons -> String -> String
+iconify :: Icons -> Bool -> String -> String
 iconify icons showAll c =
     maybe blank (wrapSpace . (++ ' ' : c)) $ getIcon icons c
     where
