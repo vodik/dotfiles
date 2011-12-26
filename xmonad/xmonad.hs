@@ -115,7 +115,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
       , ("M-S-c", kill)
-      , ("M-q", restart "xmonad" True)
+      , ("M-q",   restart "xmonad" True)
 
       -- layout
       , ("M-n",   sendMessage NextLayout)
