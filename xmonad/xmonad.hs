@@ -255,7 +255,7 @@ myPP icons output = defaultPP
 
 iconify :: Bool -> Icons -> String -> String
 iconify icons showAll c =
-    maybe blank (wrapSpace . (++ " " ++ c)) $ getIcon icons c
+    maybe blank (wrapSpace . (++ ' ' : c)) $ getIcon icons c
     where
         wrapSpace  = wrap " " " "
         blank | showAll   = wrapSpace c
