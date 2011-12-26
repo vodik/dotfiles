@@ -1,4 +1,5 @@
 import Data.Maybe (fromMaybe)
+import Control.Applicative ((<$>))
 import Text.Regex.Posix ((=~))
 import System.Directory (getCurrentDirectory)
 import System.Environment (getEnvironment)
@@ -30,7 +31,7 @@ import XMonad.Prompt
 import XMonad.Util.Run
 import XMonad.Util.EZConfig
 import XMonad.Util.Scratchpad
-import XMonad.Util.NamedScratchpad
+import XMonad.Util.NamedScratchpad (namedScratchpadFilterOutWorkspace)
 import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
@@ -85,7 +86,7 @@ myLayoutRules p = avoidStruts
         chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
 
-q ~? x = fmap (=~ x) q
+q ~? x = (=~ x) <$> q
 myRules ws = manageHook defaultConfig
     <+> manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
@@ -201,7 +202,7 @@ favouritesList =
 
 main = do
     tweaks  <- getTweaks
-    home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
+    home    <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
@@ -246,7 +247,7 @@ myPP path icons output = defaultPP
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons path
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
-    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppSort            = (. namedScratchpadFilterOutWorkspace) <$> getSortByIndex
     , ppWsSep           = ""
     , ppLayout          = const ""
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
