@@ -47,4 +47,4 @@ getIconSet ws = do
         iconPath      = (++ "/.xmonad/icons/")
 
 wrapIcon :: IconMap -> FilePath -> String -> Maybe Icon
-wrapIcon m path t = M.lookup t m >>= \i -> Just $ "^i(" ++ path ++ i ++ ".xbm)"
+wrapIcon m path t = M.lookup t m >>= \i -> Just $ path ++ i ++ ".xbm"

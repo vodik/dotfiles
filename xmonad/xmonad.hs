@@ -44,7 +44,7 @@ myWorkspaces =
     , Workspace "code"  "flask2"   [ ]
     , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
     , Workspace "virt"  "wrench"   [ "VirtualBox" ]
-    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
+    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
 myTerminal      = "urxvtc"
@@ -101,7 +101,7 @@ myRules ws = manageHook defaultConfig
         ])
     where
         role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
+        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
@@ -255,8 +255,9 @@ myPP icons output = defaultPP
 
 iconify :: Icons -> Bool -> String -> String
 iconify icons showAll c =
-    maybe without (wrapSpace . (++ ' ' : c)) $ getIcon icons c
+    maybe without (wrapSpace . (++ ' ' : c) . dzenIcon) $ getIcon icons c
     where
+        dzenIcon  = wrap "^i(" ")"
         wrapSpace = wrap " " " "
         without | showAll   = wrapSpace c
                 | otherwise = ""
