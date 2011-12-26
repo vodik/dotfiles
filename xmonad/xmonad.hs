@@ -15,6 +15,7 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.InsertPosition
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Master
@@ -92,11 +93,11 @@ myRules ws = manageHook defaultConfig
     <+> (composeAll . concat $
         [ [ className =? c --> doCenterFloat | c <- floats ]
         , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-          , className =? "URxvt"              --> doF W.swapDown
           , className =? "Wine"               --> doFloat
-          , resource  =? "desktop_window"     --> doIgnore
-          , isFullscreen                      --> doFullFloat
           , isDialog                          --> doCenterFloat
+          , isFullscreen                      --> doFullFloat
+          , insertPosition Below Newer
+          , resource  =? "desktop_window"     --> doIgnore
           , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
           ]
         ])
