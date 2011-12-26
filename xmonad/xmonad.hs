@@ -1,11 +1,9 @@
-import Data.Maybe (fromMaybe)
+import Control.Applicative ((<$>))
 import Text.Regex.Posix ((=~))
-import System.Directory (getCurrentDirectory)
-import System.Environment (getEnvironment)
 import System.Exit
 import qualified Data.Map as M
 
-import Graphics.X11 (Rectangle(..))
+import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
@@ -30,7 +28,7 @@ import XMonad.Prompt
 import XMonad.Util.Run
 import XMonad.Util.EZConfig
 import XMonad.Util.Scratchpad
-import XMonad.Util.NamedScratchpad
+import XMonad.Util.NamedScratchpad (namedScratchpadFilterOutWorkspace)
 import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
@@ -46,7 +44,7 @@ myWorkspaces =
     , Workspace "code"  "flask2"   [ ]
     , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
     , Workspace "virt"  "wrench"   [ "VirtualBox" ]
-    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "Wine" ]
+    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
 myTerminal      = "urxvtc"
@@ -71,9 +69,9 @@ colorRed        = "#d74b73"
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| full)
+    $ onWorkspace "work"  (tabs   ||| wtabs ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
-    $ onWorkspace "chat"  (chat ||| tiled ||| full)
+    $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
@@ -94,16 +92,17 @@ myRules ws = manageHook defaultConfig
         [ [ className =? c --> doCenterFloat | c <- floats ]
         , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
           , className =? "Wine"               --> doFloat
+          , resource  =? "desktop_window"     --> doIgnore
+          , isFirefoxPreferences              --> doCenterFloat
           , isDialog                          --> doCenterFloat
           , isFullscreen                      --> doFullFloat
           , insertPosition Below Newer
-          , resource  =? "desktop_window"     --> doIgnore
-          , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
           ]
         ])
     where
+        isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
         role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings" ]
+        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
@@ -201,26 +200,27 @@ favouritesList =
 
 main = do
     tweaks  <- getTweaks
-    home    <- fmap (fromMaybe "/home/simongmzlj" . lookup "HOME") getEnvironment
     browser <- getBrowser
+    icons   <- getIconSet $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules $ wsMod tweaks myWorkspaces
+        { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
-        , logHook            = dynamicLogWithPP $ myPP home (icons tweaks) dzenbar
+        , logHook            = dynamicLogWithPP $ myPP icons dzenbar
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ map getWSName $ wsMod tweaks myWorkspaces
+        , workspaces         = to9 $ getWorkspaces $ ws' tweaks
         , focusFollowsMouse  = True
         }
     where
-        icons tweaks = getIconMap $ wsMod tweaks myWorkspaces
+        ws' t = wsMod t myWorkspaces
 
+myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
       ++ " -w "  ++ show sw
@@ -232,18 +232,19 @@ myDzen (Rectangle x y sw sh) =
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
 
+to9 :: [String] -> [String]
 to9 ws = to9' ws 1
     where
         to9' (x:xs) c = x : to9' xs (c + 1)
         to9' [] c | c < 10    = show c : to9' [] (c + 1)
                   | otherwise = []
 
-myPP path icons output = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons path
-    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True icons path
-    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True icons path
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True icons path
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons path
+myPP icons output = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
@@ -253,12 +254,14 @@ myPP path icons output = defaultPP
     , ppOutput          = hPutStrLn output
     }
 
-iconify v icons path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c icons
+iconify :: Icons -> Bool -> String -> String
+iconify icons showAll c =
+    maybe without (wrapSpace . (++ ' ' : c) . dzenIcon) $ getIcon icons c
     where
-        wrapSpace  = wrap " " " "
-        wrapIcon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c
-        blank | v         = wrapSpace c
-              | otherwise = ""
+        dzenIcon  = wrap "^i(" ")"
+        wrapSpace = wrap " " " "
+        without | showAll   = wrapSpace c
+                | otherwise = ""
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
