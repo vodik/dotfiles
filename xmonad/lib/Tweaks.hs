@@ -44,13 +44,10 @@ benoTweaks = defaultTweaks
     , masterN  = 2
     }
 
--- getAspectRatio :: IO Tweaks
--- getAspectRatio = do
---     let ratio = 1920 % 1200 :: Fractional
---     return $ case ratio of
---         (Rational 6 10) -> defaultTweaks
---         (Rational 4 3)  -> defaultTweaks
---         _               -> defaultTweaks
+getAspectRatio :: Rational -> Tweaks
+getAspectRatio r | r == 6 % 10 = defaultTweaks
+                 | r == 4 % 3  = defaultTweaks
+                 | otherwise   = defaultTweaks
 
 getTweaks :: IO Tweaks
 getTweaks = do

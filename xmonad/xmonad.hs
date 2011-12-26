@@ -92,14 +92,15 @@ myRules ws = manageHook defaultConfig
         [ [ className =? c --> doCenterFloat | c <- floats ]
         , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
           , className =? "Wine"               --> doFloat
+          , resource  =? "desktop_window"     --> doIgnore
+          , isFirefoxPreferences              --> doCenterFloat
           , isDialog                          --> doCenterFloat
           , isFullscreen                      --> doFullFloat
           , insertPosition Below Newer
-          , resource  =? "desktop_window"     --> doIgnore
-          , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
           ]
         ])
     where
+        isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
         role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
 

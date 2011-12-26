@@ -5,8 +5,7 @@ module Workspaces ( getWSName
                   , getIconSet
                   , Icon
                   , Icons (..)
-                  , Workspace (..)
-                  ) where
+                  , Workspace (..) ) where
 
 import Data.Monoid
 import Data.Maybe (fromMaybe)
