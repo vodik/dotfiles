@@ -86,7 +86,7 @@ myLayoutRules p = avoidStruts
         chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
 
-q ~? x = (=~ x) <$> q
+q ~? x = fmap (=~ x) q
 myRules ws = manageHook defaultConfig
     <+> manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
@@ -206,7 +206,7 @@ main = do
     browser <- getBrowser
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules $ wsMod tweaks myWorkspaces
+        { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = dynamicLogWithPP $ myPP home (icons tweaks) dzenbar
@@ -216,11 +216,12 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ map getWSName $ wsMod tweaks myWorkspaces
+        , workspaces         = to9 $ map getWSName $ ws' tweaks
         , focusFollowsMouse  = True
         }
     where
-        icons tweaks = getIconMap $ wsMod tweaks myWorkspaces
+        ws' t   = wsMod t myWorkspaces
+        icons t = getIconMap $ ws' t
 
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
@@ -247,7 +248,7 @@ myPP path icons output = defaultPP
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons path
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
-    , ppSort            = (. namedScratchpadFilterOutWorkspace) <$> getSortByIndex
+    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
     , ppWsSep           = ""
     , ppLayout          = const ""
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
