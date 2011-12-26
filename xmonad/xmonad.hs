@@ -69,9 +69,9 @@ colorRed        = "#d74b73"
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (tabs ||| wtabs ||| tiled ||| full)
+    $ onWorkspace "work"  (tabs   ||| wtabs ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
-    $ onWorkspace "chat"  (chat ||| tiled ||| full)
+    $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
@@ -213,11 +213,11 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ map getWSName $ ws' tweaks
+        , workspaces         = to9 $ getWorkspaces $ ws' tweaks
         , focusFollowsMouse  = True
         }
     where
-        ws' t   = wsMod t myWorkspaces
+        ws' t = wsMod t myWorkspaces
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
@@ -255,11 +255,11 @@ myPP icons output = defaultPP
 
 iconify :: Icons -> Bool -> String -> String
 iconify icons showAll c =
-    maybe blank (wrapSpace . (++ ' ' : c)) $ getIcon icons c
+    maybe without (wrapSpace . (++ ' ' : c)) $ getIcon icons c
     where
-        wrapSpace  = wrap " " " "
-        blank | showAll   = wrapSpace c
-              | otherwise = ""
+        wrapSpace = wrap " " " "
+        without | showAll   = wrapSpace c
+                | otherwise = ""
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
