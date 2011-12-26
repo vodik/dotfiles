@@ -1,8 +1,5 @@
-import Data.Maybe (fromMaybe)
 import Control.Applicative ((<$>))
 import Text.Regex.Posix ((=~))
-import System.Directory (getCurrentDirectory)
-import System.Environment (getEnvironment)
 import System.Exit
 import qualified Data.Map as M
 
@@ -202,14 +199,14 @@ favouritesList =
 
 main = do
     tweaks  <- getTweaks
-    home    <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
     browser <- getBrowser
+    icons   <- getIconSet $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
-        , logHook            = dynamicLogWithPP $ myPP home (icons tweaks) dzenbar
+        , logHook            = dynamicLogWithPP $ myPP icons dzenbar
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
@@ -221,8 +218,8 @@ main = do
         }
     where
         ws' t   = wsMod t myWorkspaces
-        icons t = getIconMap $ ws' t
 
+myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
       ++ " -w "  ++ show sw
@@ -234,18 +231,19 @@ myDzen (Rectangle x y sw sh) =
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
 
+to9 :: [String] -> [String]
 to9 ws = to9' ws 1
     where
         to9' (x:xs) c = x : to9' xs (c + 1)
         to9' [] c | c < 10    = show c : to9' [] (c + 1)
                   | otherwise = []
 
-myPP path icons output = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons path
-    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True icons path
-    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True icons path
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True icons path
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons path
+myPP icons output = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify True icons
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify True icons
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify True icons
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify True icons
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify False icons
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
@@ -255,11 +253,12 @@ myPP path icons output = defaultPP
     , ppOutput          = hPutStrLn output
     }
 
-iconify v icons path c = maybe blank (wrapSpace . wrapIcon) $ M.lookup c icons
+iconify :: Bool -> Icons -> String -> String
+iconify showAll icons c =
+    maybe blank (wrapSpace . (++ " " ++ c)) $ getIcon icons c
     where
         wrapSpace  = wrap " " " "
-        wrapIcon i = "^i(" ++ path ++ "/etc/xmonad/icons/" ++ i ++ ".xbm) " ++ c
-        blank | v         = wrapSpace c
+        blank | showAll   = wrapSpace c
               | otherwise = ""
 
 myTabTheme = defaultTheme
