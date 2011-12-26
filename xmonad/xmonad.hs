@@ -114,7 +114,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
       , ("M-S-c", kill)
-      , ("M-q", restart "xmonad" True)
+      , ("M-q",   restart "xmonad" True)
 
       -- layout
       , ("M-n",   sendMessage NextLayout)
@@ -124,14 +124,14 @@ myKeys browser conf = mkKeymap conf $ concat
       -- resizing
       , ("M-h", sendMessage Shrink)
       , ("M-l", sendMessage Expand)
+      , ("M-,", sendMessage $ IncMasterN (-1))
+      , ("M-.", sendMessage $ IncMasterN 1)
 
       -- focus
       , ("M-j", windows W.focusDown)
       , ("M-k", windows W.focusUp)
       , ("M-m", windows W.focusMaster)
       , ("M-f", withFocused $ windows . W.sink)
-      , ("M-,", sendMessage $ IncMasterN (-1))
-      , ("M-.", sendMessage $ IncMasterN 1)
 
       -- cycle windows
       , ("M-<Up>",      prevWS)
