@@ -27,6 +27,9 @@ while (($#)); do
     "git")
       ln -fs $dotfiles/gitconfig .gitconfig
       ;;
+    "htop")
+      ln -fs $dotfiles/htoprc .htoprc
+      ;;
     *)
       echo "$0: deploy command $1 not understood"
       ;;
