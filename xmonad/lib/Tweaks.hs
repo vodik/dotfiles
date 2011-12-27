@@ -12,17 +12,17 @@ pidgin :: Property
 pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
 
 data Tweaks = Tweaks
-    { imClient :: Property
-    , imWidth  :: Rational
-    , imGrid   :: Double
-    , masterN  :: Int
-    , wsMod    :: [Workspace] -> [Workspace]
+    { imClient   :: Property
+    , imWidth    :: Rational
+    , imGrid     :: Double
+    , masterN    :: Int
+    , wsModifier :: [Workspace] -> [Workspace]
     }
 
 defaultTweaks = Tweaks
-    { imClient = pidgin
-    , imWidth  = 2/10
-    , imGrid   = 2/3
-    , masterN  = 1
-    , wsMod    = id
+    { imClient   = pidgin
+    , imWidth    = 2/10
+    , imGrid     = 2/3
+    , masterN    = 1
+    , wsModifier = id
     }

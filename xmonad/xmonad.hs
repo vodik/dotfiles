@@ -217,12 +217,12 @@ main = do
         , focusFollowsMouse  = True
         }
     where
-        ws' t = wsMod t myWorkspaces
+        ws' t = wsModifier t myWorkspaces
 
 gmzljTweaks = defaultTweaks
-    { imWidth = 3/10
-    , imGrid  = 3/2
-    , wsMod   = filterWS "virt"
+    { imWidth    = 3/10
+    , imGrid     = 3/2
+    , wsModifier = filterWS "virt"
     }
 
 benoTweaks = defaultTweaks
