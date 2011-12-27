@@ -32,7 +32,7 @@ getWorkspaces = map getWSName
 filterWS :: String -> [Workspace] -> [Workspace]
 filterWS name = filter $ (name /=) . getWSName
 
-workspaceRules :: (String -> Property) -> [Workspace] -> Query (Endo WindowSet)
+workspaceRules :: (String -> Property) -> [Workspace] -> ManageHook
 workspaceRules c (Workspace n _ prop:xs) =
     composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
 workspaceRules _ [] = idHook

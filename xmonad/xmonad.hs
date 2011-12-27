@@ -1,5 +1,6 @@
 import Text.Regex.Posix ((=~))
 import System.Exit
+import System.Posix.Unistd (getSystemID, nodeName)
 
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
@@ -217,6 +218,28 @@ main = do
         }
     where
         ws' t = wsMod t myWorkspaces
+
+gmzljTweaks = defaultTweaks
+    { imWidth = 3/10
+    , imGrid  = 3/2
+    , wsMod   = filterWS "virt"
+    }
+
+benoTweaks = defaultTweaks
+    { imClient = empathy
+    , masterN  = 2
+    }
+
+empathy :: Property
+empathy = ClassName "Empathy" `And` Role "contact_list"
+
+getTweaks :: IO Tweaks
+getTweaks = do
+    hostName <- nodeName `fmap` getSystemID
+    return $ case hostName of
+        "gmzlj" -> gmzljTweaks
+        "beno"  -> benoTweaks
+        _       -> defaultTweaks
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
