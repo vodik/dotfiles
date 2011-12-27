@@ -1,89 +1,129 @@
 import Text.Regex.Posix ((=~))
 import System.Exit
+import System.Posix.Unistd (getSystemID, nodeName)
+
+import Graphics.X11 (Rectangle (..))
+import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
-
 import XMonad.Actions.CycleWS
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.InsertPosition
 import XMonad.Layout.ResizableTile
-import XMonad.Layout.Tabbed
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Master
+import XMonad.Layout.Grid
+import XMonad.Layout.IM
+import XMonad.Layout.Tabbed
+import XMonad.Layout.MultiToggle
+import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
 import XMonad.Prompt.Shell
 import XMonad.Prompt
+import XMonad.Util.Run
 import XMonad.Util.EZConfig
 import XMonad.Util.Scratchpad
-import XMonad.Util.Run
-
+import XMonad.Util.NamedScratchpad (namedScratchpadFilterOutWorkspace)
+import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import Gaps
+import Workspaces
+import Tweaks
 
-myTerminal    = "urxvtc"
-myBorderWidth = 2
-myModMask     = mod4Mask
-myWorkspaces  = [ "work", "term", "code", "chat", "virt", "games" ] ++ map show [7..9]
-myNormalBorderColor  = "#333333"
-myFocusedBorderColor = "#bf1e2d"
+myWorkspaces :: [Workspace]
+myWorkspaces =
+    [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
+    , Workspace "term"  "terminal" [ ]
+    , Workspace "code"  "flask2"   [ ]
+    , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  "wrench"   [ "VirtualBox" ]
+    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
+    ]
 
-myLayoutRules = avoidStruts $
-    lessBorders OnlyFloat $
-    onWorkspace "work"  (tabbed ||| tiled) $
-    onWorkspace "virt"  full $
-    onWorkspace "games" full $
-    tiled ||| Mirror tiled ||| full
+myTerminal      = "urxvtc"
+myBorderWidth   = 3
+myModMask       = mod4Mask
+
+dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
+colorBlack      = "#000000"
+colorBlackAlt   = "#050505"
+colorGray       = "#484848"
+colorGrayAlt    = "#b8bcb8"
+colorDarkGray   = "#161616"
+colorWhite      = "#ffffff"
+colorWhiteAlt   = "#9d9d9d"
+colorDarkWhite  = "#444444"
+colorMagenta    = "#8e82a2"
+colorMagentaAlt = "#a488d9"
+colorBlue       = "#60a0c0"
+colorBlueAlt    = "#007b8c"
+colorRed        = "#d74b73"
+
+myLayoutRules p = avoidStruts
+    $ lessBorders OnlyFloat
+    $ mkToggle (single NBFULL)
+    $ onWorkspace "work"  (tabs   ||| wtabs ||| tiled ||| full)
+    $ onWorkspace "term"  (mtiled ||| tiled ||| full)
+    $ onWorkspace "chat"  (chat   ||| tiled ||| full)
+    $ onWorkspace "virt"  full
+    $ onWorkspace "games" full
+    $ tiled ||| Mirror tiled ||| full
     where
+        tabs   = noBorders $ tabbed shrinkText myTabTheme
+        wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
+        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []
+        chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
-        tabbed = noBorders $ tabbedBottom shrinkText myTheme
 
 q ~? x = fmap (=~ x) q
-myRules = scratchpadManageHook (W.RationalRect 0.1 0.1 0.8 0.8) <+>
-    (composeAll . concat $
-    [ [ className =? c --> doCenterFloat   | c <- floats ]
-    , [ className =? c --> doShift "work"  | c <- work ]
-    , [ className =? c --> doShift "virt"  | c <- virt ]
-    , [ className =? c --> doShift "games" | c <- games ]
-    , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-      , resource  =? "desktop_window"     --> doIgnore
-      , isFullscreen                      --> doFullFloat
-      , isDialog                          --> doCenterFloat
-      , (className =? "Firefox" <&&> role =? "Preferences") --> doCenterFloat
-      ]
-    ])
+myRules ws = manageHook defaultConfig
+    <+> manageDocks
+    <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
+    <+> workspaceRules ClassName ws
+    <+> (composeAll . concat $
+        [ [ className =? c --> doCenterFloat | c <- floats ]
+        , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
+          , className =? "Wine"               --> doFloat
+          , resource  =? "desktop_window"     --> doIgnore
+          , isFirefoxPreferences              --> doCenterFloat
+          , isDialog                          --> doCenterFloat
+          , isFullscreen                      --> doFullFloat
+          , insertPosition Below Newer
+          ]
+        ])
     where
+        isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
         role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol" ]
-        work   = [ "Firefox", "Chromium", "Zathura" ]
-        virt   = [ "VirtualBox" ]
-        games  = [ "Sol", "Pychess", "net-minecraft-LauncherFrame" ]
+        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
 
 myKeys browser conf = mkKeymap conf $ concat
-    -- terminal
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
+      , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
       , ("M-p", shellPrompt myXPConfig)
-
-      -- browser
-      , ("M-w",     spawn browser)
 
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
       , ("M-S-c", kill)
-      , ("M-q", restart "xmonad" True)
+      , ("M-q",   restart "xmonad" True)
 
       -- layout
       , ("M-n",   sendMessage NextLayout)
       , ("M-S-n", sendMessage FirstLayout)
+      , ("M-a",   sendMessage $ Toggle NBFULL)
 
       -- resizing
       , ("M-h", sendMessage Shrink)
       , ("M-l", sendMessage Expand)
+      , ("M-,", sendMessage $ IncMasterN (-1))
+      , ("M-.", sendMessage $ IncMasterN 1)
 
       -- focus
       , ("M-j", windows W.focusDown)
@@ -103,7 +143,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- swapping
-      , ("M-S-m", windows W.swapMaster)
+      , ("M-S-m", windows W.shiftMaster)
       , ("M-S-j", windows W.swapDown)
       , ("M-S-k", windows W.swapUp)
 
@@ -131,8 +171,10 @@ myKeys browser conf = mkKeymap conf $ concat
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-", windows . W.greedyView), ("M-S-", windows . W.shift)]
+                      , (m, f) <- [ ("M-", greedyView'), ("M-S-", windows . W.shift) ]
     ]
+    where
+        greedyView' = toggleOrDoSkip ["NSP"] W.greedyView
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
@@ -156,45 +198,106 @@ favouritesList =
     ]
 
 main = do
+    tweaks  <- getTweaks
     browser <- getBrowser
-    xmproc  <- spawnPipe "xmobar"
+    icons   <- getIconSet $ ws' tweaks
+    dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook = manageHook defaultConfig <+> manageDocks <+> myRules
-        , handleEventHook = docksEventHook <+> fullscreenEventHook
-        , layoutHook = myLayoutRules
-        , logHook = dynamicLogWithPP $ myPP xmproc
-        , modMask = myModMask
-        , keys = myKeys browser
-        , terminal = myTerminal
-        , borderWidth = 2
-        , normalBorderColor = myNormalBorderColor
-        , focusedBorderColor = myFocusedBorderColor
-        , workspaces = myWorkspaces
-        , focusFollowsMouse = True
+        { manageHook         = myRules $ ws' tweaks
+        , handleEventHook    = docksEventHook <+> fullscreenEventHook
+        , layoutHook         = myLayoutRules tweaks
+        , logHook            = dynamicLogWithPP $ myPP icons dzenbar
+        , modMask            = myModMask
+        , keys               = myKeys browser
+        , terminal           = myTerminal
+        , borderWidth        = 2
+        , normalBorderColor  = colorGray
+        , focusedBorderColor = colorBlue
+        , workspaces         = to9 $ getWorkspaces $ ws' tweaks
+        , focusFollowsMouse  = True
         }
+    where
+        ws' t = wsModifier t myWorkspaces
 
-myPP output = defaultPP
-    { ppCurrent = xmobarColor "#7b79b1" "#0f141f" . wrap "[" "]"
-    , ppVisible = wrap "(" ")"
-    , ppHiddenNoWindows = const ""
-    , ppSep    = " » "
-    , ppTitle  = xmobarColor "#7b79b1" "" . shorten 150
-    , ppUrgent = xmobarColor "#f92672" "#0f141f"
-    , ppWsSep  = " "
-    , ppLayout = const ""
-    , ppOrder  = \(ws:_:t:_) -> [ws,t]
-    , ppOutput = hPutStrLn output
+gmzljTweaks = defaultTweaks
+    { imWidth    = 3/10
+    , imGrid     = 3/2
+    , wsModifier = filterWS "virt"
     }
 
-myTheme = defaultTheme
-    { decoHeight = 18
-    , activeColor       = "#bf1e2d"
-    , activeBorderColor = "#ff0000"
-    , activeTextColor   = "#000000"
+benoTweaks = defaultTweaks
+    { imClient = empathy
+    , masterN  = 2
+    }
+
+empathy :: Property
+empathy = ClassName "Empathy" `And` Role "contact_list"
+
+getTweaks :: IO Tweaks
+getTweaks = do
+    hostName <- nodeName `fmap` getSystemID
+    return $ case hostName of
+        "gmzlj" -> gmzljTweaks
+        "beno"  -> benoTweaks
+        _       -> defaultTweaks
+
+myDzen :: Rectangle -> String
+myDzen (Rectangle x y sw sh) =
+    "dzen2 -x "  ++ show x
+      ++ " -w "  ++ show sw
+      ++ " -y "  ++ show (sh - 16)
+      ++ " -h "  ++ show 16
+      ++ " -fn " ++ "'" ++ dzenFont ++ "'"
+      ++ " -fg " ++ "'" ++ colorWhite ++ "'"
+      ++ " -bg " ++ "'" ++ colorBlackAlt ++ "'"
+      ++ " -ta l"
+      ++ " -e 'onstart=lower'"
+
+to9 :: [String] -> [String]
+to9 ws = to9' ws 1
+    where
+        to9' (x:xs) c = x : to9' xs (c + 1)
+        to9' [] c | c < 10    = show c : to9' [] (c + 1)
+                  | otherwise = []
+
+myPP icons output = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
+    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
+    , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
+    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppWsSep           = ""
+    , ppLayout          = const ""
+    , ppOrder           = \(ws:_:t:_) -> [ws,t]
+    , ppOutput          = hPutStrLn output
+    }
+
+iconify :: Icons -> Bool -> String -> String
+iconify icons showAll c =
+    maybe without (wrapSpace . (++ ' ' : c) . dzenIcon) $ getIcon icons c
+    where
+        dzenIcon  = wrap "^i(" ")"
+        wrapSpace = wrap " " " "
+        without | showAll   = wrapSpace c
+                | otherwise = ""
+
+myTabTheme = defaultTheme
+    { decoHeight          = 18
+    , inactiveBorderColor = colorGrayAlt
+    , inactiveColor       = colorGray
+    , inactiveTextColor   = colorGrayAlt
+    , activeBorderColor   = colorGrayAlt
+    , activeColor         = colorBlue
+    , activeTextColor     = colorDarkGray
+    , urgentBorderColor   = colorBlackAlt
+    , urgentTextColor     = colorWhite
     }
 
 myXPConfig = defaultXPConfig
-    { font     = "xft:Envy Code R:size=9"
+    { font     = "xft:Envy Code R:size=11"
     , fgColor  = "#8cedff"
     , bgColor  = "black"
     , bgHLight = "black"
