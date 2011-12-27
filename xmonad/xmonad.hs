@@ -1,7 +1,5 @@
-import Control.Applicative ((<$>))
 import Text.Regex.Posix ((=~))
 import System.Exit
-import qualified Data.Map as M
 
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
