@@ -1,11 +1,10 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 
-module PerProp
-    ( PerProp
-    , Condition
-    , getCondition
-    , perProp
-    , perProps ) where
+module PerProp ( PerProp
+               , Condition
+               , getCondition
+               , checkCondition
+               , perProp, perProps) where
 
 import XMonad
 import qualified XMonad.StackSet as W
@@ -20,10 +19,10 @@ data (Show p, Read p, Eq p) => PerProp p l1 l2 a = PerProp [p] Bool (l1 a) (l2 a
     deriving (Read, Show, Eq)
 
 class (Show p, Read p, Eq p) => Condition p where
-    getCondition :: W.Workspace WorkspaceId l a -> X p
+    getCondition :: W.Workspace WorkspaceId l a -> p -> X Bool
 
 checkCondition :: (Condition p) => W.Workspace WorkspaceId l a -> [p] -> X Bool
-checkCondition ws ps = liftM (`elem` ps) $ getCondition ws
+checkCondition ws ps = liftM (any id) $ mapM (getCondition ws) ps
 
 perProp :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => p -> l1 a -> l2 a -> PerProp p l1 l2 a
 perProp p = perProps [p]

@@ -157,6 +157,7 @@ myKeys browser conf = mkKeymap conf $ concat
 
       -- mpd controls
       , ("<XF86AudioPlay>", spawn "mpc toggle")
+      , ("<XF86AudioStop>", spawn "mpc stop")
       , ("<XF86AudioNext>", spawn "mpc next")
       , ("<XF86AudioPrev>", spawn "mpc prev")
 
