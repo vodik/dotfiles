@@ -36,6 +36,9 @@ import Gaps
 import Workspaces
 import Tweaks
 
+import PerProp
+import PerProp.Instances
+
 myWorkspaces :: [Workspace]
 myWorkspaces =
     [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
@@ -68,7 +71,7 @@ colorRed        = "#d74b73"
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (tabs   ||| wtabs ||| tiled ||| full)
+    $ onWorkspace "work"  (perProp (Hostname "beno") wtabs tabs ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full
@@ -286,10 +289,10 @@ iconify icons showAll c =
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
-    , inactiveBorderColor = colorGrayAlt
+    , inactiveBorderColor = colorBlack
     , inactiveColor       = colorGray
     , inactiveTextColor   = colorGrayAlt
-    , activeBorderColor   = colorGrayAlt
+    , activeBorderColor   = colorBlack
     , activeColor         = colorBlue
     , activeTextColor     = colorDarkGray
     , urgentBorderColor   = colorBlackAlt
