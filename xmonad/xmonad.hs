@@ -68,10 +68,13 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
+-- ifHost = layoutIf . Hostname
+ifWide = layoutIf $ ScreenWidth 800
+
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (layoutIf (Hostname "beno") wtabs tabs ||| tiled ||| full)
+    $ onWorkspace "work"  (ifWide wtabs tabs ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full
