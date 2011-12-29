@@ -36,6 +36,9 @@ import Gaps
 import Workspaces
 import Tweaks
 
+import PerProp
+import PerProp.Instances
+
 myWorkspaces :: [Workspace]
 myWorkspaces =
     [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
@@ -68,7 +71,7 @@ colorRed        = "#d74b73"
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (tabs   ||| wtabs ||| tiled ||| full)
+    $ onWorkspace "work"  (perProp (Hostname "beno") wtabs tabs ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full
@@ -154,6 +157,7 @@ myKeys browser conf = mkKeymap conf $ concat
 
       -- mpd controls
       , ("<XF86AudioPlay>", spawn "mpc toggle")
+      , ("<XF86AudioStop>", spawn "mpc stop")
       , ("<XF86AudioNext>", spawn "mpc next")
       , ("<XF86AudioPrev>", spawn "mpc prev")
 
@@ -286,10 +290,10 @@ iconify icons showAll c =
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
-    , inactiveBorderColor = colorGrayAlt
+    , inactiveBorderColor = colorBlack
     , inactiveColor       = colorGray
     , inactiveTextColor   = colorGrayAlt
-    , activeBorderColor   = colorGrayAlt
+    , activeBorderColor   = colorBlack
     , activeColor         = colorBlue
     , activeTextColor     = colorDarkGray
     , urgentBorderColor   = colorBlackAlt
