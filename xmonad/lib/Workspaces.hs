@@ -1,11 +1,13 @@
-module Workspaces ( getWSName
-                  , getWorkspaces
-                  , filterWS
-                  , workspaceRules
-                  , getIconSet
-                  , Icon
-                  , Icons (..)
-                  , Workspace (..) ) where
+module Workspaces
+    ( getWSName
+    , getWorkspaces
+    , filterWS
+    , workspaceRules
+    , getIconSet
+    , Icon
+    , Icons (..)
+    , Workspace (..)
+    ) where
 
 import Data.Monoid
 import Data.Maybe (fromMaybe)

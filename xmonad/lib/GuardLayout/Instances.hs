@@ -1,22 +1,33 @@
 module GuardLayout.Instances
-    ( ScreenSize (..)
-    , Hostname (..) ) where
+    ( ScreenInfo (..)
+    , ScreenSize (..)
+    , Hostname (..)
+    , calculateBox
+    ) where
 
 import Control.Monad
+import Data.Maybe
 import System.Posix.Unistd (getSystemID, nodeName)
-
-import XMonad
-import qualified XMonad.StackSet as W
 
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
+import XMonad
+import qualified XMonad.StackSet as W
+
 import GuardLayout
 
-newtype ScreenSize = ScreenWidth Dimension
+data ScreenInfo = ScreenInfo
+    { width  :: Maybe Dimension
+    , height :: Maybe Dimension
+    }
     deriving (Show, Read)
 
-newtype Hostname = Hostname String
+data ScreenSize = AtLeast ScreenInfo
+                | SmallerThan ScreenInfo
+    deriving (Show, Read)
+
+data Hostname = Hostname String
     deriving (Show, Read)
 
 instance Condition Hostname where
@@ -24,6 +35,17 @@ instance Condition Hostname where
         liftM ((n ==) . nodeName) $ io getSystemID
 
 instance Condition ScreenSize where
-    getCondition ws (ScreenWidth w) = do
-        (Rectangle _ _ sw _) <- liftM head $ io $ getScreenInfo =<< openDisplay ""
-        return $ w <= sw
+    getCondition ws (SmallerThan si) =
+        liftM (calculateBox si (<)) getScreenSize
+
+    getCondition ws (AtLeast si) =
+        liftM (calculateBox si (>=)) getScreenSize
+
+getScreenSize :: X Rectangle
+getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
+
+calculateBox :: ScreenInfo -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
+calculateBox si op (Rectangle _ _ sw sh) =
+    let wide = liftM (op sw) (width  si) >>= Just
+        tall = liftM (op sh) (height si) >>= Just
+    in any id $ catMaybes [wide, tall]

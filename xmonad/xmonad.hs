@@ -68,8 +68,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
--- ifHost = layoutIf . Hostname
-ifWide = layoutIf $ ScreenWidth 800
+ifWide = layoutIf $ AtLeast ScreenInfo { width = Just 800 }
 
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
