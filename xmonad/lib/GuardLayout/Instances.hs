@@ -1,12 +1,14 @@
 module GuardLayout.Instances
     ( ScreenInfo (..)
     , ScreenSize (..)
+    , AspectRatio (..)
     , Hostname (..)
     , calculateBox
     ) where
 
 import Control.Monad
 import Data.Maybe
+import Data.Ratio
 import System.Posix.Unistd (getSystemID, nodeName)
 
 import Graphics.X11 (Rectangle (..))
@@ -27,12 +29,11 @@ data ScreenSize = AtLeast ScreenInfo
                 | SmallerThan ScreenInfo
     deriving (Show, Read)
 
-data Hostname = Hostname String
+data AspectRatio = AspectRatio (Ratio Dimension)
     deriving (Show, Read)
 
-instance Condition Hostname where
-    getCondition ws (Hostname n) =
-        liftM ((n ==) . nodeName) $ io getSystemID
+data Hostname = Hostname String
+    deriving (Show, Read)
 
 instance Condition ScreenSize where
     getCondition ws (SmallerThan si) =
@@ -40,6 +41,14 @@ instance Condition ScreenSize where
 
     getCondition ws (AtLeast si) =
         liftM (calculateBox si (>=)) getScreenSize
+
+instance Condition AspectRatio where
+    getCondition ws (AspectRatio r) =
+        getScreenSize >>= \(Rectangle _ _ sw sh) -> return $ r == (sw % sh)
+
+instance Condition Hostname where
+    getCondition ws (Hostname n) =
+        liftM ((n ==) . nodeName) $ io getSystemID
 
 getScreenSize :: X Rectangle
 getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
