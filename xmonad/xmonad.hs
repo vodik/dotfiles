@@ -36,8 +36,8 @@ import Gaps
 import Workspaces
 import Tweaks
 
-import PerProp
-import PerProp.Instances
+import GuardLayout
+import GuardLayout.Instances
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
@@ -68,10 +68,12 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
+ifWide = layoutIf $ AtLeast ScreenInfo { width = Just 800 }
+
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (perProp (Hostname "beno") wtabs tabs ||| tiled ||| full)
+    $ onWorkspace "work"  (ifWide wtabs tabs ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full

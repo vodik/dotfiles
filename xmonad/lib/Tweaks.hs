@@ -1,6 +1,7 @@
-module Tweaks ( Tweaks (..)
-              , defaultTweaks
-              ) where
+module Tweaks
+    ( Tweaks (..)
+    , defaultTweaks
+    ) where
 
 import XMonad
 import XMonad.Hooks.ManageHelpers
