@@ -15,8 +15,8 @@ URxvt*loginShell:   true
 URxvt*saveLines:    262144
 URxvt*boldMode:     true
 URxvt*jumpScroll:   true
-urxvt.urgentOnBell: true
-!urxvt*visualBell:   true
+URxvt.urgentOnBell: true
+!URxvt*visualBell:   true
 
 URxvt*cursorBlink:  false
 URxvt*cursorColor:  #ff9900
