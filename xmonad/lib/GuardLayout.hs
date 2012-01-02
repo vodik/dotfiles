@@ -5,6 +5,8 @@ module GuardLayout ( GuardLayout
    , getCondition
    , layoutIf
    , layoutOn
+   , layoutMod
+   , layoutMods
    ) where
 
 

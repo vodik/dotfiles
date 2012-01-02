@@ -68,24 +68,23 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-ifWide = layoutIf $ AtLeast ScreenInfo { width = Just 1200 }
-
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
     $ mkToggle (single NBFULL)
-    $ onWorkspace "work"  (ifWide wtabs tabs ||| tiled ||| full)
+    $ onWorkspace "work"  (tabs   ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
     where
-        tabs   = smartBorders $ tabbed shrinkText myTabTheme
-        wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
+        tabs   = smartBorders $ ifWide (mastered (2/100) (1/2)) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []
         chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
+
+ifWide = layoutMod $ AtLeast ScreenInfo { width = Just 1200 }
 
 q ~? x = fmap (=~ x) q
 myRules ws = manageHook defaultConfig
