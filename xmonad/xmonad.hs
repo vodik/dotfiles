@@ -68,7 +68,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-ifWide = layoutIf $ AtLeast ScreenInfo { width = Just 800 }
+ifWide = layoutIf $ AtLeast ScreenInfo { width = Just 1200 }
 
 myLayoutRules p = avoidStruts
     $ lessBorders OnlyFloat
@@ -80,7 +80,7 @@ myLayoutRules p = avoidStruts
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
     where
-        tabs   = noBorders $ tabbed shrinkText myTabTheme
+        tabs   = smartBorders $ tabbed shrinkText myTabTheme
         wtabs  = smartBorders $ mastered (2/100) (1/2) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []

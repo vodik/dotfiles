@@ -27,6 +27,9 @@ layoutIf p = layoutOn [p]
 layoutOn :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => [p] -> l1 a -> l2 a -> GuardLayout p l1 l2 a
 layoutOn p = GuardLayout p False
 
+layoutMod :: (LayoutClass l a) => p -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout (ModifiedLayout lm l) l a
+layoutMod p f l = GuardLayout p (f l) l
+
 instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClass (GuardLayout p l1 l2) a where
     runLayout ws@(W.Workspace i p@(GuardLayout ps _ lt lf) ms) r =
         checkCondition ws ps >>=
