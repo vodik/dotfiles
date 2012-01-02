@@ -7,6 +7,7 @@ import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
 import XMonad.Actions.CycleWS
+import XMonad.Actions.SpawnOn
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.EwmhDesktops
@@ -67,7 +68,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules p = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
+myLayoutRules t = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
     $ onWorkspace "work"  (tabs   ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
@@ -77,14 +78,14 @@ myLayoutRules p = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
     where
         tabs   = smartBorders $ ifWide (mastered (2/100) (1/2)) $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []
-        chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
+        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN t) (2/100) (1/2) []
+        chat   = withIM (imWidth t) (imClient t) $ gaps 5 $ GridRatio (imGrid t)
         full   = noBorders Full
         ifWide = modCondition . AtLeast $ ScreenSpace (Just 1000) Nothing
 
-q ~? x = fmap (=~ x) q
 myRules ws = manageHook defaultConfig
     <+> manageDocks
+    <+> manageSpawn
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ClassName ws
     <+> (composeAll . concat $
@@ -99,15 +100,16 @@ myRules ws = manageHook defaultConfig
           ]
         ])
     where
-        isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
+        q ~? x = fmap (=~ x) q
         role   = stringProperty "WM_WINDOW_ROLE"
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
+        isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
       , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
-      , ("M-p", shellPrompt myXPConfig)
+      , ("M-p", shellPromptHere myXPConfig)
 
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
