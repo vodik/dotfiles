@@ -23,17 +23,17 @@ data (Show p) => GuardLayout p l1 l2 a = GuardLayout [p] Bool (l1 a) (l2 a)
 class (Show p, Read p) => Condition p where
     validate :: W.Workspace WorkspaceId l a -> p -> X Bool
 
-    onCondition :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => p -> l1 a -> l2 a -> GuardLayout p l1 l2 a
-    onCondition p = onConditions [p]
+onCondition :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => p -> l1 a -> l2 a -> GuardLayout p l1 l2 a
+onCondition p = onConditions [p]
 
-    onConditions :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => [p] -> l1 a -> l2 a -> GuardLayout p l1 l2 a
-    onConditions p = GuardLayout p False
+onConditions :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => [p] -> l1 a -> l2 a -> GuardLayout p l1 l2 a
+onConditions p = GuardLayout p False
 
-    modCondition :: (LayoutClass l a) => p -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
-    modCondition p = modConditions [p]
+modCondition :: (LayoutClass l a, Condition p) => p -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
+modCondition p = modConditions [p]
 
-    modConditions :: (LayoutClass l a) => [p] -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
-    modConditions p f l = GuardLayout p False (f l) l
+modConditions :: (LayoutClass l a, Condition p) => [p] -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
+modConditions p f l = GuardLayout p False (f l) l
 
 instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClass (GuardLayout p l1 l2) a where
     runLayout ws@(W.Workspace i p@(GuardLayout ps _ lt lf) ms) r =
