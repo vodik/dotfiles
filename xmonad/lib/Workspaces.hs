@@ -42,7 +42,7 @@ workspaceRules _ [] = idHook
 getIconSet :: [Workspace] -> IO Icons
 getIconSet ws = do
     home <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
-    return $ Icons $ wrapIcon (getIconMap ws) $ iconPath home
+    return . Icons $ wrapIcon (getIconMap ws) $ iconPath home
     where
         getIconMap ws = M.fromList [ (n, i) | (Workspace n i _) <- ws ]
         iconPath      = (++ "/.xmonad/icons/")

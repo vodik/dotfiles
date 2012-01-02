@@ -19,8 +19,8 @@ URxvt*scrollTtyKeypress:true
 URxvt*scrollWithBuffer: false
 URxvt*scrollTtyOutput:  false
 URxvt*scrollBar:        false
-urxvt.urgentOnBell: true
-!urxvt*visualBell:   true
+URxvt.urgentOnBell: true
+!URxvt*visualBell:   true
 
 URxvt*cursorBlink:  false
 URxvt*cursorColor:  #ff9900

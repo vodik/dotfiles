@@ -55,6 +55,6 @@ getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
 
 calculateBox :: ScreenInfo -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
 calculateBox si op (Rectangle _ _ sw sh) =
-    let wide = liftM (op sw) (width  si) >>= Just
-        tall = liftM (op sh) (height si) >>= Just
+    let wide = liftM (op sw) (width  si)
+        tall = liftM (op sh) (height si)
     in any id $ catMaybes [wide, tall]
