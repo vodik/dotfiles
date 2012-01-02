@@ -67,9 +67,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules p = avoidStruts
-    $ lessBorders OnlyFloat
-    $ mkToggle (single NBFULL)
+myLayoutRules p = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
     $ onWorkspace "work"  (tabs   ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
@@ -82,7 +80,7 @@ myLayoutRules p = avoidStruts
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN p) (2/100) (1/2) []
         chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
-        ifWide = modCondition $ AtLeast ScreenSpace { width = Just 1200 }
+        ifWide = modCondition . AtLeast $ ScreenSpace (Just 1000) Nothing
 
 q ~? x = fmap (=~ x) q
 myRules ws = manageHook defaultConfig

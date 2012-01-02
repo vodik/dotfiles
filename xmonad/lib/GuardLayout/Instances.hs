@@ -19,10 +19,7 @@ import qualified XMonad.StackSet as W
 
 import GuardLayout
 
-data ScreenSpace = ScreenSpace
-    { width  :: Maybe Dimension
-    , height :: Maybe Dimension
-    }
+data ScreenSpace = ScreenSpace (Maybe Dimension) (Maybe Dimension)
     deriving (Show, Read)
 
 data ScreenSize = AtLeast ScreenSpace
@@ -54,7 +51,7 @@ getScreenSize :: X Rectangle
 getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
 
 calculateBox :: ScreenSpace -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
-calculateBox si op (Rectangle _ _ sw sh) =
-    let wide = liftM (op sw) (width  si)
-        tall = liftM (op sh) (height si)
+calculateBox (ScreenSpace w h) op (Rectangle _ _ sw sh) =
+    let wide = liftM (op sw) w
+        tall = liftM (op sh) h
     in any id $ catMaybes [wide, tall]
