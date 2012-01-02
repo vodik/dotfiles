@@ -15,6 +15,10 @@ URxvt*loginShell:   true
 URxvt*saveLines:    262144
 URxvt*boldMode:     true
 URxvt*jumpScroll:   true
+URxvt*scrollTtyKeypress:true
+URxvt*scrollWithBuffer: false
+URxvt*scrollTtyOutput:  false
+URxvt*scrollBar:        false
 urxvt.urgentOnBell: true
 !urxvt*visualBell:   true
 
