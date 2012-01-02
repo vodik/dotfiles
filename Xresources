@@ -18,7 +18,6 @@ URxvt*jumpScroll:   true
 URxvt*scrollTtyKeypress:true
 URxvt*scrollWithBuffer: false
 URxvt*scrollTtyOutput:  false
-URxvt*scrollBar:        false
 URxvt.urgentOnBell: true
 !URxvt*visualBell:   true
 
@@ -30,58 +29,58 @@ URxvt.perl-ext-common:  default,matcher
 URxvt.urlLauncher:      /usr/bin/firefox
 URxvt.matcher.button:   1
 
-/* *foreground: #ddccbb */
-/* *background: #151515 */
+*foreground: #ddccbb
+*background: #151515
 
 !black
-/* *color0:     #3b3d3e */
-/* *color8:     #505354 */
-/* !red */
-/* *color1:     #f92672 */
-/* *color9:     #ff5995 */
-/* !green */
-/* *color2:     #82b414 */
-/* *color10:    #b6e354 */
-/* !yellow */
-/* *color3:     #fd971f */
-/* *color11:    #feed6c */
-/* !blue */
-/* *color4:     #56c2d6 */
-/* *color12:    #8cedff */
-/* !magenta */
-/* *color5:     #8c54fe */
-/* *color13:    #9e6ffe */
-/* !cyan */
-/* *color6:     #6664a7 */
-/* kcolor14:    #888cb1 */
-/* !white */
-/* *color7:     #ccccc6 */
-/* *color15:    #f8f8f2 */
-
-*foreground:#a0a0a0
-*background:#1B1D1E
-
-!black
-*color0:    #1B1D1E
-*color8:    #505354
+*color0:     #3b3d3e
+*color8:     #505354
 !red
-*color1:    #F92672
-*color9:    #FF669D
+*color1:     #f92672
+*color9:     #ff5995
 !green
-*color2:    #A6E22E
-*color10:   #BEED5F
+*color2:     #82b414
+*color10:    #b6e354
 !yellow
-*color3:    #FD971F
-*color11:   #E6DB74
+*color3:     #fd971f
+*color11:    #feed6c
 !blue
-*color4:    #66D9EF
-*color12:   #66D9EF
+*color4:     #56c2d6
+*color12:    #8cedff
 !magenta
-*color5:    #9E6FFE
-*color13:   #9E6FFE
+*color5:     #8c54fe
+*color13:    #9e6ffe
 !cyan
-*color6:    #5E7175
-*color14:   #A3BABF
+*color6:     #6664a7
+kcolor14:    #888cb1
 !white
-*color7:    #CCCCC6
-*color15:   #F8F8F2
+*color7:     #ccccc6
+*color15:    #f8f8f2
+
+/* *foreground:#a0a0a0 */
+/* *background:#1B1D1E */
+
+/* !black */
+/* *color0:    #1B1D1E */
+/* *color8:    #505354 */
+/* !red */
+/* *color1:    #F92672 */
+/* *color9:    #FF669D */
+/* !green */
+/* *color2:    #A6E22E */
+/* *color10:   #BEED5F */
+/* !yellow */
+/* *color3:    #FD971F */
+/* *color11:   #E6DB74 */
+/* !blue */
+/* *color4:    #66D9EF */
+/* *color12:   #66D9EF */
+/* !magenta */
+/* *color5:    #9E6FFE */
+/* *color13:   #9E6FFE */
+/* !cyan */
+/* *color6:    #5E7175 */
+/* *color14:   #A3BABF */
+/* !white */
+/* *color7:    #CCCCC6 */
+/* *color15:   #F8F8F2 */
