@@ -1,5 +1,5 @@
 module GuardLayout.Instances
-    ( ScreenInfo (..)
+    ( ScreenSpace (..)
     , ScreenSize (..)
     , AspectRatio (..)
     , Hostname (..)
@@ -19,14 +19,14 @@ import qualified XMonad.StackSet as W
 
 import GuardLayout
 
-data ScreenInfo = ScreenInfo
+data ScreenSpace = ScreenSpace
     { width  :: Maybe Dimension
     , height :: Maybe Dimension
     }
     deriving (Show, Read)
 
-data ScreenSize = AtLeast ScreenInfo
-                | SmallerThan ScreenInfo
+data ScreenSize = AtLeast ScreenSpace
+                | SmallerThan ScreenSpace
     deriving (Show, Read)
 
 data AspectRatio = AspectRatio (Ratio Dimension)
@@ -36,24 +36,24 @@ data Hostname = Hostname String
     deriving (Show, Read)
 
 instance Condition ScreenSize where
-    getCondition ws (SmallerThan si) =
+    validate ws (SmallerThan si) =
         liftM (calculateBox si (<)) getScreenSize
 
-    getCondition ws (AtLeast si) =
+    validate ws (AtLeast si) =
         liftM (calculateBox si (>=)) getScreenSize
 
 instance Condition AspectRatio where
-    getCondition ws (AspectRatio r) =
+    validate ws (AspectRatio r) =
         getScreenSize >>= \(Rectangle _ _ sw sh) -> return $ r == (sw % sh)
 
 instance Condition Hostname where
-    getCondition ws (Hostname n) =
+    validate ws (Hostname n) =
         liftM ((n ==) . nodeName) $ io getSystemID
 
 getScreenSize :: X Rectangle
 getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
 
-calculateBox :: ScreenInfo -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
+calculateBox :: ScreenSpace -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
 calculateBox si op (Rectangle _ _ sw sh) =
     let wide = liftM (op sw) (width  si)
         tall = liftM (op sh) (height si)

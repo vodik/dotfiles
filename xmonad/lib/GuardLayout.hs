@@ -2,11 +2,11 @@
 
 module GuardLayout ( GuardLayout
    , Condition
-   , getCondition
-   , layoutIf
-   , layoutOn
-   , layoutMod
-   , layoutMods
+   , validate
+   , onCondition
+   , onConditions
+   , modCondition
+   , modConditions
    ) where
 
 
@@ -21,19 +21,19 @@ data (Show p) => GuardLayout p l1 l2 a = GuardLayout [p] Bool (l1 a) (l2 a)
     deriving (Read, Show)
 
 class (Show p, Read p) => Condition p where
-    getCondition :: W.Workspace WorkspaceId l a -> p -> X Bool
+    validate :: W.Workspace WorkspaceId l a -> p -> X Bool
 
-    layoutIf :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => p -> l1 a -> l2 a -> GuardLayout p l1 l2 a
-    layoutIf p = layoutOn [p]
+    onCondition :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => p -> l1 a -> l2 a -> GuardLayout p l1 l2 a
+    onCondition p = onConditions [p]
 
-    layoutOn :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => [p] -> l1 a -> l2 a -> GuardLayout p l1 l2 a
-    layoutOn p = GuardLayout p False
+    onConditions :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => [p] -> l1 a -> l2 a -> GuardLayout p l1 l2 a
+    onConditions p = GuardLayout p False
 
-    layoutMod :: (LayoutClass l a) => p -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
-    layoutMod p = layoutMods [p]
+    modCondition :: (LayoutClass l a) => p -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
+    modCondition p = modConditions [p]
 
-    layoutMods :: (LayoutClass l a) => [p] -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
-    layoutMods p f l = GuardLayout p False (f l) l
+    modConditions :: (LayoutClass l a) => [p] -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
+    modConditions p f l = GuardLayout p False (f l) l
 
 instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClass (GuardLayout p l1 l2) a where
     runLayout ws@(W.Workspace i p@(GuardLayout ps _ lt lf) ms) r =
@@ -51,7 +51,7 @@ instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClas
     description (GuardLayout _ _    _ l2) = description l2
 
 checkCondition :: (Condition p) => W.Workspace WorkspaceId l a -> [p] -> X Bool
-checkCondition ws ps = liftM (any id) $ mapM (getCondition ws) ps
+checkCondition ws ps = liftM (any id) $ mapM (validate ws) ps
 
 mkNewPerScreenT :: (Condition p) => GuardLayout p l1 l2 a -> Maybe (l1 a) -> GuardLayout p l1 l2 a
 mkNewPerScreenT (GuardLayout ps _ lt lf) mlt' = (\lt' -> GuardLayout ps True lt' lf) $ fromMaybe lt mlt'

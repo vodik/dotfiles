@@ -33,11 +33,10 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import Gaps
-import Workspaces
-import Tweaks
-
 import GuardLayout
 import GuardLayout.Instances
+import Workspaces
+import Tweaks
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
@@ -84,7 +83,7 @@ myLayoutRules p = avoidStruts
         chat   = withIM (imWidth p) (imClient p) $ gaps 5 $ GridRatio (imGrid p)
         full   = noBorders Full
 
-ifWide = layoutMod $ AtLeast ScreenInfo { width = Just 1200 }
+ifWide = modCondition $ AtLeast ScreenSpace { width = Just 1200 }
 
 q ~? x = fmap (=~ x) q
 myRules ws = manageHook defaultConfig
