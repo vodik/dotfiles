@@ -223,7 +223,7 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-myLogHook icons output = do
+myLogHook icons output =
     dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
 
 myPP icons = defaultPP
