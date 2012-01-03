@@ -93,7 +93,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN tw) (2/100) (1/2) []
         chat   = withIM (imWidth tw) (imClient tw) $ gaps 5 $ GridRatio (imGrid tw)
         full   = noBorders Full
-        ifWide = modCondition . AtLeast $ ScreenSpace (Just 1000) Nothing
+        ifWide = modCondition . AtLeast $ ScreenSpace (Just 1200) Nothing
 
 myRules ws = manageHook defaultConfig
     <+> manageDocks
