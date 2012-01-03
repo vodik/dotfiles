@@ -10,7 +10,6 @@ import Graphics.X11.Xinerama (getScreenInfo)
 import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
-import XMonad.Actions.SpawnOn
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.EwmhDesktops
@@ -98,7 +97,6 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
 
 myRules ws = manageHook defaultConfig
     <+> manageDocks
-    <+> manageSpawn
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ClassName ws
     <+> (composeAll . concat $
@@ -121,15 +119,15 @@ myRules ws = manageHook defaultConfig
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
     when (disp == ":0") $ mapM_ spawn
-        [ "pgrep urxvtd  || urxvtd"
-        , "pgrep udiskie || udiskie"
+        [ "pgrep urxvtd  || exec urxvtd"
+        , "pgrep udiskie || exec udiskie"
         ]
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
       , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
-      , ("M-p", shellPromptHere myXPConfig)
+      , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
