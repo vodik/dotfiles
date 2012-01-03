@@ -9,7 +9,8 @@ import XMonad.Util.WindowProperties
 import Workspaces
 
 data Tweaks = Tweaks
-    { imClient   :: Property
+    { mainWidth  :: Rational
+    , imClient   :: Property
     , imWidth    :: Rational
     , imGrid     :: Double
     , masterN    :: Int

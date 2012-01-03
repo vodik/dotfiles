@@ -58,7 +58,8 @@ myBorderWidth   = 3
 myModMask       = mod4Mask
 
 defaultTweaks = Tweaks
-    { imClient   = pidgin
+    { mainWidth  = 1/2
+    , imClient   = pidgin
     , imWidth    = 2/10
     , imGrid     = 2/3
     , masterN    = 1
@@ -88,7 +89,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
     where
-        tabs   = smartBorders $ ifWide (mastered (2/100) (1/2)) $ trackFloating $ tabbed shrinkText myTabTheme
+        tabs   = smartBorders $ ifWide (mastered (2/100) (mainWidth tw)) $ trackFloating $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN tw) (2/100) (1/2) []
         chat   = withIM (imWidth tw) (imClient tw) $ gaps 5 $ GridRatio (imGrid tw)
@@ -314,9 +315,14 @@ getTweaks :: IO Tweaks
 getTweaks = do
     hostName <- nodeName `fmap` getSystemID
     return $ case hostName of
+        "vodik" -> vodikTweaks
         "gmzlj" -> gmzljTweaks
         "beno"  -> benoTweaks
         _       -> defaultTweaks
+
+vodikTweaks = defaultTweaks
+    { mainWidth  = 2/3
+    }
 
 gmzljTweaks = defaultTweaks
     { imWidth    = 3/10
