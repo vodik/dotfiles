@@ -223,6 +223,45 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
+myLogHook icons output = do
+    dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
+
+myPP icons = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
+    , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
+    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
+    , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
+    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppWsSep           = ""
+    , ppLayout          = const ""
+    , ppOrder           = \(ws:_:t:_) -> [ws,t]
+    }
+
+myTabTheme = defaultTheme
+    { decoHeight          = 18
+    , inactiveBorderColor = colorBlack
+    , inactiveColor       = colorGray
+    , inactiveTextColor   = colorGrayAlt
+    , activeBorderColor   = colorBlack
+    , activeColor         = colorBlue
+    , activeTextColor     = colorDarkGray
+    , urgentBorderColor   = colorBlackAlt
+    , urgentTextColor     = colorWhite
+    }
+
+myXPConfig = defaultXPConfig
+    { font              = "xft:Envy Code R:size=9"
+    , fgColor           = "#8cedff"
+    , bgColor           = "black"
+    , bgHLight          = "black"
+    , fgHLight          = "#f92672"
+    , promptBorderWidth = 0
+    , position          = Bottom
+    }
+
 main = do
     tweaks  <- getTweaks
     browser <- getBrowser
@@ -246,25 +285,6 @@ main = do
     where
         ws' t = wsModifier t myWorkspaces
 
-gmzljTweaks = defaultTweaks
-    { imWidth    = 3/10
-    , imGrid     = 3/2
-    , wsModifier = filterWS "virt"
-    }
-
-benoTweaks = defaultTweaks
-    { imClient = empathy
-    , masterN  = 2
-    }
-
-getTweaks :: IO Tweaks
-getTweaks = do
-    hostName <- nodeName `fmap` getSystemID
-    return $ case hostName of
-        "gmzlj" -> gmzljTweaks
-        "beno"  -> benoTweaks
-        _       -> defaultTweaks
-
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
     "dzen2 -x "  ++ show x
@@ -284,23 +304,6 @@ to9 ws = to9' ws 1
         to9' [] c | c < 10    = show c : to9' [] (c + 1)
                   | otherwise = []
 
-myLogHook icons output = do
-    dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
-
-myPP icons = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
-    , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
-    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
-    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
-    , ppWsSep           = ""
-    , ppLayout          = const ""
-    , ppOrder           = \(ws:_:t:_) -> [ws,t]
-    }
-
 iconify :: Icons -> Bool -> WorkspaceId -> String
 iconify icons showAll c =
     maybe without (pad . (++ ' ' : c) . dzenIcon) $ getIcon icons c
@@ -309,26 +312,23 @@ iconify icons showAll c =
         without | showAll   = pad c
                 | otherwise = ""
 
-myTabTheme = defaultTheme
-    { decoHeight          = 18
-    , inactiveBorderColor = colorBlack
-    , inactiveColor       = colorGray
-    , inactiveTextColor   = colorGrayAlt
-    , activeBorderColor   = colorBlack
-    , activeColor         = colorBlue
-    , activeTextColor     = colorDarkGray
-    , urgentBorderColor   = colorBlackAlt
-    , urgentTextColor     = colorWhite
+getTweaks :: IO Tweaks
+getTweaks = do
+    hostName <- nodeName `fmap` getSystemID
+    return $ case hostName of
+        "gmzlj" -> gmzljTweaks
+        "beno"  -> benoTweaks
+        _       -> defaultTweaks
+
+gmzljTweaks = defaultTweaks
+    { imWidth    = 3/10
+    , imGrid     = 3/2
+    , wsModifier = filterWS "virt"
     }
 
-myXPConfig = defaultXPConfig
-    { font              = "xft:Envy Code R:size=9"
-    , fgColor           = "#8cedff"
-    , bgColor           = "black"
-    , bgHLight          = "black"
-    , fgHLight          = "#f92672"
-    , promptBorderWidth = 0
-    , position          = Bottom
+benoTweaks = defaultTweaks
+    { imClient = empathy
+    , masterN  = 2
     }
 
 empathy = ClassName "Empathy" `And` Role "contact_list"
