@@ -300,7 +300,7 @@ iconify :: Icons -> Bool -> WorkspaceId -> String
 iconify icons showAll c =
     maybe without (pad . (++ ' ' : c) . dzenIcon) $ getIcon icons c
     where
-        dzenIcon  = wrap "^i(" ")"
+        dzenIcon = wrap "^i(" ")"
         without | showAll   = pad c
                 | otherwise = ""
 
