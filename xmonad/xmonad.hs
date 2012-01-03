@@ -1,11 +1,14 @@
+import Control.Monad
 import Text.Regex.Posix ((=~))
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
+import System.Environment
 
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
+import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
 import XMonad.Actions.SpawnOn
 import XMonad.Hooks.ManageDocks
@@ -23,6 +26,7 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
+import XMonad.Layout.TrackFloating
 import XMonad.Prompt.Shell
 import XMonad.Prompt
 import XMonad.Util.Run
@@ -31,6 +35,7 @@ import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad (namedScratchpadFilterOutWorkspace)
 import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
+import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
 import Gaps
@@ -68,7 +73,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules t = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
+myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
     $ onWorkspace "work"  (tabs   ||| tiled ||| full)
     $ onWorkspace "term"  (mtiled ||| tiled ||| full)
     $ onWorkspace "chat"  (chat   ||| tiled ||| full)
@@ -76,10 +81,10 @@ myLayoutRules t = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
     where
-        tabs   = smartBorders $ ifWide (mastered (2/100) (1/2)) $ tabbed shrinkText myTabTheme
+        tabs   = smartBorders $ ifWide (mastered (2/100) (1/2)) $ trackFloating $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN t) (2/100) (1/2) []
-        chat   = withIM (imWidth t) (imClient t) $ gaps 5 $ GridRatio (imGrid t)
+        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN tw) (2/100) (1/2) []
+        chat   = withIM (imWidth tw) (imClient tw) $ gaps 5 $ GridRatio (imGrid tw)
         full   = noBorders Full
         ifWide = modCondition . AtLeast $ ScreenSpace (Just 1000) Nothing
 
@@ -105,6 +110,13 @@ myRules ws = manageHook defaultConfig
         floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
         isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
+myStartupHook = do
+    disp <- io $ getEnv "DISPLAY"
+    when (disp == ":0") $ mapM_ spawn
+        [ "pgrep urxvtd  || urxvtd"
+        , "pgrep udiskie || udiskie"
+        ]
+
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
       , ("M-w", spawn browser)
@@ -113,7 +125,7 @@ myKeys browser conf = mkKeymap conf $ concat
 
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
-      , ("M-S-c", kill)
+      , ("M-S-c", kill1)
       , ("M-q",   restart "xmonad" True)
 
       -- layout
@@ -174,7 +186,10 @@ myKeys browser conf = mkKeymap conf $ concat
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-", greedyView'), ("M-S-", windows . W.shift) ]
+                      , (m, f) <- [ ("M-",   greedyView')
+                                  , ("M-S-", windows . W.shift)
+                                  , ("M-C-", windows . copy)
+                                  ]
     ]
     where
         greedyView' = toggleOrDoSkip ["NSP"] W.greedyView
@@ -209,7 +224,8 @@ main = do
         { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
-        , logHook            = dynamicLogWithPP $ myPP icons dzenbar
+        , logHook            = myLogHook icons dzenbar
+        , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
@@ -263,7 +279,10 @@ to9 ws = to9' ws 1
         to9' [] c | c < 10    = show c : to9' [] (c + 1)
                   | otherwise = []
 
-myPP icons output = defaultPP
+myLogHook icons output = do
+    dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
+
+myPP icons = defaultPP
     { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
     , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
     , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
@@ -275,16 +294,14 @@ myPP icons output = defaultPP
     , ppWsSep           = ""
     , ppLayout          = const ""
     , ppOrder           = \(ws:_:t:_) -> [ws,t]
-    , ppOutput          = hPutStrLn output
     }
 
-iconify :: Icons -> Bool -> String -> String
+iconify :: Icons -> Bool -> WorkspaceId -> String
 iconify icons showAll c =
-    maybe without (wrapSpace . (++ ' ' : c) . dzenIcon) $ getIcon icons c
+    maybe without (pad . (++ ' ' : c) . dzenIcon) $ getIcon icons c
     where
         dzenIcon  = wrap "^i(" ")"
-        wrapSpace = wrap " " " "
-        without | showAll   = wrapSpace c
+        without | showAll   = pad c
                 | otherwise = ""
 
 myTabTheme = defaultTheme
@@ -300,7 +317,7 @@ myTabTheme = defaultTheme
     }
 
 myXPConfig = defaultXPConfig
-    { font     = "xft:Envy Code R:size=11"
+    { font     = "xft:Envy Code R:size=9"
     , fgColor  = "#8cedff"
     , bgColor  = "black"
     , bgHLight = "black"

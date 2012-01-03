@@ -3,7 +3,7 @@ cd
 start-pulseaudio-x11 &
 xrdb -merge ~/.Xresources &
 nitrogen --restore &
-urxvtd &
+# urxvtd &
 xsetroot -cursor_name left_ptr &
 
 case ${2} in
