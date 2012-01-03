@@ -58,6 +58,14 @@ myTerminal      = "urxvtc"
 myBorderWidth   = 3
 myModMask       = mod4Mask
 
+defaultTweaks = Tweaks
+    { imClient   = pidgin
+    , imWidth    = 2/10
+    , imGrid     = 2/3
+    , masterN    = 1
+    , wsModifier = id
+    }
+
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
 colorBlackAlt   = "#050505"
@@ -232,7 +240,7 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ getWorkspaces $ ws' tweaks
+        , workspaces         = to9 . getWorkspaces $ ws' tweaks
         , focusFollowsMouse  = True
         }
     where
@@ -248,9 +256,6 @@ benoTweaks = defaultTweaks
     { imClient = empathy
     , masterN  = 2
     }
-
-empathy :: Property
-empathy = ClassName "Empathy" `And` Role "contact_list"
 
 getTweaks :: IO Tweaks
 getTweaks = do
@@ -317,11 +322,14 @@ myTabTheme = defaultTheme
     }
 
 myXPConfig = defaultXPConfig
-    { font     = "xft:Envy Code R:size=9"
-    , fgColor  = "#8cedff"
-    , bgColor  = "black"
-    , bgHLight = "black"
-    , fgHLight = "#f92672"
-    , position = Bottom
+    { font              = "xft:Envy Code R:size=9"
+    , fgColor           = "#8cedff"
+    , bgColor           = "black"
+    , bgHLight          = "black"
+    , fgHLight          = "#f92672"
     , promptBorderWidth = 0
+    , position          = Bottom
     }
+
+empathy = ClassName "Empathy" `And` Role "contact_list"
+pidgin  = ClassName "Pidgin"  `And` Role "buddy_list"
