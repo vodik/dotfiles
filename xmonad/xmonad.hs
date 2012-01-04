@@ -191,11 +191,13 @@ myKeys browser conf = mkKeymap conf $ concat
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
     where
+        withFocused' :: (Window -> X ()) -> X ()
         withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
             \w -> ignoreWindow w >>= \sp -> when sp $ f w
+
+        ignoreWindow :: Window -> X Bool
         ignoreWindow w = withDisplay $ \d -> fmap ((/= "scratchpad") . resName) . io $
             getClassHint d w
-
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
