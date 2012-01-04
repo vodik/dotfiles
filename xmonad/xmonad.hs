@@ -196,8 +196,8 @@ myKeys browser conf = mkKeymap conf $ concat
             \w -> ignoreWindow w >>= \sp -> when sp $ f w
 
         ignoreWindow :: Window -> X Bool
-        ignoreWindow w = withDisplay $ \d -> fmap ((/= "scratchpad") . resName) . io $
-            getClassHint d w
+        ignoreWindow w = withDisplay $ \d -> fmap ((/= "scratchpad") . resName) $
+            io $ getClassHint d w
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
