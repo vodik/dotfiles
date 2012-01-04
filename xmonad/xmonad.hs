@@ -150,7 +150,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-j", windows W.focusDown)
       , ("M-k", windows W.focusUp)
       , ("M-m", windows W.focusMaster)
-      , ("M-f", withFocused $ windows . W.sink)
+      , ("M-f", withFocused' ["scratchpad"] $ windows . W.sink)
 
       -- cycle windows
       , ("M-<Up>",      prevWS)
@@ -190,6 +190,12 @@ myKeys browser conf = mkKeymap conf $ concat
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
+    where
+        withFocused' ign f =
+            withWindowSet $ \w -> whenJust (W.peek w) $
+              \m -> isScratchpad ign m >>= \t -> when t (f m)
+        isScratchpad ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) $ io $ getClassHint d w
+
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
