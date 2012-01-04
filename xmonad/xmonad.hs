@@ -193,7 +193,7 @@ myKeys browser conf = mkKeymap conf $ concat
     where
         withFocused' :: (Window -> X ()) -> X ()
         withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-            \w -> ignoreWindow w >>= \ok -> when (not ok) $ f w
+            \w -> ignoreWindow w >>= \ok -> unless ok $ f w
 
         ignoreWindow :: Window -> X Bool
         ignoreWindow w = withDisplay $ \d -> fmap ((== "scratchpad") . resName) $
@@ -201,13 +201,11 @@ myKeys browser conf = mkKeymap conf $ concat
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-",   greedyView')
+                      , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
                                   ]
     ]
-    where
-        greedyView' = toggleOrDoSkip ["NSP"] W.greedyView
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
@@ -271,11 +269,12 @@ myXPConfig = defaultXPConfig
 
 main = do
     tweaks  <- getTweaks
+    let ws'  = wsModifier tweaks myWorkspaces
     browser <- getBrowser
-    icons   <- getIconSet $ ws' tweaks
+    icons   <- getIconSet ws'
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules $ ws' tweaks
+        { manageHook         = myRules ws'
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = myLogHook icons dzenbar
@@ -286,11 +285,9 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 . getWorkspaces $ ws' tweaks
+        , workspaces         = to9 $ getWorkspaces ws'
         , focusFollowsMouse  = True
         }
-    where
-        ws' t = wsModifier t myWorkspaces
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
