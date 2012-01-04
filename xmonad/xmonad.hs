@@ -186,7 +186,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- backlight hack
       , ("M-x", spawn "xbacklight -set 100%")
       ]
-    , shiftWorkspaceKeys conf
+    , shiftWorkspaceKeys $ workspaces conf
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
@@ -199,8 +199,9 @@ myKeys browser conf = mkKeymap conf $ concat
         ignoreWindow w = withDisplay $ \d -> fmap ((== "scratchpad") . resName) $
             io $ getClassHint d w
 
-shiftWorkspaceKeys conf =
-    [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
+shiftWorkspaceKeys :: [WorkspaceId] -> [(String, X ())]
+shiftWorkspaceKeys workspaces =
+    [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces
                       , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
@@ -231,6 +232,7 @@ favouritesList =
 myLogHook icons output =
     dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
 
+myPP :: Icons -> PP
 myPP icons = defaultPP
     { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
     , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True

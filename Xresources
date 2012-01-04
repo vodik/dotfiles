@@ -18,16 +18,16 @@ URxvt*jumpScroll:   true
 URxvt*scrollTtyKeypress:true
 URxvt*scrollWithBuffer: false
 URxvt*scrollTtyOutput:  false
-URxvt.urgentOnBell: true
+URxvt*urgentOnBell: true
 !URxvt*visualBell:   true
 
 URxvt*cursorBlink:  false
 URxvt*cursorColor:  #ff9900
 URxvt*cursorColor2: #000000
 
-URxvt.perl-ext-common:  default,matcher
-URxvt.urlLauncher:      /usr/bin/firefox
-URxvt.matcher.button:   1
+URxvt*perl-ext-common:  default,matcher
+URxvt*urlLauncher:      /usr/bin/firefox
+URxvt*matcher.button:   1
 
 *foreground: #ddccbb
 *background: #151515
