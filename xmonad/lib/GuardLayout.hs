@@ -1,38 +1,100 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 
-module GuardLayout ( GuardLayout
-   , Condition
-   , validate
-   , onCondition
-   , onConditions
-   , modCondition
-   , modConditions
-   ) where
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  XMonad.Layout.GuardLayout
+-- License     :  BSD-style (see LICENSE)
+--
+-- Maintainer  :  <simongmzlj@gmail.com>
+-- Stability   :  unstable
+-- Portability :  unportable
+--
+-- Configure layouts on a conditional basis: use layouts and apply
+-- layout modifiers selectively based on arbitrary run-time conditions.
+-----------------------------------------------------------------------------
 
+module GuardLayout
+    ( -- * Usage
+      -- $usage
+      GuardLayout
+    , Condition
+    , validate
+    , onCondition
+    , onConditions
+    , modCondition
+    , modConditions
+    ) where
 
 import Control.Monad
 import Data.Maybe
 
 import XMonad
-import qualified XMonad.StackSet as W
 import XMonad.Layout.LayoutModifier
+import qualified XMonad.StackSet as W
 
+-- $usage
+-- You can use this module by importing it into your \~/.xmonad/xmonad.hs file:
+--
+-- > import Xmonad.Layout.GuardLayout
+-- > import Xmonad.Layout.GuardLayout.Instances
+--
+-- and modifying your layoutHook as follows (for example):
+--
+-- > layoutHook =
+--
+-- Note that @l1@, @l2@, and @l3@ can be arbitrarily complicated
+-- layouts,
+--
+
+-- | Structure for representing a condition-based layout. We store
+--   a set of conditions to match against and the two layouts. We save
+--   the layout choice in the Bool to be used to implement
+--   description.
 data (Show p) => GuardLayout p l1 l2 a = GuardLayout [p] Bool (l1 a) (l2 a)
     deriving (Read, Show)
 
+-- | Every condition must be an instance of 'Condition' which defines
+-- one method, validate, which evaluates the conditional.
 class (Show p, Read p) => Condition p where
-    validate :: W.Workspace WorkspaceId l a -> p -> X Bool
 
-onCondition :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => p -> l1 a -> l2 a -> GuardLayout p l1 l2 a
+    -- | Validate the condition.
+    validate :: W.Workspace WorkspaceId l a -> p -> X Bool
+    validate _ _ = return False
+
+-- | Specify one layout to use when a particular condition is met, and
+--   another to fall back onto otherwise.
+onCondition :: (LayoutClass l1 a, LayoutClass l2 a, Condition p)
+               => p     -- ^ the condition
+               -> l1 a  -- ^ layout to use when condition is true
+               -> l2 a  -- ^ layout to use otherwise.
+               -> GuardLayout p l1 l2 a
 onCondition p = onConditions [p]
 
-onConditions :: (LayoutClass l1 a, LayoutClass l2 a, Condition p) => [p] -> l1 a -> l2 a -> GuardLayout p l1 l2 a
+-- | Specify one layout to use when a particular set of conditions are
+--   met, and another to fall back onto otherwise.
+onConditions :: (LayoutClass l1 a, LayoutClass l2 a, Condition p)
+                => [p]   -- ^ the set of conditions
+                -> l1 a  -- ^ layout to use when the conditions are true
+                -> l2 a  -- ^ layout to use otherwise.
+                -> GuardLayout p l1 l2 a
 onConditions p = GuardLayout p False
 
-modCondition :: (LayoutClass l a, Condition p) => p -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
+-- | Specify a layout modifier to apply to a particular workspace if
+--   and only if the condition is met.
+modCondition :: (LayoutClass l a, Condition p)
+                => p                               -- ^ the condition
+                -> (l a -> ModifiedLayout lm l a)  -- ^ the modifier to apply when the condition is true
+                -> l a                             -- ^ the base layout
+                -> GuardLayout p (ModifiedLayout lm l) l a
 modCondition p = modConditions [p]
 
-modConditions :: (LayoutClass l a, Condition p) => [p] -> (l a -> ModifiedLayout lm l a) -> l a -> GuardLayout p (ModifiedLayout lm l) l a
+-- | Specify a layout modifier to apply to a particular workspace if
+--   and only if a set of conditions are met.
+modConditions :: (LayoutClass l a, Condition p)
+                 => [p]                             -- ^ the set of conditions
+                 -> (l a -> ModifiedLayout lm l a)  -- ^ the modifier to apply when the conditions are true
+                 -> l a                             -- ^ the base layout
+                 -> GuardLayout p (ModifiedLayout lm l) l a
 modConditions p f l = GuardLayout p False (f l) l
 
 instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClass (GuardLayout p l1 l2) a where
@@ -50,9 +112,11 @@ instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClas
     description (GuardLayout _ True l1 _) = description l1
     description (GuardLayout _ _    _ l2) = description l2
 
+-- | Check if any of the conditions are true.
 checkCondition :: (Condition p) => W.Workspace WorkspaceId l a -> [p] -> X Bool
 checkCondition ws ps = liftM (any id) $ mapM (validate ws) ps
 
+-- | Construct new GuardLayout values with possibly modified layouts.
 mkNewPerScreenT :: (Condition p) => GuardLayout p l1 l2 a -> Maybe (l1 a) -> GuardLayout p l1 l2 a
 mkNewPerScreenT (GuardLayout ps _ lt lf) mlt' = (\lt' -> GuardLayout ps True lt' lf) $ fromMaybe lt mlt'
 
