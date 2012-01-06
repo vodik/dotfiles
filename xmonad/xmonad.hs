@@ -193,10 +193,10 @@ myKeys browser conf = mkKeymap conf $ concat
     where
         withFocused' :: (Window -> X ()) -> X ()
         withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-            \w -> ignoreWindow w >>= \ign -> unless ign $ f w
+            \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
 
-        ignoreWindow :: Window -> X Bool
-        ignoreWindow w = withDisplay $ \d -> fmap ((== "scratchpad") . resName) $
+        hasResource :: [String] -> Window -> X Bool
+        hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) $
             io $ getClassHint d w
 
 shiftWorkspaceKeys conf =
