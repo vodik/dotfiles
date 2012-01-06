@@ -105,10 +105,10 @@ data Hostname = Hostname String
 
 instance Condition ScreenSize where
     validate ws (SmallerThan si) =
-        liftM (calculateBox si (<)) getScreenSize
+        fmap (calculateBox si (<)) getScreenSize
 
     validate ws (AtLeast si) =
-        liftM (calculateBox si (>=)) getScreenSize
+        fmap (calculateBox si (>=)) getScreenSize
 
 instance Condition AspectRatio where
     validate ws (AspectRatio r) =
@@ -116,13 +116,13 @@ instance Condition AspectRatio where
 
 instance Condition Hostname where
     validate ws (Hostname n) =
-        liftM ((n ==) . nodeName) $ io getSystemID
+        fmap ((n ==) . nodeName) $ io getSystemID
 
 getScreenSize :: X Rectangle
-getScreenSize = io $ liftM head $ getScreenInfo =<< openDisplay ""
+getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
 
 calculateBox :: ScreenSpace -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
 calculateBox (ScreenSpace w h) op (Rectangle _ _ sw sh) =
-    let wide = liftM (op sw) w
-        tall = liftM (op sh) h
+    let wide = fmap (op sw) w
+        tall = fmap (op sh) h
     in any id $ catMaybes [wide, tall]

@@ -16,6 +16,7 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.InsertPosition
+import XMonad.Layout.Accordion
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Master
@@ -59,7 +60,7 @@ myModMask       = mod4Mask
 
 defaultTweaks = Tweaks
     { mainWidth  = 1/2
-    , imClient   = pidgin
+    , imClient   = empathy
     , imWidth    = 2/10
     , imGrid     = 2/3
     , masterN    = 1
@@ -89,12 +90,11 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
     where
-        tabs   = smartBorders $ ifWide (mastered (2/100) (mainWidth tw)) $ trackFloating $ tabbed shrinkText myTabTheme
+        tabs   = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) $ trackFloating $ tabbed shrinkText myTabTheme
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN tw) (2/100) (1/2) []
         chat   = withIM (imWidth tw) (imClient tw) $ gaps 5 $ GridRatio (imGrid tw)
         full   = noBorders Full
-        ifWide = modCondition . AtLeast $ ScreenSpace (Just 1200) Nothing
 
 myRules ws = manageHook defaultConfig
     <+> manageDocks
@@ -186,27 +186,28 @@ myKeys browser conf = mkKeymap conf $ concat
       -- backlight hack
       , ("M-x", spawn "xbacklight -set 100%")
       ]
-    , shiftWorkspaceKeys $ workspaces conf
+    , shiftWorkspaceKeys conf
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
     where
         withFocused' :: (Window -> X ()) -> X ()
         withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-            \w -> ignoreWindow w >>= \ok -> unless ok $ f w
+            \w -> ignoreWindow w >>= \ok -> when (not ok) $ f w
 
         ignoreWindow :: Window -> X Bool
         ignoreWindow w = withDisplay $ \d -> fmap ((== "scratchpad") . resName) $
             io $ getClassHint d w
 
-shiftWorkspaceKeys :: [WorkspaceId] -> [(String, X ())]
-shiftWorkspaceKeys workspaces =
-    [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
+shiftWorkspaceKeys conf =
+    [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
+                      , (m, f) <- [ ("M-",   greedyView')
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
                                   ]
     ]
+    where
+        greedyView' = toggleOrDoSkip ["NSP"] W.greedyView
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
@@ -232,7 +233,6 @@ favouritesList =
 myLogHook icons output =
     dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
 
-myPP :: Icons -> PP
 myPP icons = defaultPP
     { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
     , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
@@ -271,12 +271,11 @@ myXPConfig = defaultXPConfig
 
 main = do
     tweaks  <- getTweaks
-    let ws'  = wsModifier tweaks myWorkspaces
     browser <- getBrowser
-    icons   <- getIconSet ws'
+    icons   <- getIconSet $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
-        { manageHook         = myRules ws'
+        { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = myLogHook icons dzenbar
@@ -287,9 +286,11 @@ main = do
         , borderWidth        = 2
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 $ getWorkspaces ws'
+        , workspaces         = to9 . getWorkspaces $ ws' tweaks
         , focusFollowsMouse  = True
         }
+    where
+        ws' t = wsModifier t myWorkspaces
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
