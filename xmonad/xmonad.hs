@@ -193,7 +193,7 @@ myKeys browser conf = mkKeymap conf $ concat
     where
         withFocused' :: (Window -> X ()) -> X ()
         withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-            \w -> ignoreWindow w >>= \ok -> when (not ok) $ f w
+            \w -> ignoreWindow w >>= \ign -> unless ign $ f w
 
         ignoreWindow :: Window -> X Bool
         ignoreWindow w = withDisplay $ \d -> fmap ((== "scratchpad") . resName) $
