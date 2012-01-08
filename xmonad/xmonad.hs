@@ -201,13 +201,11 @@ myKeys browser conf = mkKeymap conf $ concat
 
 shiftWorkspaceKeys conf =
     [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-",   greedyView')
+                      , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
                                   ]
     ]
-    where
-        greedyView' = toggleOrDoSkip ["NSP"] W.greedyView
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
