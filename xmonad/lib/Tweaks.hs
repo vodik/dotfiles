@@ -10,7 +10,6 @@ import Workspaces
 
 data Tweaks = Tweaks
     { mainWidth  :: Rational
-    , imClient   :: Property
     , imWidth    :: Rational
     , imGrid     :: Double
     , masterN    :: Int

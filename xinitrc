@@ -7,7 +7,7 @@ xsetroot -cursor_name left_ptr &
 
 case ${2} in
   *)
-    exec ck-launch-session dbus-launch ~/bin/xsession "$2"
+    exec ck-launch-session dbus-launch "${2-xmonad}"
     ;;
 esac
 
