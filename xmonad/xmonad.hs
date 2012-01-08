@@ -187,7 +187,12 @@ myKeys browser conf = mkKeymap conf $ concat
       -- backlight hack
       , ("M-x", spawn "xbacklight -set 100%")
       ]
-    , shiftWorkspaceKeys conf
+    , [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
+                        , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
+                                    , ("M-S-", windows . W.shift)
+                                    , ("M-C-", windows . copy)
+                                    ]
+      ]
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
@@ -199,14 +204,6 @@ myKeys browser conf = mkKeymap conf $ concat
         hasResource :: [String] -> Window -> X Bool
         hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) $
             io $ getClassHint d w
-
-shiftWorkspaceKeys conf =
-    [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
-                                  , ("M-S-", windows . W.shift)
-                                  , ("M-C-", windows . copy)
-                                  ]
-    ]
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
