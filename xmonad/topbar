@@ -64,8 +64,8 @@ printCPUInfo() {
   echo -n "^fg()${CPULoad6}% "
   echo -n "$(echo $CPULoad6 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
   echo -n "^fg()${CPULoad7}% "
-  echo -n "$(echo $CPULoad7 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "${CPUFreq}GHz"
+  echo -n "$(echo $CPULoad7 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl)"
+  # echo -n "${CPUFreq}GHz"
   return
 }
 
@@ -125,7 +125,7 @@ printBattery() {
 
 printDiskInfo() {
   RFSP=$(df -h / | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
-  BFSP=$(df -h /boot | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
+  BFSP=$(df -h /home | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
   if [[ $RFSP -gt 70 ]]; then
     RFSP="^fg($CRIT)"$RFSP"^fg()"
   fi
@@ -134,7 +134,7 @@ printDiskInfo() {
   fi
   echo -n "^fg($COLOR_ICON)^i($ICONPATH/file1.xbm) "
   echo -n "^fg($DZEN_FG2)root ^fg()${RFSP}% "
-  echo -n "^fg($DZEN_FG2)boot ^fg()${BFSP}%"
+  echo -n "^fg($DZEN_FG2)home ^fg()${BFSP}%"
 }
 
 printKerInfo() {
@@ -183,4 +183,4 @@ printBar() {
 }
 
 #Print all and pipe into dzen
-conky -c $CONKYFILE -u $INTERVAL | printBar | dzen2 -x $X_POS -y $Y_POS -w $WIDTH -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e ''
+conky -c $CONKYFILE -u $INTERVAL | printBar | dzen2 -x $X_POS -y $Y_POS -w $WIDTH -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e 'onstart=lower'
