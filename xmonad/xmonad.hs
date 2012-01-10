@@ -16,6 +16,7 @@ import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.InsertPosition
+import XMonad.Hooks.SetWMName
 import XMonad.Layout.Accordion
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.PerWorkspace
@@ -187,11 +188,11 @@ myKeys browser conf = mkKeymap conf $ concat
       -- backlight hack
       , ("M-x", spawn "xbacklight -set 100%")
       ]
-    , [ (m ++ [i], f w) | (i, w) <- zip ['1'..] $ workspaces conf
-                        , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
-                                    , ("M-S-", windows . W.shift)
-                                    , ("M-C-", windows . copy)
-                                    ]
+    , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
+                      , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
+                                  , ("M-S-", windows . W.shift)
+                                  , ("M-C-", windows . copy)
+                                  ]
       ]
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
@@ -275,7 +276,7 @@ main = do
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = myLogHook icons dzenbar
-        , startupHook        = myStartupHook
+        , startupHook        = myStartupHook <+> setWMName "LG3D"
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
