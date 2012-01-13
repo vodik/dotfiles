@@ -39,6 +39,7 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
+import BalancedTall
 import Gaps
 import GuardLayout
 import GuardLayout.Instances
@@ -253,8 +254,9 @@ myTabTheme = defaultTheme
     , activeBorderColor   = colorBlack
     , activeColor         = colorBlue
     , activeTextColor     = colorDarkGray
-    , urgentBorderColor   = colorBlackAlt
-    , urgentTextColor     = colorWhite
+    , urgentBorderColor   = colorBlack
+    , urgentColor         = colorRed
+    , urgentTextColor     = colorDarkGray
     }
 
 myXPConfig = defaultXPConfig
