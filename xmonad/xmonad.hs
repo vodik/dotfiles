@@ -83,18 +83,19 @@ colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
-    $ onWorkspace "work"  (tabs   ||| tiled ||| full)
-    $ onWorkspace "term"  (mtiled ||| tiled ||| full)
-    $ onWorkspace "chat"  (chat   ||| tiled ||| full)
+    $ onWorkspace "work"  (wtabs  ||| tiled)
+    $ onWorkspace "term"  (mtiled ||| tiled)
+    $ onWorkspace "chat"  (withIM (imWidth tw) imClient $ chat ||| tabs)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
     where
-        tabs   = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) $ trackFloating $ tabbed shrinkText myTabTheme
+        wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
         tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
         mtiled = gaps 5 $ Mirror $ ResizableTall (masterN tw) (2/100) (1/2) []
-        chat   = withIM (imWidth tw) imClient $ gaps 5 $ GridRatio (imGrid tw)
+        chat   = gaps 5 $ GridRatio (imGrid tw)
         full   = noBorders Full
+        tabs   = trackFloating $ tabbed shrinkText myTabTheme
         imClient = Or (ClassName "Empathy" `And` Role "contact_list")
                       (ClassName "Pidgin"  `And` Role "buddy_list")
 
