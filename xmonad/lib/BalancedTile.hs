@@ -46,7 +46,7 @@ instance LayoutClass BalancedTall a where
 
         incmastern (IncMasterN d) = BalancedTall (max 0 $ nmaster + d) delta frac mfrac
 
-    description _ = "ResizableTall"
+    description _ = "BalancedTile"
 
 tile :: Rational -> [Rational] -> Rectangle -> Int -> Int -> [Rectangle]
 tile f mf r nmaster n =

@@ -21,12 +21,12 @@ import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Master
 import XMonad.Layout.Grid
 import XMonad.Layout.IM
-import XMonad.Layout.Tabbed
-import XMonad.Layout.MultiToggle
-import XMonad.Layout.MultiToggle.Instances
 import XMonad.Layout.NoBorders
-import XMonad.Layout.TrackFloating
+import XMonad.Layout.Renamed
 import XMonad.Prompt.Shell
+import XMonad.Layout.Tabbed
+import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.TrackFloating
 import XMonad.Prompt
 import XMonad.Util.Run
 import XMonad.Util.EZConfig
@@ -81,13 +81,13 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL)
+myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Fullscreen"] full)
     $ onWorkspace "work"  (wtabs  ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
     $ onWorkspace "chat"  (withIM (imWidth tw) imClient $ chat ||| tabs)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
-    $ tiled ||| Mirror tiled ||| full
+    $ tiled ||| Mirror tiled
   where
     wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
@@ -140,7 +140,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- layout
       , ("M-n",   sendMessage NextLayout)
       , ("M-S-n", sendMessage FirstLayout)
-      , ("M-a",   sendMessage $ Toggle NBFULL)
+      , ("M-a",   sendMessage ToggleLayout)
 
       -- resizing
       , ("M-h", sendMessage Shrink)
@@ -237,12 +237,21 @@ myPP icons = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppSep             = dzenColor colorBlue     colorBlackAlt "» "
-    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppLayout          = matchIcon . words
+    , ppSep             = ""
     , ppWsSep           = ""
-    , ppLayout          = const ""
-    , ppOrder           = \(ws:_:t:_) -> [ws,t]
+    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
     }
+
+matchIcon ("Fullscreen":xs)            = dzenColor colorRed  colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
+matchIcon ("Mastered":"Tabbed":xs)     = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-twopane.xbm"
+matchIcon ("Tabbed":xs)                = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
+matchIcon ("BalancedTile":xs)          = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-tall.xbm"
+matchIcon ("Mirror":"BalancedTile":xs) = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-mtall.xbm"
+matchIcon ("IM":xs)                    = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-im.xbm"
+matchIcon ("Full":xs)                  = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
+matchIcon a = unwords a
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
@@ -313,9 +322,11 @@ iconify :: Icons -> Bool -> WorkspaceId -> String
 iconify icons showAll c =
     maybe without (pad . (++ ' ' : c) . dzenIcon) $ getIcon icons c
   where
-    dzenIcon = wrap "^i(" ")"
     without | showAll   = pad c
             | otherwise = ""
+
+dzenIcon :: String -> String
+dzenIcon = wrap "^i(" ")"
 
 getTweaks :: IO Tweaks
 getTweaks = do

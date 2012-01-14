@@ -15,7 +15,6 @@ data Gaps a = Gaps Int deriving (Show, Read)
 
 instance LayoutModifier Gaps a where
     pureModifier gap r _ wrs = (map (second $ shrinkRect gap r) wrs, Nothing)
-    modifierDescription (Gaps g) = "Gaps " ++ show g
 
 -- | Shrink the window's rectangle to add a nice gap between windows.
 --
