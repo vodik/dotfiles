@@ -251,7 +251,7 @@ matchIcon ("BalancedTile":xs)          = dzenColor colorBlue colorBlack . pad $ 
 matchIcon ("Mirror":"BalancedTile":xs) = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-mtall.xbm"
 matchIcon ("IM":xs)                    = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-im.xbm"
 matchIcon ("Full":xs)                  = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
-matchIcon a = unwords a
+matchIcon _                            = dzenColor colorRed  colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/question.xbm"
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
