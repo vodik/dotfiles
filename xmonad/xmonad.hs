@@ -100,6 +100,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
+    <+> insertPosition Below Older
     <+> workspaceRules ClassName ws
     <+> (composeAll . concat $
         [ [ className =? c --> doCenterFloat | c <- floats ]
@@ -109,7 +110,6 @@ myRules ws = manageDocks
           , isFirefoxPreferences              --> doCenterFloat
           , isDialog                          --> doCenterFloat
           , isFullscreen                      --> doFullFloat
-          , insertPosition Below Newer
           ]
         ])
   where
