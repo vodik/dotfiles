@@ -22,8 +22,8 @@ data BalancedTall a = BalancedTall
 
 instance LayoutClass BalancedTall a where
     doLayout (BalancedTall nmaster _ frac mfrac) r =
-        return . (\x -> (x, Nothing)) .
-        ap zip (tile frac (mfrac ++ repeat 1) r nmaster . length) . W.integrate
+        return . (\x -> (x, Nothing))
+        . ap zip (tile frac (mfrac ++ repeat 1) r nmaster . length) . W.integrate
 
     handleMessage (BalancedTall nmaster delta frac mfrac) m = do
         ms <- (W.stack . W.workspace . W.current) `fmap` gets windowset
@@ -31,7 +31,8 @@ instance LayoutClass BalancedTall a where
         return $ ms >>= unfloat fs >>= handleMsg
       where
         handleMsg s = msum [ fmap resize (fromMessage m)
-                           , fmap incmastern (fromMessage m)]
+                           , fmap incmastern (fromMessage m) ]
+
         unfloat fs s = if W.focus s `elem` fs
                           then Nothing
                           else Just (s { W.up   = W.up s   \\ fs
@@ -58,8 +59,8 @@ tile f mf r nmaster n =
     (r1,r2) = splitHorizontallyBy f r
 
 splitVertically :: RealFrac r => [r] -> Int -> Rectangle -> [Rectangle]
-splitVertically [] _ r        = [r]
-splitVertically _ n r | n < 2 = [r]
+splitVertically [] _ r         = [r]
+splitVertically _  n r | n < 2 = [r]
 splitVertically (f:fx) n (Rectangle sx sy sw sh) =
     Rectangle sx sy sw smallh : splitVertically fx (n - 1) (Rectangle sx (sy + fromIntegral smallh) sw (sh - smallh))
   where
