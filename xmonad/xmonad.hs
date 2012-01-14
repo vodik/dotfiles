@@ -237,7 +237,7 @@ myPP icons = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = matchIcon . words
+    , ppLayout          = dzenClick "xdotool key super+n" . matchIcon . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
@@ -322,16 +322,17 @@ to9 ws = to9' ws 1
 
 dzenify :: PPInfo -> Bool -> WorkspaceId -> String
 dzenify icons showAll c =
-    maybe without (\(n, i) -> dzenClick (show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
+    maybe without (\(n, i) -> dzenClick (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
   where
-    without | showAll   = dzenClick c $ pad c
+    cmd n = "xdotool key super+" ++ n
+    without | showAll   = dzenClick (cmd c) $ pad c
             | otherwise = ""
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
 dzenClick :: String -> String -> String
-dzenClick n = wrap ("^ca(1,xdotool key super+" ++ n ++ ")") "^ca()"
+dzenClick cmd = wrap ("^ca(1," ++ cmd ++ ")") "^ca()"
 
 getTweaks :: IO Tweaks
 getTweaks = do
