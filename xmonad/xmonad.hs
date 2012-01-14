@@ -231,11 +231,11 @@ myLogHook icons output =
     dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
 
 myPP icons = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . iconify icons True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . iconify icons True
-    , ppVisible         = dzenColor colorWhite    colorGray     . iconify icons True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . iconify icons True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . iconify icons False
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenify icons True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenify icons True
+    , ppVisible         = dzenColor colorWhite    colorGray     . dzenify icons True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppLayout          = matchIcon . words
     , ppSep             = ""
@@ -320,15 +320,18 @@ to9 ws = to9' ws 1
     to9' [] c | c < 10    = show c : to9' [] (c + 1)
               | otherwise = []
 
-iconify :: Icons -> Bool -> WorkspaceId -> String
-iconify icons showAll c =
-    maybe without (pad . (++ ' ' : c) . dzenIcon) $ getIcon icons c
+dzenify :: PPInfo -> Bool -> WorkspaceId -> String
+dzenify icons showAll c =
+    maybe without (\(n, i) -> dzenClick n . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
   where
     without | showAll   = pad c
             | otherwise = ""
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
+
+dzenClick :: Int -> String -> String
+dzenClick n = wrap ("^ca(1,xdotool key super+" ++ show n ++ ")") "^ca()"
 
 getTweaks :: IO Tweaks
 getTweaks = do

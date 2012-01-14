@@ -4,8 +4,8 @@ module Workspaces
     , filterWS
     , workspaceRules
     , getIconSet
-    , Icon
-    , Icons (..)
+    , PPWS
+    , PPInfo (..)
     , Workspace (..)
     ) where
 
@@ -19,10 +19,10 @@ import XMonad
 import XMonad.Hooks.ManageHelpers
 import XMonad.Util.WindowProperties
 
-type Icon      = String
-type IconMap   = M.Map String Icon
+type PPWS      = (Int, String)
+type PPInfoMap = M.Map String PPWS
 
-data Icons     = Icons { getIcon :: String -> Maybe Icon }
+data PPInfo  = PPInfo { getInfo :: String -> Maybe PPWS }
 data Workspace = Workspace String String [String]
 
 getWSName :: Workspace -> String
@@ -39,13 +39,13 @@ workspaceRules c (Workspace n _ prop:xs) =
     composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
 workspaceRules _ [] = idHook
 
-getIconSet :: [Workspace] -> IO Icons
+getIconSet :: [Workspace] -> IO PPInfo
 getIconSet ws = do
     home <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
-    return . Icons $ wrapIcon (getIconMap ws) $ iconPath home
+    return . PPInfo $ wrapIcon (getIconMap ws) $ iconPath home
   where
-    getIconMap ws = M.fromList [ (n, i) | (Workspace n i _) <- ws ]
+    getIconMap ws = M.fromList [ (n, (x, i)) | (Workspace n i _, x) <- zip ws [1..] ]
     iconPath      = (++ "/.xmonad/icons/")
 
-wrapIcon :: IconMap -> FilePath -> String -> Maybe Icon
-wrapIcon m path t = M.lookup t m >>= \i -> Just $ path ++ i ++ ".xbm"
+wrapIcon :: PPInfoMap -> FilePath -> String -> Maybe PPWS
+wrapIcon m path t = M.lookup t m >>= \(n, i) -> Just (n, path ++ i ++ ".xbm")
