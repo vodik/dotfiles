@@ -305,11 +305,13 @@ myDzen (Rectangle x y sw sh) =
       ++ " -w "  ++ show sw
       ++ " -y "  ++ show (sh - 16)
       ++ " -h "  ++ show 16
-      ++ " -fn " ++ "'" ++ dzenFont ++ "'"
-      ++ " -fg " ++ "'" ++ colorWhite ++ "'"
-      ++ " -bg " ++ "'" ++ colorBlackAlt ++ "'"
+      ++ " -fn " ++ quote dzenFont
+      ++ " -fg " ++ quote colorWhite
+      ++ " -bg " ++ quote colorBlackAlt
       ++ " -ta l"
       ++ " -e 'onstart=lower'"
+  where
+    quote = wrap "'" "'"
 
 to9 :: [String] -> [String]
 to9 ws = to9' ws 1
