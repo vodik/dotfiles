@@ -82,7 +82,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Fullscreen"] full)
+myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
     $ onWorkspace "work"  (wtabs  ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
     $ onWorkspace "chat"  (withIM (imWidth tw) imClient $ chat ||| tabs)
@@ -101,7 +101,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
-    <+> insertPosition Below Older
+    <+> insertPosition Below Newer
     <+> workspaceRules ClassName ws
     <+> (composeAll . concat $
         [ [ className =? c --> doCenterFloat | c <- floats ]
@@ -237,18 +237,12 @@ myPP icons = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenAction "xdotool key super+n" . matchIcon icons . head . words
+    , ppLayout          = dzenAction "xdotool key super+n" . matchIcon icons . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
     , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
     }
-
-matchIcon icons i =
-    maybe "" (dzenColor (layoutColor i) colorBlack . pad . dzenIcon) $ getLayout icons i
-  where
-    layoutColor "Fullscreen" = colorRed
-    layoutColor _            = colorBlue
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
@@ -324,6 +318,13 @@ dzenify icons showAll c =
     cmd n = "xdotool key super+" ++ n
     without | showAll   = dzenAction (cmd c) $ pad c
             | otherwise = ""
+
+matchIcon :: PPInfo -> [String] -> String
+matchIcon icons (x:xs)
+    | x == "Triggered" = dzenColor colorRed  colorBlack $ matchIcon' icons (head xs)
+    | otherwise        = dzenColor colorBlue colorBlack $ matchIcon' icons x
+  where
+    matchIcon' icons i = maybe "" (pad . dzenIcon) $ getLayout icons i
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"
