@@ -114,12 +114,8 @@ myRules ws = manageDocks
         ])
   where
     q ~? x = fmap (=~ x) q
-    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "Gimp", "zsnes" ]
-
-isFirefoxPreferences :: Query Bool
-isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
-  where
-    role   = stringProperty "WM_WINDOW_ROLE"
+    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
+             , "Nvidia-settings", "Gimp", "zsnes" ]
 
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
@@ -335,6 +331,12 @@ dzenIcon = wrap "^i(" ")"
 
 dzenClick :: String -> String -> String
 dzenClick cmd = wrap "^ca(1," ")" cmd `wrap` "^ca()"
+
+role :: Query String
+role = stringProperty "WM_WINDOW_ROLE"
+
+isFirefoxPreferences :: Query Bool
+isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 getTweaks :: IO Tweaks
 getTweaks = do
