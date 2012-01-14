@@ -322,16 +322,16 @@ to9 ws = to9' ws 1
 
 dzenify :: PPInfo -> Bool -> WorkspaceId -> String
 dzenify icons showAll c =
-    maybe without (\(n, i) -> dzenClick n . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
+    maybe without (\(n, i) -> dzenClick (show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
   where
-    without | showAll   = pad c
+    without | showAll   = dzenClick c $ pad c
             | otherwise = ""
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
-dzenClick :: Int -> String -> String
-dzenClick n = wrap ("^ca(1,xdotool key super+" ++ show n ++ ")") "^ca()"
+dzenClick :: String -> String -> String
+dzenClick n = wrap ("^ca(1,xdotool key super+" ++ n ++ ")") "^ca()"
 
 getTweaks :: IO Tweaks
 getTweaks = do
