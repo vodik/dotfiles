@@ -21,12 +21,11 @@ instance LayoutModifier Gaps a where
 --
 shrinkRect :: Gaps a -> Rectangle -> Rectangle -> Rectangle
 shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
-    Rectangle (x + dl) (y + dt) (w - fi dl - dr) (h - fi dt - db)
-    where
-        dl = gapLeft gap x sx
+    let dl = gapLeft gap x sx
         dt = gapLeft gap y sy
         dr = gapRight gap x w sx sw
         db = gapRight gap y h sy sh
+    in Rectangle (x + dl) (y + dt) (w - fi dl - dr) (h - fi dt - db)
 
 -- | Calculate the gap's offset from the left/top.
 --

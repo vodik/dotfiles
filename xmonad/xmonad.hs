@@ -88,14 +88,14 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled ||| full
-    where
-        wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
-        tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
-        mtiled = gaps 5 $ Mirror $ BalancedTall 3 (2/100) (1/2) []
-        chat   = gaps 5 $ GridRatio (imGrid tw)
-        full   = noBorders Full
-        tabs   = trackFloating $ tabbed shrinkText myTabTheme
-        imClient = Or (ClassName "Empathy" `And` Role "contact_list")
+  where
+    wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
+    tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
+    mtiled = gaps 5 $ Mirror $ BalancedTall 3 (2/100) (1/2) []
+    chat   = gaps 5 $ GridRatio (imGrid tw)
+    full   = noBorders Full
+    tabs   = trackFloating $ tabbed shrinkText myTabTheme
+    imClient = Or (ClassName "Empathy" `And` Role "contact_list")
                       (ClassName "Pidgin"  `And` Role "buddy_list")
 
 myRules ws = manageHook defaultConfig
@@ -113,11 +113,11 @@ myRules ws = manageHook defaultConfig
           , insertPosition Below Newer
           ]
         ])
-    where
-        q ~? x = fmap (=~ x) q
-        role   = stringProperty "WM_WINDOW_ROLE"
-        floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
-        isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
+  where
+    q ~? x = fmap (=~ x) q
+    role   = stringProperty "WM_WINDOW_ROLE"
+    floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
+    isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
@@ -197,14 +197,14 @@ myKeys browser conf = mkKeymap conf $ concat
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
-    where
-        withFocused' :: (Window -> X ()) -> X ()
-        withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-            \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
+  where
+    withFocused' :: (Window -> X ()) -> X ()
+    withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
+        \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
 
-        hasResource :: [String] -> Window -> X Bool
-        hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) $
-            io $ getClassHint d w
+    hasResource :: [String] -> Window -> X Bool
+    hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) $
+        io $ getClassHint d w
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
@@ -287,8 +287,8 @@ main = do
         , workspaces         = to9 . getWorkspaces $ ws' tweaks
         , focusFollowsMouse  = True
         }
-    where
-        ws' t = wsModifier t myWorkspaces
+  where
+    ws' t = wsModifier t myWorkspaces
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) =
@@ -304,18 +304,18 @@ myDzen (Rectangle x y sw sh) =
 
 to9 :: [String] -> [String]
 to9 ws = to9' ws 1
-    where
-        to9' (x:xs) c = x : to9' xs (c + 1)
-        to9' [] c | c < 10    = show c : to9' [] (c + 1)
-                  | otherwise = []
+  where
+    to9' (x:xs) c = x : to9' xs (c + 1)
+    to9' [] c | c < 10    = show c : to9' [] (c + 1)
+              | otherwise = []
 
 iconify :: Icons -> Bool -> WorkspaceId -> String
 iconify icons showAll c =
     maybe without (pad . (++ ' ' : c) . dzenIcon) $ getIcon icons c
-    where
-        dzenIcon = wrap "^i(" ")"
-        without | showAll   = pad c
-                | otherwise = ""
+  where
+    dzenIcon = wrap "^i(" ")"
+    without | showAll   = pad c
+            | otherwise = ""
 
 getTweaks :: IO Tweaks
 getTweaks = do

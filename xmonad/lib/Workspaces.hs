@@ -43,9 +43,9 @@ getIconSet :: [Workspace] -> IO Icons
 getIconSet ws = do
     home <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
     return . Icons $ wrapIcon (getIconMap ws) $ iconPath home
-    where
-        getIconMap ws = M.fromList [ (n, i) | (Workspace n i _) <- ws ]
-        iconPath      = (++ "/.xmonad/icons/")
+  where
+    getIconMap ws = M.fromList [ (n, i) | (Workspace n i _) <- ws ]
+    iconPath      = (++ "/.xmonad/icons/")
 
 wrapIcon :: IconMap -> FilePath -> String -> Maybe Icon
 wrapIcon m path t = M.lookup t m >>= \i -> Just $ path ++ i ++ ".xbm"
