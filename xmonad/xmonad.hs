@@ -246,7 +246,7 @@ myPP icons = defaultPP
 
 matchIcon ("Fullscreen":xs)            = dzenColor colorRed  colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
 matchIcon ("Mastered":"Tabbed":xs)     = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-twopane.xbm"
-matchIcon ("Tabbed":xs)                = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
+matchIcon ("Tabbed":xs)                = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-tabbed.xbm"
 matchIcon ("BalancedTile":xs)          = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-tall.xbm"
 matchIcon ("Mirror":"BalancedTile":xs) = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-mtall.xbm"
 matchIcon ("IM":xs)                    = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-im.xbm"
