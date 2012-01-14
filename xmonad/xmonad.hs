@@ -115,7 +115,7 @@ myRules ws = manageDocks
   where
     q ~? x = fmap (=~ x) q
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
-             , "Nvidia-settings", "Gimp", "zsnes" ]
+             , "Nvidia-settings", "Arandr", "Gimp", "zsnes" ]
 
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
