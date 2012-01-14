@@ -4,10 +4,9 @@ module BalancedTile
     ( BalancedTall (..)
     ) where
 
-import XMonad hiding (tile, splitVertically, splitHorizontallyBy, trace)
+import XMonad hiding (tile, splitVertically, splitHorizontallyBy)
 import XMonad.Layout.ResizableTile
 import qualified XMonad.StackSet as W
-import Debug.Trace
 
 import Control.Monad
 import Data.List ((\\))
