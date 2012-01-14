@@ -62,7 +62,7 @@ defaultTweaks = Tweaks
     { mainWidth  = 1/2
     , imWidth    = 2/10
     , imGrid     = 2/3
-    , masterN    = 1
+    , masterN    = 2
     , wsModifier = id
     }
 
@@ -91,7 +91,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
   where
     wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
-    mtiled = gaps 5 $ Mirror $ BalancedTall 3 (2/100) (1/2) []
+    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
     chat   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
@@ -337,5 +337,5 @@ gmzljTweaks = defaultTweaks
     }
 
 benoTweaks = defaultTweaks
-    { masterN  = 2
+    { masterN  = 3
     }
