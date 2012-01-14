@@ -35,17 +35,17 @@ instance LayoutClass BalancedTall a where
 
         unfloat fs s = if W.focus s `elem` fs
                           then Nothing
-                          else Just (s { W.up   = W.up s   \\ fs
-                                       , W.down = W.down s \\ fs })
+                          else Just $ s { W.up   = W.up s   \\ fs
+                                        , W.down = W.down s \\ fs }
 
         resize Shrink = BalancedTall nmaster delta (max 0 $ frac - delta) mfrac
         resize Expand = BalancedTall nmaster delta (min 1 $ frac + delta) mfrac
 
         modifymfrac [] _ _ = []
-        modifymfrac (f:fx) d n | n == 0    = f+d : fx
-                               | otherwise = f : modifymfrac fx d (n-1)
+        modifymfrac (f:fx) d n | n == 0    = f + d : fx
+                               | otherwise = f : modifymfrac fx d (n - 1)
 
-        incmastern (IncMasterN d) = BalancedTall (max 0 (nmaster + d)) delta frac mfrac
+        incmastern (IncMasterN d) = BalancedTall (max 0 $ nmaster + d) delta frac mfrac
 
     description _ = "ResizableTall"
 
