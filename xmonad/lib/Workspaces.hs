@@ -27,8 +27,8 @@ import XMonad.Util.WindowProperties
 type PPWS      = (Int, String)
 type PPInfoMap = M.Map String PPWS
 
-data PPInfo  = PPInfo
-    { getInfo :: String -> Maybe PPWS
+data PPInfo = PPInfo
+    { getInfo   :: String -> Maybe PPWS
     , getLayout :: String -> Maybe String
     }
 
@@ -52,7 +52,6 @@ findLayoutIcons :: FilePath -> ListT IO (String, String)
 findLayoutIcons root = do
     icons <- ListT $ getDirectoryContents root
     guard $ "layout-" `isPrefixOf` icons
-
     let icon = root </> icons
     return (icons, icon)
 

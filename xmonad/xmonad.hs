@@ -4,8 +4,6 @@ import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
 import System.Environment
 
-import qualified Data.Map as M
-
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
@@ -186,8 +184,9 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("C-<Print>", spawn "sleep 0.1; scrot -s -e 'mv $f ~/pictures/screenshots/'")
       , ("<Print>",   spawn "scrot -e 'mv $f ~/pictures/screenshots/'")
 
-      -- backlight hack
-      , ("M-x", spawn "xbacklight -set 100%")
+      -- HACKS: backlight hack, restore screen resolution
+      , ("M-x z", spawn "xrandr -s 0")
+      , ("M-x x", spawn "xbacklight -set 100%")
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
                       , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
