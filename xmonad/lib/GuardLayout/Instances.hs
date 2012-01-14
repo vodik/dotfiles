@@ -119,7 +119,7 @@ instance Condition Hostname where
         fmap ((n ==) . nodeName) $ io getSystemID
 
 getScreenSize :: X Rectangle
-getScreenSize = io $ fmap head $ getScreenInfo =<< openDisplay ""
+getScreenSize = io . fmap head $ getScreenInfo =<< openDisplay ""
 
 calculateBox :: ScreenSpace -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
 calculateBox (ScreenSpace w h) op (Rectangle _ _ sw sh) =

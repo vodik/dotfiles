@@ -28,7 +28,7 @@ data Workspace = Workspace String String [String]
 getWSName :: Workspace -> String
 getWSName (Workspace n _ _) = n
 
-getWorkspaces :: [Workspace] -> [String]
+getWorkspaces:: [Workspace] -> [String]
 getWorkspaces = map getWSName
 
 filterWS :: String -> [Workspace] -> [Workspace]
@@ -42,7 +42,7 @@ workspaceRules _ [] = idHook
 getIconSet :: [Workspace] -> IO PPInfo
 getIconSet ws = do
     home <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
-    return . PPInfo $ wrapIcon (getIconMap ws) $ iconPath home
+    return . PPInfo . wrapIcon (getIconMap ws) $ iconPath home
   where
     getIconMap ws = M.fromList [ (n, (x, i)) | (Workspace n i _, x) <- zip ws [1..] ]
     iconPath      = (++ "/.xmonad/icons/")

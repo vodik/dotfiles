@@ -203,7 +203,7 @@ myKeys browser conf = mkKeymap conf $ concat
         \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
 
     hasResource :: [String] -> Window -> X Bool
-    hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) $
+    hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) .
         io $ getClassHint d w
 
 searchList :: [(String, S.SearchEngine)]
@@ -281,7 +281,7 @@ main = do
     browser <- getBrowser
     icons   <- getIconSet $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
-    xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig
+    xmonad . withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
@@ -332,7 +332,7 @@ dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
 dzenClick :: String -> String -> String
-dzenClick cmd = wrap ("^ca(1," ++ cmd ++ ")") "^ca()"
+dzenClick cmd = wrap "^ca(1," ")" cmd `wrap` "^ca()"
 
 getTweaks :: IO Tweaks
 getTweaks = do
