@@ -4,6 +4,8 @@ import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
 import System.Environment
 
+import qualified Data.Map as M
+
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
@@ -38,6 +40,7 @@ import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
 import BalancedTile
+import Dzen2
 import Gaps
 import GuardLayout
 import GuardLayout.Instances
@@ -235,21 +238,18 @@ myPP icons = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenClick "xdotool key super+n" . matchIcon . words
+    , ppLayout          = dzenAction "xdotool key super+n" . matchIcon icons . head . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
     , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
     }
 
-matchIcon ("Fullscreen":xs)            = dzenColor colorRed  colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
-matchIcon ("Mastered":"Tabbed":xs)     = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-twopane.xbm"
-matchIcon ("Tabbed":xs)                = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-tabbed.xbm"
-matchIcon ("BalancedTile":xs)          = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-tall.xbm"
-matchIcon ("Mirror":"BalancedTile":xs) = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-mtall.xbm"
-matchIcon ("IM":xs)                    = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-im.xbm"
-matchIcon ("Full":xs)                  = dzenColor colorBlue colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/layout-full.xbm"
-matchIcon _                            = dzenColor colorRed  colorBlack . pad $ dzenIcon "/home/simongmzlj/.xmonad/icons/question.xbm"
+matchIcon icons i =
+    maybe "" (dzenColor (layoutColor i) colorBlack . pad . dzenIcon) $ getLayout icons i
+  where
+    layoutColor "Fullscreen" = colorRed
+    layoutColor _            = colorBlue
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
@@ -277,13 +277,13 @@ myXPConfig = defaultXPConfig
 main = do
     tweaks  <- getTweaks
     browser <- getBrowser
-    icons   <- getIconSet $ ws' tweaks
+    wsInfo  <- getPPInfo $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
     xmonad . withUrgencyHook NoUrgencyHook $ defaultConfig
         { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
-        , logHook            = myLogHook icons dzenbar
+        , logHook            = myLogHook wsInfo dzenbar
         , startupHook        = myStartupHook <+> setWMName "LG3D"
         , modMask            = myModMask
         , keys               = myKeys browser
@@ -320,17 +320,11 @@ to9 ws = to9' ws 1
 
 dzenify :: PPInfo -> Bool -> WorkspaceId -> String
 dzenify icons showAll c =
-    maybe without (\(n, i) -> dzenClick (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
+    maybe without (\(n, i) -> dzenAction (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
   where
     cmd n = "xdotool key super+" ++ n
-    without | showAll   = dzenClick (cmd c) $ pad c
+    without | showAll   = dzenAction (cmd c) $ pad c
             | otherwise = ""
-
-dzenIcon :: String -> String
-dzenIcon = wrap "^i(" ")"
-
-dzenClick :: String -> String -> String
-dzenClick cmd = wrap "^ca(1," ")" cmd `wrap` "^ca()"
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"

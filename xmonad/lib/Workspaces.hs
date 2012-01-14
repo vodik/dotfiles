@@ -3,26 +3,35 @@ module Workspaces
     , getWorkspaces
     , filterWS
     , workspaceRules
-    , getIconSet
+    , getPPInfo
     , PPWS
     , PPInfo (..)
     , Workspace (..)
     ) where
 
+import Control.Monad
+import Control.Monad.List
 import Data.Monoid
+import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe)
 import Control.Applicative ((<$>))
 import System.Environment (getEnvironment)
+import System.Directory (getDirectoryContents)
+import System.FilePath
 import qualified Data.Map as M
 
-import XMonad
+import XMonad hiding (trace)
 import XMonad.Hooks.ManageHelpers
 import XMonad.Util.WindowProperties
 
 type PPWS      = (Int, String)
 type PPInfoMap = M.Map String PPWS
 
-data PPInfo  = PPInfo { getInfo :: String -> Maybe PPWS }
+data PPInfo  = PPInfo
+    { getInfo :: String -> Maybe PPWS
+    , getLayout :: String -> Maybe String
+    }
+
 data Workspace = Workspace String String [String]
 
 getWSName :: Workspace -> String
@@ -39,13 +48,25 @@ workspaceRules c (Workspace n _ prop:xs) =
     composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
 workspaceRules _ [] = idHook
 
-getIconSet :: [Workspace] -> IO PPInfo
-getIconSet ws = do
-    home <- fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
-    return . PPInfo . wrapIcon (getIconMap ws) $ iconPath home
-  where
-    getIconMap ws = M.fromList [ (n, (x, i)) | (Workspace n i _, x) <- zip ws [1..] ]
-    iconPath      = (++ "/.xmonad/icons/")
+findLayoutIcons :: FilePath -> ListT IO (String, String)
+findLayoutIcons root = do
+    icons <- ListT $ getDirectoryContents root
+    guard $ "layout-" `isPrefixOf` icons
 
-wrapIcon :: PPInfoMap -> FilePath -> String -> Maybe PPWS
-wrapIcon m path t = M.lookup t m >>= \(n, i) -> Just (n, path ++ i ++ ".xbm")
+    let icon = root </> icons
+    return (icons, icon)
+
+buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
+buildWSInfo root ws = do
+    (Workspace n i _, pos) <- zip ws [1..]
+    let icon = root </> i ++ ".xbm"
+    return (n, (pos, icon))
+
+getPPInfo :: [Workspace] -> IO PPInfo
+getPPInfo ws = do
+    root <- (++ "/.xmonad/icons") . fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
+    list <- runListT $ findLayoutIcons root
+    return PPInfo
+        { getInfo   = \l -> M.lookup l . M.fromList $ buildWSInfo root ws
+        , getLayout = \l -> M.lookup ("layout-" ++ l ++ ".xbm") $ M.fromList list
+        }
