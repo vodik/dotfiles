@@ -17,8 +17,6 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.SetWMName
-import XMonad.Layout.Accordion
-import XMonad.Layout.ResizableTile
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Master
 import XMonad.Layout.Grid
@@ -39,7 +37,7 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
-import BalancedTall
+import BalancedTile
 import Gaps
 import GuardLayout
 import GuardLayout.Instances
@@ -92,8 +90,8 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
     $ tiled ||| Mirror tiled ||| full
     where
         wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
-        tiled  = gaps 5 $ ResizableTall 1 (2/100) (1/2) []
-        mtiled = gaps 5 $ Mirror $ ResizableTall (masterN tw) (2/100) (1/2) []
+        tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
+        mtiled = gaps 5 $ Mirror $ BalancedTall 3 (2/100) (1/2) []
         chat   = gaps 5 $ GridRatio (imGrid tw)
         full   = noBorders Full
         tabs   = trackFloating $ tabbed shrinkText myTabTheme
