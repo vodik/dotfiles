@@ -98,8 +98,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     imClient = Or (ClassName "Empathy" `And` Role "contact_list")
                   (ClassName "Pidgin"  `And` Role "buddy_list")
 
-myRules ws = manageHook defaultConfig
-    <+> manageDocks
+myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ClassName ws
     <+> (composeAll . concat $
@@ -115,9 +114,12 @@ myRules ws = manageHook defaultConfig
         ])
   where
     q ~? x = fmap (=~ x) q
+    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "Gimp", "zsnes" ]
+
+isFirefoxPreferences :: Query Bool
+isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
+  where
     role   = stringProperty "WM_WINDOW_ROLE"
-    floats = [ "Xmessage", "Mplayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol", "Nvidia-settings", "zsnes" ]
-    isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
