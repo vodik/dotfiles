@@ -96,7 +96,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single NBFULL
     full   = noBorders Full
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     imClient = Or (ClassName "Empathy" `And` Role "contact_list")
-                      (ClassName "Pidgin"  `And` Role "buddy_list")
+                  (ClassName "Pidgin"  `And` Role "buddy_list")
 
 myRules ws = manageHook defaultConfig
     <+> manageDocks
