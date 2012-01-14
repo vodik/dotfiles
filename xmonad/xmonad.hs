@@ -321,10 +321,11 @@ dzenify icons showAll c =
 
 matchIcon :: PPInfo -> [String] -> String
 matchIcon icons (x:xs)
-    | x == "Triggered" = dzenColor colorRed  colorBlack $ matchIcon' icons (head xs)
-    | otherwise        = dzenColor colorBlue colorBlack $ matchIcon' icons x
+    | x == "Triggered" = matchIcon' icons colorRed $ head xs
+    | otherwise        = matchIcon' icons colorBlue x
   where
-    matchIcon' icons i = maybe "" (pad . dzenIcon) $ getLayout icons i
+    matchIcon' icons c i =
+        maybe "" (dzenColor c colorBlack . pad . dzenIcon) $ getLayout icons i
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"
