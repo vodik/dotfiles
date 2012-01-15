@@ -29,15 +29,15 @@ to9 ws = to9' ws 1
     to9' [] c | c < 10    = show c : to9' [] (c + 1)
               | otherwise = []
 
-(>?) :: Eq a => Query a -> [a] -> Query Bool
-q >? (x:xs) = do
+(|?) :: Eq a => Query a -> [a] -> Query Bool
+q |? (x:xs) = do
     yes <- fmap (== x) q
     if yes then return True
-           else q >? xs
-q >? [] = return False
+           else q |? xs
+q |? [] = return False
 
-(||>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
-p ||> (f1, f2) = p >>= \b -> if b then f1 else f2
+(-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
+p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
 
 q ~? x = fmap (=~ x) q
 
