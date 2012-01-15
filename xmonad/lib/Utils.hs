@@ -30,11 +30,8 @@ to9 ws = to9' ws 1
               | otherwise = []
 
 (|?) :: Eq a => Query a -> [a] -> Query Bool
-q |? (x:xs) = do
-    yes <- fmap (== x) q
-    if yes then return True
-           else q |? xs
-q |? [] = return False
+q |? (x:xs) = fmap (== x) q >>= \b -> if b then return True else q |? xs
+q |? []     = return False
 
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
