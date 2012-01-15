@@ -3,7 +3,6 @@ import System.Environment
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
 
-import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
@@ -53,9 +52,9 @@ myWorkspaces =
     , Workspace "games" [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
-myTerminal      = "urxvtc"
-myBorderWidth   = 3
-myModMask       = mod4Mask
+myTerminal    = "urxvtc"
+myBorderWidth = 3
+myModMask     = mod4Mask
 
 defaultTweaks = Tweaks
     { mainWidth  = 1/2
