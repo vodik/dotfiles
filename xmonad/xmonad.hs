@@ -100,14 +100,14 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ClassName ws
-    <+> (composeAll
+    <+> composeAll
         [ className |? floats               -|> (doCenterFloat, insertBelow)
         , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
         , resource  =? "desktop_window"     --> doIgnore
         , isFirefoxPreferences              --> doCenterFloat
         , isDialog                          --> doCenterFloat
         , isFullscreen                      --> doFullFloat
-        ])
+        ]
   where
     insertBelow = insertPosition Below Older
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
