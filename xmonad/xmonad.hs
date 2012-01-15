@@ -109,7 +109,7 @@ myRules ws = manageDocks
         , isFullscreen                      --> doFullFloat
         ]
   where
-    insertBelow = insertPosition Below Older
+    insertBelow = insertPosition Below Newer
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
              , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
