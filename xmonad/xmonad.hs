@@ -99,21 +99,19 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
-    <+> insertPosition Below Newer
     <+> workspaceRules ClassName ws
-    <+> (composeAll . concat $
-        [ [ className =? c --> doCenterFloat | c <- floats ]
-        , [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-          , className =? "Wine"               --> doFloat
-          , resource  =? "desktop_window"     --> doIgnore
-          , isFirefoxPreferences              --> doCenterFloat
-          , isDialog                          --> doCenterFloat
-          , isFullscreen                      --> doFullFloat
-          ]
+    <+> (composeAll
+        [ className >? floats               ||> (doCenterFloat, insertBelow)
+        , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
+        , resource  =? "desktop_window"     --> doIgnore
+        , isFirefoxPreferences              --> doCenterFloat
+        , isDialog                          --> doCenterFloat
+        , isFullscreen                      --> doFullFloat
         ])
   where
+    insertBelow = insertPosition Below Older
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
-             , "Nvidia-settings", "Arandr", "Gimp", "zsnes" ]
+             , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"

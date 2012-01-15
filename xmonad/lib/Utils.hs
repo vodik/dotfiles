@@ -1,19 +1,10 @@
-module Utils
-    ( Tweaks (..)
-    , to9
-    , withFocused'
-    , hasResource
-    , nextWS'
-    , prevWS'
-    , shiftToNext'
-    , shiftToPrev'
-    , (~?)
-    , role
-    , isFirefoxPreferences
-    ) where
+module Utils where
 
+import Control.Applicative ((<$>))
 import Control.Monad
+import Data.Monoid
 import Text.Regex.Posix ((=~))
+import qualified Data.Map as M
 
 import XMonad
 import XMonad.Actions.CycleWS
@@ -38,13 +29,15 @@ to9 ws = to9' ws 1
     to9' [] c | c < 10    = show c : to9' [] (c + 1)
               | otherwise = []
 
-withFocused' :: (Window -> X ()) -> X ()
-withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-    \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
+(>?) :: Eq a => Query a -> [a] -> Query Bool
+q >? (x:xs) = do
+    yes <- fmap (== x) q
+    if yes then return True
+           else q >? xs
+q >? [] = return False
 
-hasResource :: [String] -> Window -> X Bool
-hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) .
-    io $ getClassHint d w
+(||>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
+p ||> (f1, f2) = p >>= \b -> if b then f1 else f2
 
 q ~? x = fmap (=~ x) q
 
@@ -53,6 +46,14 @@ role = stringProperty "WM_WINDOW_ROLE"
 
 isFirefoxPreferences :: Query Bool
 isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
+
+withFocused' :: (Window -> X ()) -> X ()
+withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
+    \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
+
+hasResource :: [String] -> Window -> X Bool
+hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) .
+    io $ getClassHint d w
 
 skipNSP :: WSType
 skipNSP = WSIs . return $ ("NSP" /=) . W.tag
