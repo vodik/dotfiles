@@ -1,8 +1,7 @@
 import Control.Monad
-import Text.Regex.Posix ((=~))
+import System.Environment
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
-import System.Environment
 
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
@@ -10,31 +9,30 @@ import Graphics.X11.Xinerama (getScreenInfo)
 import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
-import XMonad.Hooks.ManageDocks
-import XMonad.Hooks.UrgencyHook
-import XMonad.Hooks.EwmhDesktops
-import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
-import XMonad.Layout.PerWorkspace
-import XMonad.Layout.Master
+import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Grid
 import XMonad.Layout.IM
+import XMonad.Layout.Master
 import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
 import XMonad.Prompt.Shell
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.TrackFloating
 import XMonad.Prompt
-import XMonad.Util.Run
 import XMonad.Util.EZConfig
-import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad (namedScratchpadFilterOutWorkspace)
+import XMonad.Util.Run
+import XMonad.Util.Scratchpad
 import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
-import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
 import BalancedTile
@@ -43,7 +41,7 @@ import Gaps
 import GuardLayout
 import GuardLayout.Instances
 import Workspaces
-import Tweaks
+import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
@@ -98,6 +96,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     imClient = Or (ClassName "Empathy" `And` Role "contact_list")
                   (ClassName "Pidgin"  `And` Role "buddy_list")
+               -- (ClassName "Skype") `And` (Not (Title "Options")) `And` (Not (Role "Chats")) `And` (Not (Role "CallWindowForm"))
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
@@ -114,7 +113,6 @@ myRules ws = manageDocks
           ]
         ])
   where
-    q ~? x = fmap (=~ x) q
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
              , "Nvidia-settings", "Arandr", "Gimp", "zsnes" ]
 
@@ -152,6 +150,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-k", windows W.focusUp)
       , ("M-m", windows W.focusMaster)
       , ("M-f", withFocused' $ windows . W.sink)
+      , ("M-s", focusUrgent)
 
       -- cycle windows
       , ("M-<Up>",      prevWS)
@@ -197,14 +196,6 @@ myKeys browser conf = mkKeymap conf $ concat
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
-  where
-    withFocused' :: (Window -> X ()) -> X ()
-    withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-        \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
-
-    hasResource :: [String] -> Window -> X Bool
-    hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) .
-        io $ getClassHint d w
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
@@ -237,7 +228,7 @@ myPP icons = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenAction "xdotool key super+n" . matchIcon icons . words
+    , ppLayout          = dzenAction "xdotool key super+n" . matchIcon icons colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
@@ -303,35 +294,6 @@ myDzen (Rectangle x y sw sh) =
       ++ " -e 'onstart=lower'"
   where
     quote = wrap "'" "'"
-
-to9 :: [String] -> [String]
-to9 ws = to9' ws 1
-  where
-    to9' (x:xs) c = x : to9' xs (c + 1)
-    to9' [] c | c < 10    = show c : to9' [] (c + 1)
-              | otherwise = []
-
-dzenify :: PPInfo -> Bool -> WorkspaceId -> String
-dzenify icons showAll c =
-    maybe without (\(n, i) -> dzenAction (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
-  where
-    cmd n = "xdotool key super+" ++ n
-    without | showAll   = dzenAction (cmd c) $ pad c
-            | otherwise = ""
-
-matchIcon :: PPInfo -> [String] -> String
-matchIcon icons (x:xs)
-    | x == "Triggered" = matchIcon' icons colorRed $ head xs
-    | otherwise        = matchIcon' icons colorBlue x
-  where
-    matchIcon' icons c i =
-        maybe "" (dzenColor c colorBlack . pad . dzenIcon) $ getLayout icons i
-
-role :: Query String
-role = stringProperty "WM_WINDOW_ROLE"
-
-isFirefoxPreferences :: Query Bool
-isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 getTweaks :: IO Tweaks
 getTweaks = do
