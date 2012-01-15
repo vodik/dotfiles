@@ -3,6 +3,10 @@ module Utils
     , to9
     , withFocused'
     , hasResource
+    , nextWS'
+    , prevWS'
+    , shiftToNext'
+    , shiftToPrev'
     , (~?)
     , role
     , isFirefoxPreferences
@@ -12,6 +16,7 @@ import Control.Monad
 import Text.Regex.Posix ((=~))
 
 import XMonad
+import XMonad.Actions.CycleWS
 import XMonad.Hooks.ManageHelpers
 import XMonad.Util.WindowProperties
 import qualified XMonad.StackSet as W
@@ -48,3 +53,11 @@ role = stringProperty "WM_WINDOW_ROLE"
 
 isFirefoxPreferences :: Query Bool
 isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
+
+skipNSP :: WSType
+skipNSP = WSIs . return $ ("NSP" /=) . W.tag
+
+nextWS' = moveTo Next skipNSP
+prevWS' = moveTo Prev skipNSP
+shiftToNext' = shiftTo Next skipNSP
+shiftToPrev' = shiftTo Prev skipNSP

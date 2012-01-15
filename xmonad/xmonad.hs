@@ -150,17 +150,17 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-k", windows W.focusUp)
       , ("M-m", windows W.focusMaster)
       , ("M-f", withFocused' $ windows . W.sink)
-      , ("M-s", focusUrgent)
+      , ("M-d", focusUrgent)
 
       -- cycle windows
-      , ("M-<Up>",      prevWS)
-      , ("M-<Down>",    nextWS)
-      , ("M-<Left>",    prevWS)
-      , ("M-<Right>",   nextWS)
-      , ("M-S-<Up>",    shiftToPrev >> prevWS)
-      , ("M-S-<Down>",  shiftToNext >> nextWS)
-      , ("M-S-<Left>",  shiftToPrev >> prevWS)
-      , ("M-S-<Right>", shiftToNext >> nextWS)
+      , ("M-<Up>",      prevWS')
+      , ("M-<Down>",    nextWS')
+      , ("M-<Left>",    prevWS')
+      , ("M-<Right>",   nextWS')
+      , ("M-S-<Up>",    shiftToPrev' >> prevWS')
+      , ("M-S-<Down>",  shiftToNext' >> nextWS')
+      , ("M-S-<Left>",  shiftToPrev' >> prevWS')
+      , ("M-S-<Right>", shiftToNext' >> nextWS')
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- swapping
