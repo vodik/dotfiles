@@ -32,10 +32,10 @@ data PPInfo = PPInfo
     , getLayout :: String -> Maybe String
     }
 
-data Workspace = Workspace String String [String]
+data Workspace = Workspace String [String]
 
 getWSName :: Workspace -> String
-getWSName (Workspace n _ _) = n
+getWSName (Workspace n _) = n
 
 getWorkspaces:: [Workspace] -> [String]
 getWorkspaces = map getWSName
@@ -44,7 +44,7 @@ filterWS :: String -> [Workspace] -> [Workspace]
 filterWS name = filter $ (name /=) . getWSName
 
 workspaceRules :: (String -> Property) -> [Workspace] -> ManageHook
-workspaceRules c (Workspace n _ prop:xs) =
+workspaceRules c (Workspace n prop:xs) =
     composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
 workspaceRules _ [] = idHook
 
@@ -57,8 +57,8 @@ findLayoutIcons root = do
 
 buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
 buildWSInfo root ws = do
-    (Workspace n i _, pos) <- zip ws [1..]
-    let icon = root </> i ++ ".xbm"
+    (Workspace n _, pos) <- zip ws [1..]
+    let icon = root </> n ++ ".xbm"
     return (n, (pos, icon))
 
 getPPInfo :: [Workspace] -> IO PPInfo

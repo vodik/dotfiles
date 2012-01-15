@@ -45,12 +45,12 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  "arch"     [ "Firefox", "Chromium", "Zathura" ]
-    , Workspace "term"  "terminal" [ ]
-    , Workspace "code"  "flask2"   [ ]
-    , Workspace "chat"  "balloon"  [ "Empathy", "Pidgin" ]
-    , Workspace "virt"  "wrench"   [ "VirtualBox" ]
-    , Workspace "games" "ghost"    [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
+    [ Workspace "work"  [ "Firefox", "Chromium", "Zathura" ]
+    , Workspace "term"  [ ]
+    , Workspace "code"  [ ]
+    , Workspace "chat"  [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  [ "VirtualBox" ]
+    , Workspace "games" [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
 myTerminal      = "urxvtc"
