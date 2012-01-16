@@ -24,6 +24,7 @@ module GuardLayout.Instances
     , whenHostname
     ) where
 
+import Control.Applicative ((<$>))
 import Control.Monad
 import Data.Maybe
 import Data.Ratio
@@ -105,10 +106,10 @@ data Hostname = Hostname String
 
 instance Condition ScreenSize where
     validate ws (SmallerThan si) =
-        fmap (calculateBox si (<)) getScreenSize
+        calculateBox si (<) <$> getScreenSize
 
     validate ws (AtLeast si) =
-        fmap (calculateBox si (>=)) getScreenSize
+        calculateBox si (>=) <$> getScreenSize
 
 instance Condition AspectRatio where
     validate ws (AspectRatio r) =
@@ -116,7 +117,7 @@ instance Condition AspectRatio where
 
 instance Condition Hostname where
     validate ws (Hostname n) =
-        fmap ((n ==) . nodeName) $ io getSystemID
+        (n ==) . nodeName <$> io getSystemID
 
 getScreenSize :: X Rectangle
 getScreenSize = io . fmap head $ getScreenInfo =<< openDisplay ""
