@@ -28,9 +28,8 @@ to9 ws = to9' ws 1
     to9' [] c | c < 10    = show c : to9' [] (c + 1)
               | otherwise = []
 
-(|?) :: Eq a => Query a -> [a] -> Query Bool
-q |? (x:xs) = q =? x >>= \b -> if b then return True else q |? xs
-q |? []     = return False
+queryAny :: Eq a => Query a -> [a] -> Query Bool
+queryAny q xs = foldl1 (<||>) [ q =? x | x <- xs ]
 
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2

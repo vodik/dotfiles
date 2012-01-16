@@ -101,7 +101,7 @@ myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ClassName ws
     <+> composeAll
-        [ className |? floats               -|> (doCenterFloat, insertBelow)
+        [ className `queryAny` floats       -|> (doCenterFloat, insertBelow)
         , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
         , resource  =? "desktop_window"     --> doIgnore
         , isFirefoxPreferences              --> doCenterFloat
