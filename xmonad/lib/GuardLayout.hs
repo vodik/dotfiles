@@ -115,7 +115,7 @@ instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClas
 
 -- | Check if any of the conditions are true.
 checkCondition :: (Condition p) => W.Workspace WorkspaceId l a -> [p] -> X Bool
-checkCondition ws ps = any id <$> mapM (validate ws) ps
+checkCondition ws ps = foldM (\a p -> validate ws p >>= return . (a ||)) False ps
 
 -- | Construct new GuardLayout values with possibly modified layouts.
 mkNewPerScreenT :: (Condition p) => GuardLayout p l1 l2 a -> Maybe (l1 a) -> GuardLayout p l1 l2 a
