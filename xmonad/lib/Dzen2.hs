@@ -15,10 +15,10 @@ import Workspaces
 
 dzenify :: PPInfo -> Bool -> WorkspaceId -> String
 dzenify icons showAll c =
-    maybe without (\(n, i) -> dzenAction (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
+    maybe without (\(n, i) -> dzenAction 1 (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
   where
     cmd n = "xdotool key super+" ++ n
-    without | showAll   = dzenAction (cmd c) $ pad c
+    without | showAll   = dzenAction 1 (cmd c) $ pad c
             | otherwise = ""
 
 matchIcon :: PPInfo -> String -> String -> String -> [String] -> String
@@ -32,5 +32,5 @@ matchIcon icons t f b (x:xs)
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
-dzenAction :: String -> String -> String
-dzenAction cmd = wrap "^ca(1," ")" cmd `wrap` "^ca()"
+dzenAction :: Int -> String -> String -> String
+dzenAction = flip flip "^ca()" . (wrap .) . flip wrap ")" . wrap "^ca(" "," . show
