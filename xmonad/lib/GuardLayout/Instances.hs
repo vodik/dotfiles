@@ -124,6 +124,6 @@ getScreenSize = io . fmap head $ getScreenInfo =<< openDisplay ""
 
 calculateBox :: ScreenSpace -> (Dimension -> Dimension -> Bool) -> Rectangle -> Bool
 calculateBox (ScreenSpace w h) op (Rectangle _ _ sw sh) =
-    let w' = op sw <$> w
-        t' = op sh <$> h
-    in fromMaybe False $ (||) <$> w' <*> t'
+    let w' = fromMaybe False $ op sw <$> w
+        h' = fromMaybe False $ op sh <$> h
+    in w' || h'
