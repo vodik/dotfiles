@@ -29,16 +29,18 @@ shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
 -- | Calculate the gap's offset from the left/top.
 --
 gapLeft :: Integral a => Gaps t -> Position -> Position -> a
-gapLeft (Gaps g) x sx
-    | x == sx   = fi g
-    | otherwise = halfGap g
+gapLeft (Gaps g) x sx =
+    if x == sx
+       then fi g
+       else halfGap g
 
 -- | Calculate the gap's offset from the right/bottom.
 --
 gapRight :: Integral a => Gaps t -> Position -> Dimension -> Position -> Dimension -> a
-gapRight (Gaps g) x w sx sw
-    | x + fi w == sx + fi sw = fi g
-    | otherwise              = halfGap g
+gapRight (Gaps g) x w sx sw =
+    if x + fi w == sx + fi sw
+       then fi g
+       else halfGap g
 
 halfGap :: Integral a => Int -> a
 halfGap = truncate . (/2) . fi
