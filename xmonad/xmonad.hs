@@ -116,7 +116,8 @@ myRules ws = manageDocks
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
     when (disp == ":0") $ mapM_ spawn
-        [ "pgrep urxvtd  || exec urxvtd"
+        [ "pgrep mpd     || exec mpd"
+        , "pgrep urxvtd  || exec urxvtd"
         , "pgrep udiskie || exec udiskie"
         ]
 

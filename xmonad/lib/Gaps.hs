@@ -19,28 +19,17 @@ instance LayoutModifier Gaps a where
 -- | Shrink the window's rectangle to add a nice gap between windows.
 --
 shrinkRect :: Gaps a -> Rectangle -> Rectangle -> Rectangle
-shrinkRect gap (Rectangle sx sy sw sh) (Rectangle x y w h) =
-    let dl = gapLeft gap x sx
-        dt = gapLeft gap y sy
-        dr = gapRight gap x w sx sw
-        db = gapRight gap y h sy sh
+shrinkRect (Gaps g) (Rectangle sx sy sw sh) (Rectangle x y w h) =
+    let dl = gap g $ x == sx
+        dt = gap g $ y == sy
+        dr = gap g $ gapRight x w sx sw
+        db = gap g $ gapRight y h sy sh
     in Rectangle (x + dl) (y + dt) (w - fi dl - dr) (h - fi dt - db)
 
--- | Calculate the gap's offset from the left/top.
---
-gapLeft :: Integral a => Gaps t -> Position -> Position -> a
-gapLeft (Gaps g) x sx =
-    if x == sx
-       then fi g
-       else halfGap g
+gap :: Integral a => Int -> Bool -> a
+gap g b = if b then fi g else truncate . (/2) $ fi g
 
 -- | Calculate the gap's offset from the right/bottom.
 --
-gapRight :: Integral a => Gaps t -> Position -> Dimension -> Position -> Dimension -> a
-gapRight (Gaps g) x w sx sw =
-    if x + fi w == sx + fi sw
-       then fi g
-       else halfGap g
-
-halfGap :: Integral a => Int -> a
-halfGap = truncate . (/2) . fi
+gapRight :: Position -> Dimension -> Position -> Dimension -> Bool
+gapRight x w sx sw = x + fi w == sx + fi sw
