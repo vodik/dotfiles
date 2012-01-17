@@ -22,11 +22,7 @@ data Tweaks = Tweaks
     }
 
 to9 :: [String] -> [String]
-to9 ws = to9' ws 1
-  where
-    to9' (x:xs) c = x : to9' xs (c + 1)
-    to9' [] c | c < 10    = show c : to9' [] (c + 1)
-              | otherwise = []
+to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 
 queryAny :: Eq a => Query a -> [a] -> Query Bool
 queryAny q xs = foldl1 (<||>) $ map (q =?) xs
