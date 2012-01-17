@@ -29,7 +29,7 @@ to9 ws = to9' ws 1
               | otherwise = []
 
 queryAny :: Eq a => Query a -> [a] -> Query Bool
-queryAny q xs = foldl1 (<||>) [ q =? x | x <- xs ]
+queryAny q xs = foldl1 (<||>) $ map (q =?) xs
 
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
