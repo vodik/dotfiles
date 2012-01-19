@@ -26,11 +26,12 @@ dzenPPLayout icons tc fc bg (x:xs) =
     let (fg, l) = if x == "Triggered"
                      then (tc, head xs)
                      else (fc, x)
-    in composeAll
+    in ($ l) $ foldl1 (.)
         [ dzenAction 1 "xdotool key super+n"
         , dzenAction 3 "xdotool key super+a"
-        , dzenColor fg bg . pad . dzenIcon ]
-        $ getLayout icons l
+        , dzenColor fg bg . pad . dzenIcon
+        , getLayout icons
+        ]
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
