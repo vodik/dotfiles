@@ -1,6 +1,6 @@
 module Dzen2
-    ( dzenify
-    , matchIcon
+    ( dzenWSIcon
+    , dzenPPLayout
     , dzenIcon
     , dzenAction
     ) where
@@ -13,21 +13,23 @@ import XMonad.Hooks.DynamicLog
 
 import Workspaces
 
-dzenify :: PPInfo -> Bool -> WorkspaceId -> String
-dzenify icons showAll c =
-    maybe without (\(n, i) -> dzenAction 1 (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getInfo icons c
+dzenWSIcon :: PPInfo -> Bool -> WorkspaceId -> String
+dzenWSIcon info showAll c =
+    maybe without (\(n, i) -> dzenAction 1 (cmd $ show n) . pad . (++ ' ' : c) $ dzenIcon i) $ getWSInfo info c
   where
     cmd n = "xdotool key super+" ++ n
     without | showAll   = dzenAction 1 (cmd c) $ pad c
             | otherwise = ""
 
-matchIcon :: PPInfo -> String -> String -> String -> [String] -> String
-matchIcon icons t f b (x:xs)
-    | x == "Triggered" = matchIcon' icons t $ head xs
-    | otherwise        = matchIcon' icons f x
-  where
-    matchIcon' icons c i =
-        maybe "" (dzenColor c b . pad . dzenIcon) $ getLayout icons i
+dzenPPLayout :: PPInfo -> String -> String -> String -> [String] -> String
+dzenPPLayout info tc fc bg (x:xs) =
+    let (fg, l) = if x == "Triggered"
+                     then (tc, head xs)
+                     else (fc, x)
+    in dzenAction 1 "xdotool key super+n"
+     . dzenAction 3 "xdotool key super+a"
+     . dzenColor fg bg . pad . dzenIcon
+     $ getLayout info l
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
