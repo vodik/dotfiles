@@ -28,7 +28,7 @@ type PPWS      = (Int, String)
 type PPInfoMap = M.Map String PPWS
 
 data PPInfo = PPInfo
-    { getInfo   :: String -> Maybe PPWS
+    { getWSInfo :: String -> Maybe PPWS
     , getLayout :: String -> String
     }
 
@@ -58,6 +58,6 @@ getPPInfo :: [Workspace] -> IO PPInfo
 getPPInfo ws = do
     root <- (++ "/.xmonad/icons") . fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
     return PPInfo
-        { getInfo   = \l -> M.lookup l . M.fromList $ buildWSInfo root ws
+        { getWSInfo = \l -> M.lookup l . M.fromList $ buildWSInfo root ws
         , getLayout = (root </>) . ("layout-" ++) . (++ ".xbm")
         }

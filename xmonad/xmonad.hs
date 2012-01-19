@@ -216,17 +216,17 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-myLogHook icons output =
-    dynamicLogWithPP $ (myPP icons) { ppOutput = hPutStrLn output }
+myLogHook ppInfo output =
+    dynamicLogWithPP $ (myPP ppInfo) { ppOutput = hPutStrLn output }
 
-myPP icons = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenify icons True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenify icons True
-    , ppVisible         = dzenColor colorWhite    colorGray     . dzenify icons True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
+myPP ppInfo = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon ppInfo True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon ppInfo True
+    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon ppInfo True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon ppInfo True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon ppInfo False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenPPLayout icons colorRed colorBlue colorBlack . words
+    , ppLayout          = dzenPPLayout ppInfo colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
