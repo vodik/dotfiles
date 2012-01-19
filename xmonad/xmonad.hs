@@ -103,7 +103,7 @@ myRules ws = manageDocks
     <+> composeAll
         [ className `queryAny` floats       -|> (doCenterFloat, insertBelow)
         , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-        , title     ~? "Picard"             --> doShift "work"
+        , title     =? "MusicBrainz Picard" --> doShift "work"
         , resource  =? "desktop_window"     --> doIgnore
         , isFirefoxPreferences              --> doCenterFloat
         , isDialog                          --> doCenterFloat
