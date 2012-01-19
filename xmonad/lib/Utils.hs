@@ -22,6 +22,9 @@ data Tweaks = Tweaks
     , wsModifier :: [Workspace] -> [Workspace]
     }
 
+classNames :: [String] -> [Property]
+classNames = map ClassName
+
 to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 

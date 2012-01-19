@@ -32,7 +32,7 @@ data PPInfo = PPInfo
     , getLayout :: String -> String
     }
 
-data Workspace = Workspace String [String]
+data Workspace = Workspace String [Property]
 
 getWSName :: Workspace -> String
 getWSName (Workspace n _) = n
@@ -43,10 +43,10 @@ getWorkspaces = map getWSName
 filterWS :: String -> [Workspace] -> [Workspace]
 filterWS name = filter $ (name /=) . getWSName
 
-workspaceRules :: (String -> Property) -> [Workspace] -> ManageHook
-workspaceRules c (Workspace n prop:xs) =
-    composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
-workspaceRules _ [] = idHook
+workspaceRules :: [Workspace] -> ManageHook
+workspaceRules (Workspace n prop:xs) =
+    composeAll [ propertyToQuery p --> doShift n | p <- prop ] <+> workspaceRules xs
+workspaceRules [] = idHook
 
 buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
 buildWSInfo root ws = do

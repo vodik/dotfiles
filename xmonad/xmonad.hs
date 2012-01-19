@@ -43,12 +43,12 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  [ "Firefox", "Chromium", "Zathura" ]
+    [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura" ]
     , Workspace "term"  [ ]
     , Workspace "code"  [ ]
-    , Workspace "chat"  [ "Empathy", "Pidgin" ]
-    , Workspace "virt"  [ "VirtualBox" ]
-    , Workspace "games" [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
+    , Workspace "chat"  $ classNames [ "Empathy", "Pidgin" ]
+    , Workspace "virt"  $ classNames [ "VirtualBox" ]
+    , Workspace "games" $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
 myTerminal    = "urxvtc"
@@ -98,7 +98,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
-    <+> workspaceRules ClassName ws
+    <+> workspaceRules ws
     <+> composeAll
         [ className `queryAny` floats       -|> (doCenterFloat, insertBelow)
         , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
