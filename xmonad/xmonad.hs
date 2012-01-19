@@ -79,22 +79,22 @@ colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
-    $ onWorkspace "work"  (wtabs  ||| tiled)
+    $ onWorkspace "work"  (wmstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (withIM (imWidth tw) imClient $ grid ||| tabs)
+    $ onWorkspace "chat"  (withIM (imWidth tw) client $ grid ||| tabs)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
   where
-    wtabs  = smartBorders $ whenWider 1200 (mastered (2/100) (mainWidth tw)) tabs
-    tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
-    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
-    grid   = gaps 5 $ GridRatio (imGrid tw)
-    tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    full   = noBorders Full
-    imClient = Or (ClassName "Empathy" `And` Role "contact_list")
-                  (ClassName "Pidgin"  `And` Role "buddy_list")
-               -- (ClassName "Skype") `And` (Not (Title "Options")) `And` (Not (Role "Chats")) `And` (Not (Role "CallWindowForm"))
+    wmstr l = smartBorders $ ifWider 1200 (mastered (2/100) (mainWidth tw) l ||| l) l
+    tiled   = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
+    mtiled  = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
+    grid    = gaps 5 $ GridRatio (imGrid tw)
+    tabs    = trackFloating $ tabbed shrinkText myTabTheme
+    full    = noBorders Full
+    client  = Or (ClassName "Empathy" `And` Role "contact_list")
+                 (ClassName "Pidgin"  `And` Role "buddy_list")
+              -- (ClassName "Skype") `And` (Not (Title "Options")) `And` (Not (Role "Chats")) `And` (Not (Role "CallWindowForm"))
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
