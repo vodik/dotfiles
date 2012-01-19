@@ -5,13 +5,12 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
   unset f
 fi
 
+cd "$HOME"
 xrdb -merge ~/.Xresources &
 nitrogen --restore &
-xsetroot -cursor_name left_ptr &
 
 case ${2} in
   *)
-    cd "$HOME"
     exec ck-launch-session "${2-xmonad}"
     ;;
 esac

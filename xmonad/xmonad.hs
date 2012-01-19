@@ -26,6 +26,7 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.TrackFloating
 import XMonad.Prompt
+import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
@@ -265,7 +266,7 @@ main = do
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = myLogHook wsInfo dzenbar
-        , startupHook        = myStartupHook <+> setWMName "LG3D"
+        , startupHook        = setDefaultCursor xC_left_ptr <+> setWMName "LG3D" <+> myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
