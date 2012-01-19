@@ -35,4 +35,4 @@ dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
 dzenAction :: Int -> String -> String -> String
-dzenAction = flip flip "^ca()" . (wrap .) . flip wrap ")" . wrap "^ca(" "," . show
+dzenAction m f = wrap ("^ca(" ++ show m ++ "," ++ f ++ ")") "^ca()"
