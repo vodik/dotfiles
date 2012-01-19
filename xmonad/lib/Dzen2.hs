@@ -35,4 +35,4 @@ dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
 dzenAction :: Int -> String -> String -> String
-dzenAction m f = wrap ("^ca(" ++ show m ++ "," ++ f ++ ")") "^ca()"
+dzenAction m f = concat [ "^ca(", show m, ",", f, ")" ] `wrap` "^ca()"
