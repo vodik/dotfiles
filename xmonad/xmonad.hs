@@ -82,7 +82,7 @@ colorRed        = "#d74b73"
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
     $ onWorkspace "work"  (wtabs  ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (chat $ grid ||| tabs)
+    $ onWorkspace "chat"  (withIM (imWidth tw) imClient $ grid ||| tabs)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
@@ -91,9 +91,8 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
     grid   = gaps 5 $ GridRatio (imGrid tw)
-    full   = noBorders Full
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    chat   = withIM (imWidth tw) imClient
+    full   = noBorders Full
     imClient = Or (ClassName "Empathy" `And` Role "contact_list")
                   (ClassName "Pidgin"  `And` Role "buddy_list")
                -- (ClassName "Skype") `And` (Not (Title "Options")) `And` (Not (Role "Chats")) `And` (Not (Role "CallWindowForm"))
