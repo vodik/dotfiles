@@ -1,6 +1,6 @@
 module Dzen2
     ( dzenify
-    , matchIcon
+    , dzenPPLayout
     , dzenIcon
     , dzenAction
     ) where
@@ -21,13 +21,16 @@ dzenify icons showAll c =
     without | showAll   = dzenAction 1 (cmd c) $ pad c
             | otherwise = ""
 
-matchIcon :: PPInfo -> String -> String -> String -> [String] -> String
-matchIcon icons t f b (x:xs)
-    | x == "Triggered" = matchIcon' icons t $ head xs
-    | otherwise        = matchIcon' icons f x
-  where
-    matchIcon' icons c i =
-        maybe "" (dzenColor c b . pad . dzenIcon) $ getLayout icons i
+dzenPPLayout :: PPInfo -> String -> String -> String -> [String] -> String
+dzenPPLayout icons tc fc bg (x:xs) =
+    let (fg, l) = if x == "Triggered"
+                     then (tc, head xs)
+                     else (fc, x)
+    in composeAll
+        [ dzenAction 1 "xdotool key super+n"
+        , dzenAction 3 "xdotool key super+a"
+        , dzenColor fg bg . pad . dzenIcon ]
+        $ getLayout icons l
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"

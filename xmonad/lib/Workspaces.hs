@@ -29,7 +29,7 @@ type PPInfoMap = M.Map String PPWS
 
 data PPInfo = PPInfo
     { getInfo   :: String -> Maybe PPWS
-    , getLayout :: String -> Maybe String
+    , getLayout :: String -> String
     }
 
 data Workspace = Workspace String [String]
@@ -48,13 +48,6 @@ workspaceRules c (Workspace n prop:xs) =
     composeAll [ propertyToQuery (c p) --> doShift n | p <- prop ] <+> workspaceRules c xs
 workspaceRules _ [] = idHook
 
-findLayoutIcons :: FilePath -> ListT IO (String, String)
-findLayoutIcons root = do
-    icons <- ListT $ getDirectoryContents root
-    guard $ "layout-" `isPrefixOf` icons
-    let icon = root </> icons
-    return (icons, icon)
-
 buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
 buildWSInfo root ws = do
     (Workspace n _, pos) <- zip ws [1..]
@@ -64,8 +57,7 @@ buildWSInfo root ws = do
 getPPInfo :: [Workspace] -> IO PPInfo
 getPPInfo ws = do
     root <- (++ "/.xmonad/icons") . fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
-    list <- runListT $ findLayoutIcons root
     return PPInfo
         { getInfo   = \l -> M.lookup l . M.fromList $ buildWSInfo root ws
-        , getLayout = \l -> M.lookup ("layout-" ++ l ++ ".xbm") $ M.fromList list
+        , getLayout = (root </>) . ("layout-" ++) . (++ ".xbm")
         }

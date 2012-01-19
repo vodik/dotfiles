@@ -226,9 +226,7 @@ myPP icons = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenify icons True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenify icons False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenAction 1 "xdotool key super+n"
-                            . dzenAction 3 "xdotool key super+a"
-                            . matchIcon icons colorRed colorBlue colorBlack . words
+    , ppLayout          = dzenPPLayout icons colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
