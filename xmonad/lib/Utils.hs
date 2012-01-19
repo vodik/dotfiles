@@ -9,6 +9,7 @@ import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Hooks.ManageHelpers
 import XMonad.Util.WindowProperties
+import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
 import Workspaces
@@ -54,3 +55,7 @@ nextWS' = moveTo Next skipNSP
 prevWS' = moveTo Prev skipNSP
 shiftToNext' = shiftTo Next skipNSP
 shiftToPrev' = shiftTo Prev skipNSP
+
+getSortByIndexWithoutNSP :: X WorkspaceSort
+getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
+    return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")

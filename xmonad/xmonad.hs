@@ -27,10 +27,8 @@ import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.TrackFloating
 import XMonad.Prompt
 import XMonad.Util.EZConfig
-import XMonad.Util.NamedScratchpad (namedScratchpadFilterOutWorkspace)
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
-import XMonad.Util.WorkspaceCompare (getSortByIndex)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
@@ -230,7 +228,7 @@ myPP ppInfo = defaultPP
     , ppLayout          = dzenPPLayout ppInfo colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
-    , ppSort            = fmap (. namedScratchpadFilterOutWorkspace) getSortByIndex
+    , ppSort            = getSortByIndexWithoutNSP
     , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
     }
 
