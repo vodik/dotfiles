@@ -100,7 +100,7 @@ myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ws
     <+> composeAll
-        [ className `queryAny` floats       -|> (doCenterFloat, insertBelow)
+        [ floatWindow floats                -|> (doCenterFloat, insertBelow)
         , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
         , title     =? "MusicBrainz Picard" --> doShift "work"
         , resource  =? "desktop_window"     --> doIgnore
@@ -109,7 +109,8 @@ myRules ws = manageDocks
         , isFullscreen                      --> doFullFloat
         ]
   where
-    insertBelow = insertPosition Below Newer
+    floatWindow f = foldl1 (<||>) [ className `queryAny` f, isDialog ]
+    insertBelow   = insertPosition Below Newer
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
              , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
