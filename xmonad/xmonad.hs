@@ -51,6 +51,18 @@ myWorkspaces =
     , Workspace "games" $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
+imClients :: [Property]
+imClients =
+    [ ClassName "Empathy" `And` Role "contact_list"
+    , ClassName "Pidgin"  `And` Role "buddy_list"
+    , foldl1 And [ ClassName "Skype"
+                 , Role ""
+                 , Not $ Title "Options"
+                 , Not $ Title "File Transfers"
+                 , Not $ Title "Add a Skype Contact"
+                 ]
+    ]
+
 myTerminal    = "urxvtc"
 myBorderWidth = 3
 myModMask     = mod4Mask
@@ -91,19 +103,10 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
-    sortIM = sortProperties False (imWidth tw) client panel
+    sortIM = sortProperties False (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
-    client = [ ClassName "Empathy" `And` Role "contact_list"
-             , ClassName "Pidgin"  `And` Role "buddy_list"
-             , foldl1 And [ ClassName "Skype"
-                          , Role ""
-                          , Not (Title "Options")
-                          , Not (Title "File Transfers")
-                          , Not (Title "Add a Skype Contact")
-                          ]
-             ]
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
