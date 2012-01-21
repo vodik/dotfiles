@@ -55,7 +55,7 @@ tile f mf r nmaster n =
        else let nmaster' = min (n `quot` 2) nmaster
             in splitVertically mf nmaster' r1 ++ splitVertically (drop nmaster' mf) (n - nmaster') r2
   where
-    (r1,r2) = splitHorizontallyBy f r
+    (r1, r2) = splitHorizontallyBy f r
 
 splitVertically :: RealFrac r => [r] -> Int -> Rectangle -> [Rectangle]
 splitVertically [] _ r         = [r]

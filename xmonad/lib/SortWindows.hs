@@ -16,6 +16,8 @@ import XMonad.Layout.WindowNavigation
 import XMonad.Util.WindowProperties
 import qualified XMonad.StackSet as W
 
+import Debug.Trace
+
 data SortLayout l1 l2 a = SortLayout [a] [a] [a] Property Rational (l1 a) (l2 a)
     deriving (Read, Show)
 
@@ -40,7 +42,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
                 w2' = w2c ++ (new \\ matching)          -- updated second pane windows
                 s1  = differentiate f' w1'              -- first pane stack
                 s2  = differentiate f' w2'              -- second pane stack
-            (wrs, ml1', ml2') <- split w1 l1 s1 w2 l2 s2 frac r
+            (wrs, ml1', ml2') <- split w1' l1 s1 w2' l2 s2 frac r
             return (wrs, Just $ SortLayout f' w1' w2' prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
 
     handleMessage us@(SortLayout f ws1 ws2 prop frac l1 l2) m = do
@@ -57,13 +59,7 @@ split w1 l1 s1 w2 l2 s2 f r = do
     (wrs2, ml2') <- runLayout (Workspace "" l2 s2) r2
     return (wrs1 ++ wrs2, ml1', ml2')
   where
-    (r1, r2) = splitBy f r
-
-splitBy :: RealFrac r => r -> Rectangle -> (Rectangle, Rectangle)
-splitBy f (Rectangle sx sy sw sh) =
-    (Rectangle sx sy leftw sh, Rectangle (sx + fromIntegral leftw) sy (sw - leftw) sh)
-  where
-    leftw = floor $ fromIntegral sw * f
+    (r1, r2) = splitHorizontallyBy f r
 
 differentiate :: Eq q => [q] -> [q] -> Maybe (Stack q)
 differentiate (z:zs) xs
