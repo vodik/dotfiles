@@ -47,7 +47,7 @@ myWorkspaces =
     [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura" ]
     , Workspace "term"  [ ]
     , Workspace "code"  [ ]
-    , Workspace "chat"  $ classNames [ "Empathy", "Pidgin" ]
+    , Workspace "chat"  $ classNames [ "Empathy", "Pidgin", "Skype" ]
     , Workspace "virt"  $ classNames [ "VirtualBox" ]
     , Workspace "games" $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
@@ -82,7 +82,7 @@ colorRed        = "#d74b73"
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (withIM (imWidth tw) client $ grid ||| tabs)
+    $ onWorkspace "chat"  (sortIM $ grid ||| tabs)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
@@ -91,12 +91,14 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     work   = sortProperties (getRules $ head myWorkspaces) (mainWidth tw) tabs tabs
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
+    sortIM = sortProperties client (imWidth tw) Grid
     grid   = gaps 5 $ GridRatio (imGrid tw)
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     full   = noBorders Full
-    client = Or (ClassName "Empathy" `And` Role "contact_list")
-                (ClassName "Pidgin"  `And` Role "buddy_list")
-             -- (ClassName "Skype") `And` (Not (Title "Options")) `And` (Not (Role "Chats")) `And` (Not (Role "CallWindowForm"))
+    client = [ ClassName "Empathy" `And` Role "contact_list"
+             , ClassName "Pidgin"  `And` Role "buddy_list"
+             , ClassName "Skype" `And` (Not $ Title "Options") `And` (Not $ Role "Chats") `And` (Not $ Role "CallWindowForm")
+             ]
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))

@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances, PatternGuards #-}
+{-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances #-}
 
 module SortWindows
     ( sortProperty
@@ -7,6 +7,7 @@ module SortWindows
     , Property (..)
     ) where
 
+import Control.Applicative
 import Control.Monad
 import Data.List (delete, intersect, (\\))
 import Data.Maybe
@@ -54,7 +55,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             (wrs, ml1', ml2') <- split w1' l1 s1 w2' l2 s2 frac r
             return (wrs, Just $ SortLayout f' w1' w2' prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
       where
-        pfilter w = foldM (\a p -> (a ||) `fmap` hasProperty p w) False prop
+        pfilter w = foldM (\a p -> (a ||) <$> hasProperty p w) False prop
 
     handleMessage us@(SortLayout f ws1 ws2 prop frac l1 l2) m = do
         ml1' <- handleMessage l1 m
