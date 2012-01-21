@@ -8,7 +8,7 @@ module SortWindows
 
 import Control.Monad
 import Data.List (delete, intersect, (\\))
-import Data.Maybe (isJust)
+import Data.Maybe
 
 import XMonad hiding (focus)
 import XMonad.StackSet (Workspace (..), Stack (..))
@@ -35,21 +35,19 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             new = origws \\ (w1c ++ w2c)        -- new windows
             f'  = focus s : delete (focus s) f  -- list of focused windows, contains 2 elements at most
         in do
-            matching <- (hasProperty prop) `filterM` new  -- new windows matching predecate
-            let w1' = w1c ++ matching                     -- updated first pane windows
-                w2' = w2c ++ (new \\ matching)            -- updated second pane windows
-                s1  = differentiate f' w1'                -- first pane stack
-                s2  = differentiate f' w2'                -- second pane stack
+            matching <- hasProperty prop `filterM` new  -- new windows matching predecate
+            let w1' = w1c ++ matching                   -- updated first pane windows
+                w2' = w2c ++ (new \\ matching)          -- updated second pane windows
+                s1  = differentiate f' w1'              -- first pane stack
+                s2  = differentiate f' w2'              -- second pane stack
             (wrs, ml1', ml2') <- split w1 l1 s1 w2 l2 s2 frac r
-            return (wrs, Just $ SortLayout f' w1' w2' prop frac (maybe l1 id ml1') (maybe l2 id ml2'))
+            return (wrs, Just $ SortLayout f' w1' w2' prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
 
     handleMessage us@(SortLayout f ws1 ws2 prop frac l1 l2) m = do
         ml1' <- handleMessage l1 m
         ml2' <- handleMessage l2 m
         if isJust ml1' || isJust ml2'
-           then return $ Just $ SortLayout f ws1 ws2 prop frac
-                                (maybe l1 id ml1')
-                                (maybe l2 id ml2')
+           then return . Just $ SortLayout f ws1 ws2 prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2')
            else return Nothing
 
 split w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
@@ -69,8 +67,8 @@ splitBy f (Rectangle sx sy sw sh) =
 
 differentiate :: Eq q => [q] -> [q] -> Maybe (Stack q)
 differentiate (z:zs) xs
-    | z `elem` xs = Just $ Stack { focus=z
-                                 , up = reverse $ takeWhile (/=z) xs
-                                 , down = tail $ dropWhile (/=z) xs }
+    | z `elem` xs = Just Stack { focus = z
+                               , up    = reverse $ takeWhile (/=z) xs
+                               , down  = tail $ dropWhile (/=z) xs }
     | otherwise   = differentiate zs xs
 differentiate [] xs = W.differentiate xs
