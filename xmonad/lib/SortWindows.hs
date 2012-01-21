@@ -1,7 +1,8 @@
 {-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances, PatternGuards #-}
 
 module SortWindows
-    ( sortWindows
+    ( sortProperty
+    , sortProperties
     , SortLayout
     , Property (..)
     ) where
@@ -18,16 +19,24 @@ import qualified XMonad.StackSet as W
 
 import Debug.Trace
 
-data SortLayout l1 l2 a = SortLayout [a] [a] [a] Property Rational (l1 a) (l2 a)
+data SortLayout l1 l2 a = SortLayout [a] [a] [a] [Property] Rational (l1 a) (l2 a)
     deriving (Read, Show)
 
-sortWindows :: (LayoutClass l1 a, LayoutClass l2 a)
-               => Property
-               -> Rational
-               -> l1 a
-               -> l2 a
-               -> SortLayout l1 l2 a
-sortWindows = SortLayout [] [] []
+sortProperty :: (LayoutClass l1 a, LayoutClass l2 a)
+                => Property
+                -> Rational
+                -> l1 a
+                -> l2 a
+                -> SortLayout l1 l2 a
+sortProperty p = sortProperties [p]
+
+sortProperties :: (LayoutClass l1 a, LayoutClass l2 a)
+                  => [Property]
+                  -> Rational
+                  -> l1 a
+                  -> l2 a
+                  -> SortLayout l1 l2 a
+sortProperties = SortLayout [] [] []
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
     doLayout (SortLayout f w1 w2 prop frac l1 l2) r s =
@@ -37,13 +46,15 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             new = origws \\ (w1c ++ w2c)        -- new windows
             f'  = focus s : delete (focus s) f  -- list of focused windows, contains 2 elements at most
         in do
-            matching <- hasProperty prop `filterM` new  -- new windows matching predecate
-            let w1' = w1c ++ matching                   -- updated first pane windows
-                w2' = w2c ++ (new \\ matching)          -- updated second pane windows
-                s1  = differentiate f' w1'              -- first pane stack
-                s2  = differentiate f' w2'              -- second pane stack
+            matching <- filterM pfilter new     -- new windows matching predecate
+            let w1' = w1c ++ matching           -- updated first pane windows
+                w2' = w2c ++ (new \\ matching)  -- updated second pane windows
+                s1  = differentiate f' w1'      -- first pane stack
+                s2  = differentiate f' w2'      -- second pane stack
             (wrs, ml1', ml2') <- split w1' l1 s1 w2' l2 s2 frac r
             return (wrs, Just $ SortLayout f' w1' w2' prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
+      where
+        pfilter w = foldM (\a p -> (a ||) `fmap` hasProperty p w) False prop
 
     handleMessage us@(SortLayout f ws1 ws2 prop frac l1 l2) m = do
         ml1' <- handleMessage l1 m

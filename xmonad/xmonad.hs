@@ -88,7 +88,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = sortWindows (ClassName "Firefox") (mainWidth tw) tabs tabs
+    work   = sortProperties (getRules $ head myWorkspaces) (mainWidth tw) tabs tabs
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
     grid   = gaps 5 $ GridRatio (imGrid tw)

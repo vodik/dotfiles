@@ -1,6 +1,5 @@
 module Workspaces
-    ( getWSName
-    , getWorkspaces
+    ( getWorkspaces
     , filterWS
     , workspaceRules
     , getPPInfo
@@ -32,12 +31,12 @@ data PPInfo = PPInfo
     , getLayout :: String -> String
     }
 
-data Workspace = Workspace String [Property]
+data Workspace = Workspace
+    { getWSName :: String
+    , getRules  :: [Property]
+    }
 
-getWSName :: Workspace -> String
-getWSName (Workspace n _) = n
-
-getWorkspaces:: [Workspace] -> [String]
+getWorkspaces :: [Workspace] -> [String]
 getWorkspaces = map getWSName
 
 filterWS :: String -> [Workspace] -> [Workspace]
