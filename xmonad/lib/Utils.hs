@@ -29,7 +29,7 @@ to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 
 queryAny :: Eq a => Query a -> [a] -> Query Bool
-queryAny q xs = foldl1 (<||>) $ map (q =?) xs
+queryAny q xs = foldl1 (<||>) $ fmap (q =?) xs
 
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2

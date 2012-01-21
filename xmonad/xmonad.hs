@@ -99,11 +99,11 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = sortProperties True (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    work   = sortProperties True (2/100) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
-    sortIM = sortProperties False (imWidth tw) imClients panel
+    sortIM = sortProperties False (2/100) (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
