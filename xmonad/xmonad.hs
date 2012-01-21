@@ -81,7 +81,7 @@ colorRed        = "#d74b73"
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (sortIM $ grid ||| tabs)
+    $ onWorkspace "chat"  (sortIM $ tabs ||| grid)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
@@ -91,7 +91,8 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
-    sortIM = sortProperties False (imWidth tw) client Grid
+    sortIM = sortProperties False (imWidth tw) client panel
+    panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
     client = [ ClassName "Empathy" `And` Role "contact_list"
