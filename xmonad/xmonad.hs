@@ -93,13 +93,13 @@ colorRed        = "#d74b73"
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (sortIM $ tabs ||| grid)
+    $ onWorkspace "chat"  (renamed [PrependWords "IM"] (sortIM $ tabs ||| grid))
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = sortProperties True (2/100) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    work   = renamed [PrependWords "Mastered"] $ sortProperties True (2/100) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []

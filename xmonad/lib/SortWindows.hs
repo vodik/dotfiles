@@ -75,6 +75,9 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
                then return . Just $ SortLayout f ws1 ws2 fill delta frac prop (fromMaybe l1 ml1') (fromMaybe l2 ml2')
                else return Nothing
 
+    description (SortLayout _ _ _ _ _ _ _ l1 l2) =
+        unwords [ "SortLayout", description l1, description l2 ]
+
 split True w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
 split _    [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
 split _    w1 l1 s1 w2 l2 s2 f r = do
