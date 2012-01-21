@@ -88,15 +88,20 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
     work   = sortProperties True (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
     sortIM = sortProperties False (imWidth tw) client Grid
     grid   = gaps 5 $ GridRatio (imGrid tw)
-    tabs   = trackFloating $ tabbed shrinkText myTabTheme
     full   = noBorders Full
     client = [ ClassName "Empathy" `And` Role "contact_list"
              , ClassName "Pidgin"  `And` Role "buddy_list"
-             , ClassName "Skype" `And` (Not $ Title "Options") `And` (Not $ Role "Chats") `And` (Not $ Role "CallWindowForm")
+             , foldl1 And [ ClassName "Skype"
+                          , Role ""
+                          , Not (Title "Options")
+                          , Not (Title "File Transfers")
+                          , Not (Title "Add a Skype Contact")
+                          ]
              ]
 
 myRules ws = manageDocks
