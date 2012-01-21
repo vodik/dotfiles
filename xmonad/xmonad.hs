@@ -16,7 +16,6 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Grid
-import XMonad.Layout.IM
 import XMonad.Layout.Master
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
@@ -88,10 +87,10 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = sortProperties (getRules $ head myWorkspaces) (mainWidth tw) tabs tabs
+    work   = sortProperties True (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
-    sortIM = sortProperties client (imWidth tw) Grid
+    sortIM = sortProperties False (imWidth tw) client Grid
     grid   = gaps 5 $ GridRatio (imGrid tw)
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     full   = noBorders Full

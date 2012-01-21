@@ -20,27 +20,29 @@ import qualified XMonad.StackSet as W
 
 import Debug.Trace
 
-data SortLayout l1 l2 a = SortLayout [a] [a] [a] [Property] Rational (l1 a) (l2 a)
+data SortLayout l1 l2 a = SortLayout [a] [a] [a] Bool Rational [Property] (l1 a) (l2 a)
     deriving (Read, Show)
 
 sortProperty :: (LayoutClass l1 a, LayoutClass l2 a)
-                => Property
+                => Bool
                 -> Rational
+                -> Property
                 -> l1 a
                 -> l2 a
                 -> SortLayout l1 l2 a
-sortProperty p = sortProperties [p]
+sortProperty f r p = sortProperties f r [p]
 
 sortProperties :: (LayoutClass l1 a, LayoutClass l2 a)
-                  => [Property]
+                  => Bool
                   -> Rational
+                  -> [Property]
                   -> l1 a
                   -> l2 a
                   -> SortLayout l1 l2 a
 sortProperties = SortLayout [] [] []
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
-    doLayout (SortLayout f w1 w2 prop frac l1 l2) r s =
+    doLayout (SortLayout f w1 w2 fill frac prop l1 l2) r s =
         let origws = W.integrate s              -- passed in windows
             w1c = origws `intersect` w1         -- current windows in the first pane
             w2c = origws `intersect` w2         -- current windows in the second pane
@@ -52,21 +54,21 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
                 w2' = w2c ++ (new \\ matching)  -- updated second pane windows
                 s1  = differentiate f' w1'      -- first pane stack
                 s2  = differentiate f' w2'      -- second pane stack
-            (wrs, ml1', ml2') <- split w1' l1 s1 w2' l2 s2 frac r
-            return (wrs, Just $ SortLayout f' w1' w2' prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
+            (wrs, ml1', ml2') <- split fill w1' l1 s1 w2' l2 s2 frac r
+            return (wrs, Just $ SortLayout f' w1' w2' fill frac prop (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
       where
         pfilter w = foldM (\a p -> (a ||) <$> hasProperty p w) False prop
 
-    handleMessage us@(SortLayout f ws1 ws2 prop frac l1 l2) m = do
+    handleMessage us@(SortLayout f ws1 ws2 fill frac prop l1 l2) m = do
         ml1' <- handleMessage l1 m
         ml2' <- handleMessage l2 m
         if isJust ml1' || isJust ml2'
-           then return . Just $ SortLayout f ws1 ws2 prop frac (fromMaybe l1 ml1') (fromMaybe l2 ml2')
+           then return . Just $ SortLayout f ws1 ws2 fill frac prop (fromMaybe l1 ml1') (fromMaybe l2 ml2')
            else return Nothing
 
-split w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
-split [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
-split w1 l1 s1 w2 l2 s2 f r = do
+split True w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
+split True [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
+split _    w1 l1 s1 w2 l2 s2 f r = do
     (wrs1, ml1') <- runLayout (Workspace "" l1 s1) r1
     (wrs2, ml2') <- runLayout (Workspace "" l2 s2) r2
     return (wrs1 ++ wrs2, ml1', ml2')
