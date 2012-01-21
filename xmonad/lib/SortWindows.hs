@@ -67,7 +67,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
            else return Nothing
 
 split True w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
-split True [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
+split _    [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
 split _    w1 l1 s1 w2 l2 s2 f r = do
     (wrs1, ml1') <- runLayout (Workspace "" l1 s1) r1
     (wrs2, ml2') <- runLayout (Workspace "" l2 s2) r2
