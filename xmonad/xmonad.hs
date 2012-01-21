@@ -90,16 +90,16 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed [PrependWords "Triggered"] full)
+myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (tag "Triggered" full)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (renamed [PrependWords "IM"] (sortIM $ tabs ||| grid))
+    $ onWorkspace "chat"  (tag "IM" (sortIM $ tabs ||| grid))
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = renamed [PrependWords "Mastered"] $ sortProperties True (2/100) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    work   = tag "Work" $ sortProperties True (2/100) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
@@ -107,6 +107,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (renamed 
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
+    tag t  = renamed [PrependWords t]
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
