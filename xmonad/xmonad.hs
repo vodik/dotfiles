@@ -121,7 +121,7 @@ myRules ws = manageDocks
         , isFullscreen                      --> doFullFloat
         ]
   where
-    floatWindow f = foldl1 (<||>) [ className `queryAny` f, isDialog ]
+    floatWindow f = className `queryAny` f <||> isDialog
     insertBelow   = insertPosition Below Newer
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
              , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
