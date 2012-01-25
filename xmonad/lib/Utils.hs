@@ -27,6 +27,8 @@ data Tweaks = Tweaks
     , wsModifier :: [Workspace] -> [Workspace]
     }
 
+data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
+
 classNames :: [String] -> [Property]
 classNames = map ClassName
 
@@ -67,8 +69,6 @@ shiftToPrev' = shiftTo Prev skipNSP
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
     return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
-
-data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
 
 instance Transformer TNBFULL Window where
     transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
