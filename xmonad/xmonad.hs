@@ -43,7 +43,7 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura" ]
+    [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura", "Thunar" ]
     , Workspace "term"  [ ]
     , Workspace "code"  [ ]
     , Workspace "chat"  $ classNames [ "Empathy", "Pidgin", "Skype" ]
