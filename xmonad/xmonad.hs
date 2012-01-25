@@ -20,11 +20,11 @@ import XMonad.Layout.Master
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
-import XMonad.Prompt.Shell
 import XMonad.Layout.Tabbed
-import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.MultiToggle
 import XMonad.Layout.TrackFloating
 import XMonad.Prompt
+import XMonad.Prompt.Shell
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
@@ -56,10 +56,11 @@ imClients =
     [ ClassName "Empathy" `And` Role "contact_list"
     , ClassName "Pidgin"  `And` Role "buddy_list"
     , foldl1 And [ ClassName "Skype"
-                 , Role ""
-                 , Not $ Title "Options"
-                 , Not $ Title "File Transfers"
-                 , Not $ Title "Add a Skype Contact"
+                 , Title "simongmzlj - Skype (Beta)"
+                 -- , Role ""
+                 -- , Not $ Title "Options"
+                 -- , Not $ Title "File Transfers"
+                 -- , Not $ Title "Add a Skype Contact"
                  ]
     ]
 
@@ -90,7 +91,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (tag "Triggered" full)
+myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
     $ onWorkspace "chat"  (tag "IM" (sortIM $ tabs ||| grid))
@@ -107,7 +108,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . toggleLayouts (tag "Tri
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
-    tag t  = renamed [PrependWords t]
+    tag t  = renamed [ PrependWords t ]
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
@@ -149,7 +150,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- layout
       , ("M-n",   sendMessage NextLayout)
       , ("M-S-n", sendMessage FirstLayout)
-      , ("M-a",   sendMessage ToggleLayout)
+      , ("M-a",   sendMessage $ Toggle TNBFULL)
 
       -- resizing
       , ("M-h", sendMessage Shrink)

@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses #-}
+
 module Utils where
 
 import Control.Monad
@@ -8,6 +10,9 @@ import qualified Data.Map as M
 import XMonad
 import XMonad.Actions.CycleWS
 import XMonad.Hooks.ManageHelpers
+import XMonad.Layout.MultiToggle
+import XMonad.Layout.NoBorders
+import XMonad.Layout.Renamed
 import XMonad.Util.WindowProperties
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
@@ -62,3 +67,9 @@ shiftToPrev' = shiftTo Prev skipNSP
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
     return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
+
+data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
+
+instance Transformer TNBFULL Window where
+    transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
+      where tag t = renamed [ PrependWords t ]
