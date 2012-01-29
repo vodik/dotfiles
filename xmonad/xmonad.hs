@@ -8,6 +8,7 @@ import Graphics.X11.Xinerama (getScreenInfo)
 import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS
+import XMonad.Actions.GridSelect
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
@@ -148,9 +149,9 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-q",   restart "xmonad" True)
 
       -- layout
-      , ("M-n",   sendMessage NextLayout)
-      , ("M-S-n", sendMessage FirstLayout)
-      , ("M-a",   sendMessage $ Toggle TNBFULL)
+      , ("M-<Space>",   sendMessage NextLayout)
+      , ("M-S-<Space>", sendMessage FirstLayout)
+      , ("M-a",         sendMessage $ Toggle TNBFULL)
 
       -- resizing
       , ("M-h", sendMessage Shrink)
@@ -165,7 +166,12 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-f", withFocused' $ windows . W.sink)
       , ("M-d", focusUrgent)
 
-      -- cycle windows
+      -- swapping
+      , ("M-S-m", windows W.shiftMaster)
+      , ("M-S-j", windows W.swapDown)
+      , ("M-S-k", windows W.swapUp)
+
+      -- cycle workspaces
       , ("M-<Up>",      prevWS')
       , ("M-<Down>",    nextWS')
       , ("M-<Left>",    prevWS')
@@ -176,10 +182,10 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-<Right>", shiftToNext' >> nextWS')
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
-      -- swapping
-      , ("M-S-m", windows W.shiftMaster)
-      , ("M-S-j", windows W.swapDown)
-      , ("M-S-k", windows W.swapUp)
+      -- misc keybinds against alt
+      , ("M1-`",     goToSelected defaultGSConfig)
+      , ("M1-<Tab>", windows W.focusDown)
+      , ("M1-C-l",   spawn "slock")
 
       -- multimedia keys
       , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 5%-")
