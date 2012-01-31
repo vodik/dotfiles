@@ -30,9 +30,10 @@ instance LayoutClass BalancedTall a where
         fs <- (M.keys . W.floating) `fmap` gets windowset
         return $ ms >>= unfloat fs >>= handleMsg
       where
-        handleMsg s = msum [ fmap resize (fromMessage m)
-                           , fmap (\x -> mresize x s) (fromMessage m)
-                           , fmap incmastern (fromMessage m) ]
+        handleMsg s = msum [ fmap resize $ fromMessage m
+                           , fmap (`mresize` s) $ fromMessage m
+                           , fmap incmastern $ fromMessage m
+                           ]
 
         unfloat fs s = if W.focus s `elem` fs
                           then Nothing
