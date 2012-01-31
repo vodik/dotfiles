@@ -71,7 +71,7 @@ myModMask     = mod4Mask
 
 defaultTweaks = Tweaks
     { mainWidth  = 1/2
-    , imWidth    = 2/10
+    , imWidth    = 1/5
     , imGrid     = 2/3
     , masterN    = 2
     , wsModifier = id
@@ -101,11 +101,11 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortProperties True (2/100) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    work   = tag "Work" $ sortProperties True (1/50) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    tiled  = gaps 5 $ BalancedTall 2 (2/100) (1/2) []
-    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (2/100) (1/2) []
-    sortIM = sortProperties False (2/100) (imWidth tw) imClients panel
+    tiled  = gaps 5 $ BalancedTall 2 (1/50) (1/2) []
+    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (1/50) (1/2) []
+    sortIM = sortProperties False (1/50) (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
