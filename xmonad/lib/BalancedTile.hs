@@ -2,6 +2,7 @@
 
 module BalancedTile
     ( BalancedTall (..)
+    , MirrorResize (..)
     ) where
 
 import XMonad hiding (tile, splitVertically, splitHorizontallyBy)
@@ -30,6 +31,7 @@ instance LayoutClass BalancedTall a where
         return $ ms >>= unfloat fs >>= handleMsg
       where
         handleMsg s = msum [ fmap resize (fromMessage m)
+                           , fmap (\x -> mresize x s) (fromMessage m)
                            , fmap incmastern (fromMessage m) ]
 
         unfloat fs s = if W.focus s `elem` fs
@@ -39,6 +41,15 @@ instance LayoutClass BalancedTall a where
 
         resize Shrink = BalancedTall nmaster delta (max 0 $ frac - delta) mfrac
         resize Expand = BalancedTall nmaster delta (min 1 $ frac + delta) mfrac
+
+        mresize MirrorShrink s = mresize' s delta
+        mresize MirrorExpand s = mresize' s $ negate delta
+
+        mresize' s d = let n      = length $ W.up s
+                           total  = n + length (W.down s) + 1
+                           pos    = if n == (nmaster - 1) || n == (total - 1) then n - 1 else n
+                           mfrac' = modifymfrac (mfrac ++ repeat 1) d pos
+                       in BalancedTall nmaster delta frac $ take total mfrac'
 
         modifymfrac [] _ _ = []
         modifymfrac (f:fx) d n | n == 0    = f + d : fx

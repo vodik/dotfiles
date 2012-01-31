@@ -57,7 +57,7 @@ imClients =
     [ ClassName "Empathy" `And` Role "contact_list"
     , ClassName "Pidgin"  `And` Role "buddy_list"
     , foldl1 And [ ClassName "Skype"
-                 , Title "simongmzlj - Skype (Beta)"
+                 -- , Title "simongmzlj - Skype (Beta)"
                  -- , Role ""
                  -- , Not $ Title "Options"
                  -- , Not $ Title "File Transfers"
@@ -154,10 +154,12 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-a",         sendMessage $ Toggle TNBFULL)
 
       -- resizing
-      , ("M-h", sendMessage Shrink)
-      , ("M-l", sendMessage Expand)
-      , ("M-,", sendMessage $ IncMasterN (-1))
-      , ("M-.", sendMessage $ IncMasterN 1)
+      , ("M-h",   sendMessage Shrink)
+      , ("M-l",   sendMessage Expand)
+      , ("M-S-h", sendMessage MirrorShrink)
+      , ("M-S-l", sendMessage MirrorExpand)
+      , ("M-,",   sendMessage $ IncMasterN (-1))
+      , ("M-.",   sendMessage $ IncMasterN 1)
 
       -- focus
       , ("M-j", windows W.focusDown)
