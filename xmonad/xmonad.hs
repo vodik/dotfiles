@@ -185,7 +185,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- misc keybinds against alt
-      , ("M1-`",     goToSelected defaultGSConfig)
+      , ("M1-`",     goToSelected myGSConfig)
       , ("M1-<Tab>", windows W.focusDown)
       , ("M1-C-l",   spawn "slock")
 
@@ -277,6 +277,13 @@ myXPConfig = defaultXPConfig
     , fgHLight          = "#f92672"
     , promptBorderWidth = 0
     , position          = Bottom
+    }
+
+myGSConfig = defaultGSConfig
+    { gs_font        = "xft:Envy Code R:size = 9"
+    , gs_cellheight  = 55
+    , gs_cellwidth   = 164
+    , gs_cellpadding = 5
     }
 
 main = do
