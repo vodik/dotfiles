@@ -280,10 +280,10 @@ myXPConfig = defaultXPConfig
     }
 
 myGSConfig = defaultGSConfig
-    { gs_font        = "xft:Envy Code R:size = 9"
+    { gs_font        = "xft:Envy Code R:size=9"
     , gs_cellheight  = 55
     , gs_cellwidth   = 164
-    , gs_cellpadding = 5
+    , gs_cellpadding = 10
     }
 
 main = do
