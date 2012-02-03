@@ -44,7 +44,7 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura", "Thunar" ]
+    [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura", "Thunar" ] ++ [ Title "MusicBrainz Picard" ]
     , Workspace "term"  [ ]
     , Workspace "code"  [ ]
     , Workspace "chat"  $ classNames [ "Empathy", "Pidgin", "Skype" ]
@@ -114,18 +114,20 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ws
+    <+> manageFloats
     <+> composeAll
-        [ floatWindow floats                -|> (doCenterFloat, insertBelow)
-        , className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-        , title     =? "MusicBrainz Picard" --> doShift "work"
+        [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
         , resource  =? "desktop_window"     --> doIgnore
         , isFirefoxPreferences              --> doCenterFloat
-        , isDialog                          --> doCenterFloat
         , isFullscreen                      --> doFullFloat
         ]
   where
-    floatWindow f = className `queryAny` f <||> isDialog
-    insertBelow   = insertPosition Below Newer
+    manageFloats = do
+        f <- className `queryAny` floats
+        d <- isDialog
+        if not (f || d)
+           then insertPosition Below Newer
+           else if d then doFloat else doCenterFloat
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
              , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
