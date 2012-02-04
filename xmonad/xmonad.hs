@@ -114,7 +114,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
     <+> workspaceRules ws
-    <+> manageFloats
+    <+> manageFloats floats
     <+> composeAll
         [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
         , resource  =? "desktop_window"     --> doIgnore
@@ -122,8 +122,8 @@ myRules ws = manageDocks
         , isFullscreen                      --> doFullFloat
         ]
   where
-    manageFloats = do
-        f <- className `queryAny` floats
+    manageFloats w = do
+        f <- className `queryAny` w
         d <- isDialog
         if not (f || d)
            then insertPosition Below Newer
