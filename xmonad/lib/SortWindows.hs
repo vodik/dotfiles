@@ -4,7 +4,6 @@ module SortWindows
     ( sortProperty
     , sortProperties
     , SortLayout
-    , Property (..)
     ) where
 
 import Control.Applicative
@@ -17,8 +16,6 @@ import XMonad.StackSet (Workspace (..), Stack (..))
 import XMonad.Layout.WindowNavigation
 import XMonad.Util.WindowProperties
 import qualified XMonad.StackSet as W
-
-import Debug.Trace
 
 data SortLayout l1 l2 a = SortLayout [a] [a] [a] Bool Rational Rational [Property] (l1 a) (l2 a)
     deriving (Read, Show)

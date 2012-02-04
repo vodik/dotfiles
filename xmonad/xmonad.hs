@@ -30,6 +30,7 @@ import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
+import XMonad.Util.WindowProperties
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
