@@ -57,13 +57,7 @@ imClients :: [Property]
 imClients =
     [ ClassName "Empathy" `And` Role "contact_list"
     , ClassName "Pidgin"  `And` Role "buddy_list"
-    , foldl1 And [ ClassName "Skype"
-                 -- , Title "simongmzlj - Skype (Beta)"
-                 -- , Role ""
-                 -- , Not $ Title "Options"
-                 -- , Not $ Title "File Transfers"
-                 -- , Not $ Title "Add a Skype Contact"
-                 ]
+    , ClassName "Skype"   `And` Title "simongmzlj - Skype™ (Beta)"
     ]
 
 myTerminal    = "urxvtc"
