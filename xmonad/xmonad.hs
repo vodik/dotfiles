@@ -95,7 +95,7 @@ colorRed        = "#d74b73"
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (tag "IM" (sortIM $ tabs ||| grid))
+    $ onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
     $ onWorkspace "virt"  full
     $ onWorkspace "games" full
     $ tiled ||| Mirror tiled
