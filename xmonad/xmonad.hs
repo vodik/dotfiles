@@ -101,15 +101,16 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortProperties True (1/50) (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    work   = tag "Work" $ sortProperties True step (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    tiled  = gaps 5 $ BalancedTall 2 (1/50) (1/2) []
-    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) (1/50) (1/2) []
-    sortIM = sortProperties False (1/50) (imWidth tw) imClients panel
+    tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
+    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
+    sortIM = sortProperties False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
     tag t  = renamed [ PrependWords t ]
+    step   = 1/50
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
@@ -187,9 +188,8 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- misc keybinds against alt
-      , ("M1-`",     goToSelected myGSConfig)
-      , ("M1-<Tab>", windows W.focusDown)
-      , ("M1-C-l",   spawn "slock")
+      , ("M1-`",   goToSelected myGSConfig)
+      , ("M1-C-l", spawn "slock")
 
       -- multimedia keys
       , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 5%-")
