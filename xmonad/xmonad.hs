@@ -140,7 +140,7 @@ myStartupHook = do
         ]
 
 myKeys browser conf = mkKeymap conf $ concat
-    [ [ ("M-<Return>", spawn $ XMonad.terminal conf)
+    [ [ ("M-<Return>", spawn $ terminal conf)
       , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
       , ("M-p", shellPrompt myXPConfig)
