@@ -101,10 +101,10 @@ modConditions p f l = GuardLayout p False (f l) l
 instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClass (GuardLayout p l1 l2) a where
     runLayout ws@(W.Workspace i p@(GuardLayout ps _ lt lf) ms) r =
         checkCondition ws ps >>=
-        (\b -> if b then do (wrs, mlt') <- runLayout (W.Workspace i lt ms) r
-                            return (wrs, Just $ mkNewPerScreenT p mlt')
-                    else do (wrs, mlt') <- runLayout (W.Workspace i lf ms) r
-                            return (wrs, Just $ mkNewPerScreenF p mlt'))
+        \b -> if b then do (wrs, mlt') <- runLayout (W.Workspace i lt ms) r
+                           return (wrs, Just $ mkNewPerScreenT p mlt')
+                   else do (wrs, mlt') <- runLayout (W.Workspace i lf ms) r
+                           return (wrs, Just $ mkNewPerScreenF p mlt')
 
     handleMessage (GuardLayout ps bool lt lf) m
         | bool      = handleMessage lt m >>= maybe (return Nothing) (\nt -> return . Just $ GuardLayout ps bool nt lf)
