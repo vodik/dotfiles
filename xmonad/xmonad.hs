@@ -35,6 +35,7 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import BalancedTile
+import CycleWS
 import Dzen2
 import Gaps
 import GuardLayout
@@ -172,14 +173,14 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-k", windows W.swapUp)
 
       -- cycle workspaces
-      , ("M-<Down>",    nextWSNonEmpty)
-      , ("M-<Up>",      prevWSNonEmpty)
-      , ("M-<Left>",    nextWS')
-      , ("M-<Right>",   prevWS')
-      , ("M-S-<Down>",  shiftToNextEmpty)
-      , ("M-S-<Up>",    shiftToPrevEmpty)
-      , ("M-S-<Left>",  shiftToNext')
-      , ("M-S-<Right>", shiftToPrev')
+      , ("M-<Right>",   nextWSNonEmpty)
+      , ("M-<Left>",    prevWSNonEmpty)
+      , ("M-<Down>",    nextWS')
+      , ("M-<Up>",      prevWS')
+      , ("M-S-<Right>", shiftToNextEmpty)
+      , ("M-S-<Left>",  shiftToPrevEmpty)
+      , ("M-S-<Down>",  shiftToNext')
+      , ("M-S-<Up>",    shiftToPrev')
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- misc keybinds against alt

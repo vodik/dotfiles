@@ -8,7 +8,6 @@ import Text.Regex.Posix ((=~))
 import qualified Data.Map as M
 
 import XMonad
-import XMonad.Actions.CycleWS
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
@@ -61,35 +60,6 @@ withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
 hasResource :: [String] -> Window -> X Bool
 hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) .
     io $ getClassHint d w
-
-skipNSP :: WSType
-skipNSP = WSIs . return $ ("NSP" /=) . W.tag
-
-nextWS' = moveTo Next skipNSP
-prevWS' = moveTo Prev skipNSP
-
-shiftToNext' = do
-    ws <- findWorkspace getSortByIndex Next skipNSP 1
-    windows $ W.shift ws
-    windows $ W.greedyView ws
-
-shiftToPrev' = do
-    ws <- findWorkspace getSortByIndex Prev skipNSP 1
-    windows $ W.shift ws
-    windows $ W.greedyView ws
-
-nextWSNonEmpty = moveTo Next NonEmptyWS
-prevWSNonEmpty = moveTo Prev NonEmptyWS
-
-shiftToNextEmpty = do
-    ws <- findWorkspace getSortByIndex Next EmptyWS 1
-    windows $ W.shift ws
-    windows $ W.greedyView ws
-
-shiftToPrevEmpty = do
-    ws <- findWorkspace getSortByIndex Prev EmptyWS 1
-    windows $ W.shift ws
-    windows $ W.greedyView ws
 
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
