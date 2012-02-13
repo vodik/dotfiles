@@ -29,6 +29,10 @@ data Tweaks = Tweaks
 
 data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
 
+instance Transformer TNBFULL Window where
+    transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
+      where tag t = renamed [ PrependWords t ]
+
 classNames :: [String] -> [Property]
 classNames = map ClassName
 
@@ -63,13 +67,30 @@ skipNSP = WSIs . return $ ("NSP" /=) . W.tag
 
 nextWS' = moveTo Next skipNSP
 prevWS' = moveTo Prev skipNSP
-shiftToNext' = shiftTo Next skipNSP
-shiftToPrev' = shiftTo Prev skipNSP
+
+shiftToNext' = do
+    ws <- findWorkspace getSortByIndex Next skipNSP 1
+    windows $ W.shift ws
+    windows $ W.greedyView ws
+
+shiftToPrev' = do
+    ws <- findWorkspace getSortByIndex Prev skipNSP 1
+    windows $ W.shift ws
+    windows $ W.greedyView ws
+
+nextWSNonEmpty = moveTo Next NonEmptyWS
+prevWSNonEmpty = moveTo Prev NonEmptyWS
+
+shiftToNextEmpty = do
+    ws <- findWorkspace getSortByIndex Next EmptyWS 1
+    windows $ W.shift ws
+    windows $ W.greedyView ws
+
+shiftToPrevEmpty = do
+    ws <- findWorkspace getSortByIndex Prev EmptyWS 1
+    windows $ W.shift ws
+    windows $ W.greedyView ws
 
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
     return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
-
-instance Transformer TNBFULL Window where
-    transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
-      where tag t = renamed [ PrependWords t ]

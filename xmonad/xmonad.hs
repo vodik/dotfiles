@@ -172,14 +172,14 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-k", windows W.swapUp)
 
       -- cycle workspaces
-      , ("M-<Up>",      prevWS')
-      , ("M-<Down>",    nextWS')
-      , ("M-<Left>",    prevWS')
+      , ("M-<Up>",      nextWSNonEmpty)
+      , ("M-<Down>",    prevWSNonEmpty)
       , ("M-<Right>",   nextWS')
-      , ("M-S-<Up>",    shiftToPrev' >> prevWS')
-      , ("M-S-<Down>",  shiftToNext' >> nextWS')
-      , ("M-S-<Left>",  shiftToPrev' >> prevWS')
-      , ("M-S-<Right>", shiftToNext' >> nextWS')
+      , ("M-<Left>",    prevWS')
+      , ("M-S-<Up>",    shiftToNextEmpty)
+      , ("M-S-<Down>",  shiftToPrevEmpty)
+      , ("M-S-<Right>", shiftToNext')
+      , ("M-S-<Left>",  shiftToPrev')
       , ("M-<Tab>",     toggleWS' ["NSP"])
 
       -- misc keybinds against alt
