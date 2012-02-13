@@ -188,8 +188,8 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M1-S-l", spawn "sleep 0.1; xset dpms force off")
 
       -- multimedia keys
-      , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 5%-")
-      , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master on 5%+")
+      , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3%-")
+      , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master on 3%+")
       , ("<XF86AudioMute>",        spawn "amixer -q set Master toggle")
 
       -- mpd controls
