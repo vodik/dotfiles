@@ -7,7 +7,7 @@ import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
 import XMonad.Actions.CopyWindow
-import XMonad.Actions.CycleWS hiding (nextWS, prevWS, shiftToNext, shiftToPrev)
+import XMonad.Actions.CycleWS hiding (moveTo, shiftTo)
 import XMonad.Actions.GridSelect
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
@@ -174,14 +174,14 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-k", windows W.swapUp)
 
       -- cycle workspaces
-      , ("M-<Right>",   nextWSNonEmpty skipWS)
-      , ("M-<Left>",    prevWSNonEmpty skipWS)
-      , ("M-<Down>",    nextWS skipWS)
-      , ("M-<Up>",      prevWS skipWS)
-      , ("M-S-<Right>", shiftToNextEmpty skipWS)
-      , ("M-S-<Left>",  shiftToPrevEmpty skipWS)
-      , ("M-S-<Down>",  shiftToNext skipWS)
-      , ("M-S-<Up>",    shiftToPrev skipWS)
+      , ("M-<Down>",    moveTo Next skipWS)
+      , ("M-<Up>",      moveTo Prev skipWS)
+      , ("M-<Right>",   moveToNonEmpty Next skipWS)
+      , ("M-<Left>",    moveToNonEmpty Prev skipWS)
+      , ("M-S-<Down>",  shiftTo Next skipWS)
+      , ("M-S-<Up>",    shiftTo Prev skipWS)
+      , ("M-S-<Right>", shiftToEmpty Next skipWS)
+      , ("M-S-<Left>",  shiftToEmpty Prev skipWS)
       , ("M-<Tab>",     toggleWS' skipWS)
       , ("M-C-0",       windows $ copyOntoNonEmpty skipWS)
 
