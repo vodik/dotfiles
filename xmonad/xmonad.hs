@@ -143,10 +143,10 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
-      , ("M-S-q", io $ exitWith ExitSuccess)
-      , ("M-S-c", kill1)
-      , ("M-C-c", kill)
-      , ("M-q",   restart "xmonad" True)
+      , ("M-S-q",   io $ exitWith ExitSuccess)
+      , ("M-S-c",   kill1)
+      , ("M-S-C-c", kill)
+      , ("M-q",     restart "xmonad" True)
 
       -- layout
       , ("M-<Space>",   sendMessage NextLayout)
