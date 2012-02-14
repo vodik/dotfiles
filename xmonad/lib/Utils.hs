@@ -9,7 +9,6 @@ import Text.Regex.Posix ((=~))
 import qualified Data.Map as M
 
 import XMonad
-import XMonad.Actions.CopyWindow
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
@@ -65,6 +64,3 @@ hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) . io $ get
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
     return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
-
-copyOntoNonEmpty :: (Eq a1, Eq s, Eq a) => W.StackSet a l a1 s sd -> W.StackSet a l a1 s sd
-copyOntoNonEmpty s = foldr copy s . map W.tag . filter (isJust . W.stack) $ W.workspaces s

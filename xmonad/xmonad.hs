@@ -183,7 +183,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-<Down>",  shiftToNext skipWS)
       , ("M-S-<Up>",    shiftToPrev skipWS)
       , ("M-<Tab>",     toggleWS' skipWS)
-      , ("M-C-0",       windows copyOntoNonEmpty)
+      , ("M-C-0",       windows $ copyOntoNonEmpty skipWS)
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
