@@ -145,6 +145,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- quit, or restart
       , ("M-S-q", io $ exitWith ExitSuccess)
       , ("M-S-c", kill1)
+      , ("M-C-c", kill)
       , ("M-q",   restart "xmonad" True)
 
       -- layout
@@ -182,6 +183,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-<Down>",  shiftToNext skipWS)
       , ("M-S-<Up>",    shiftToPrev skipWS)
       , ("M-<Tab>",     toggleWS' skipWS)
+      , ("M-C-0",       windows copyOntoNonEmpty)
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
@@ -208,7 +210,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-x x", spawn "xbacklight -set 100%")
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip ["NSP"] W.greedyView)
+                      , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
                                   ]

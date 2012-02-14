@@ -4,10 +4,12 @@ module Utils where
 
 import Control.Monad
 import Data.Monoid
+import Data.Maybe
 import Text.Regex.Posix ((=~))
 import qualified Data.Map as M
 
 import XMonad
+import XMonad.Actions.CopyWindow
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
@@ -58,9 +60,11 @@ withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
     \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
 
 hasResource :: [String] -> Window -> X Bool
-hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) .
-    io $ getClassHint d w
+hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) . io $ getClassHint d w
 
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
     return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
+
+copyOntoNonEmpty :: (Eq a1, Eq s, Eq a) => W.StackSet a l a1 s sd -> W.StackSet a l a1 s sd
+copyOntoNonEmpty s = foldr copy s . map W.tag . filter (isJust . W.stack) $ W.workspaces s
