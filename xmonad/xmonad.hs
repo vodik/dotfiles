@@ -7,7 +7,7 @@ import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
 import XMonad.Actions.CopyWindow
-import XMonad.Actions.CycleWS
+import XMonad.Actions.CycleWS hiding (nextWS, prevWS, shiftToNext, shiftToPrev)
 import XMonad.Actions.GridSelect
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
@@ -173,15 +173,15 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-k", windows W.swapUp)
 
       -- cycle workspaces
-      , ("M-<Right>",   nextWSNonEmpty)
-      , ("M-<Left>",    prevWSNonEmpty)
-      , ("M-<Down>",    nextWS')
-      , ("M-<Up>",      prevWS')
-      , ("M-S-<Right>", shiftToNextEmpty)
-      , ("M-S-<Left>",  shiftToPrevEmpty)
-      , ("M-S-<Down>",  shiftToNext')
-      , ("M-S-<Up>",    shiftToPrev')
-      , ("M-<Tab>",     toggleWS' ["NSP"])
+      , ("M-<Right>",   nextWSNonEmpty skipWS)
+      , ("M-<Left>",    prevWSNonEmpty skipWS)
+      , ("M-<Down>",    nextWS skipWS)
+      , ("M-<Up>",      prevWS skipWS)
+      , ("M-S-<Right>", shiftToNextEmpty skipWS)
+      , ("M-S-<Left>",  shiftToPrevEmpty skipWS)
+      , ("M-S-<Down>",  shiftToNext skipWS)
+      , ("M-S-<Up>",    shiftToPrev skipWS)
+      , ("M-<Tab>",     toggleWS' skipWS)
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
@@ -216,6 +216,8 @@ myKeys browser conf = mkKeymap conf $ concat
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
+  where
+    skipWS = [ "NSP" ]
 
 searchList :: [(String, S.SearchEngine)]
 searchList =

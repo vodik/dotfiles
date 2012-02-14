@@ -3,17 +3,17 @@ module CycleWS where
 import Data.Maybe
 
 import XMonad
-import XMonad.Actions.CycleWS
+import XMonad.Actions.CycleWS hiding (nextWS, prevWS, shiftToNext, shiftToPrev)
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
-skipNSP :: X (WindowSpace -> Bool)
-skipNSP = return $ ("NSP" /=) . W.tag
+skipWS :: [String] -> X (WindowSpace -> Bool)
+skipWS ws = return $ not . (`elem` ws) . W.tag
 
-skipNSPAnd :: X (WindowSpace -> Bool) -> X (WindowSpace -> Bool)
-skipNSPAnd p = do
+skipWSAnd :: [String] -> X (WindowSpace -> Bool) -> X (WindowSpace -> Bool)
+skipWSAnd ws p = do
     a <- p
-    b <- skipNSP
+    b <- skipWS ws
     return $ \w -> a w && b w
 
 isEmpty :: X (WindowSpace -> Bool)
@@ -22,38 +22,38 @@ isEmpty = return $ isNothing . W.stack
 isNonEmpty :: X (WindowSpace -> Bool)
 isNonEmpty = return $ isJust . W.stack
 
-nextWS' :: X ()
-nextWS' = moveTo Next (WSIs skipNSP)
+nextWS :: [String] -> X ()
+nextWS ws = moveTo Next (WSIs $ skipWS ws)
 
-prevWS' :: X ()
-prevWS' = moveTo Prev (WSIs skipNSP)
+prevWS :: [String] -> X ()
+prevWS ws = moveTo Prev (WSIs $ skipWS ws)
 
-shiftToNext' :: X ()
-shiftToNext' = do
-    ws <- findWorkspace getSortByIndex Next (WSIs skipNSP) 1
+shiftToNext :: [String] -> X ()
+shiftToNext ws = do
+    ws <- findWorkspace getSortByIndex Next (WSIs $ skipWS ws) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
-shiftToPrev' :: X ()
-shiftToPrev' = do
-    ws <- findWorkspace getSortByIndex Prev (WSIs skipNSP) 1
+shiftToPrev :: [String] -> X ()
+shiftToPrev ws = do
+    ws <- findWorkspace getSortByIndex Prev (WSIs $ skipWS ws) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
-nextWSNonEmpty :: X ()
-nextWSNonEmpty = moveTo Next (WSIs $ skipNSPAnd isNonEmpty)
+nextWSNonEmpty :: [String] -> X ()
+nextWSNonEmpty ws = moveTo Next (WSIs $ skipWSAnd ws isNonEmpty)
 
-prevWSNonEmpty :: X ()
-prevWSNonEmpty = moveTo Prev (WSIs $ skipNSPAnd isNonEmpty)
+prevWSNonEmpty :: [String] -> X ()
+prevWSNonEmpty ws = moveTo Prev (WSIs $ skipWSAnd ws isNonEmpty)
 
-shiftToNextEmpty :: X ()
-shiftToNextEmpty = do
-    ws <- findWorkspace getSortByIndex Next (WSIs $ skipNSPAnd isEmpty) 1
+shiftToNextEmpty :: [String] -> X ()
+shiftToNextEmpty ws = do
+    ws <- findWorkspace getSortByIndex Next (WSIs $ skipWSAnd ws isEmpty) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
-shiftToPrevEmpty :: X ()
-shiftToPrevEmpty = do
-    ws <- findWorkspace getSortByIndex Prev (WSIs $ skipNSPAnd isEmpty) 1
+shiftToPrevEmpty :: [String] -> X ()
+shiftToPrevEmpty ws = do
+    ws <- findWorkspace getSortByIndex Prev (WSIs $ skipWSAnd ws isEmpty) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
