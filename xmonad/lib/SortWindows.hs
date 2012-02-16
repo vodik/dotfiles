@@ -42,10 +42,11 @@ sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              -> Bool
              -> Rational
              -> Rational
+             -> Query Any
              -> l1 a
              -> l2 a
              -> SortLayout l1 l2 a
-sortQuery n f d r = SortLayout [] [] [] n f d r (I Nothing)
+sortQuery n f d r q = SortLayout [] [] [] n f d r (I (Just q))
 
 setQuery :: String -> Query Any -> X ()
 setQuery n q = broadcastMessage $ SetQuery n q

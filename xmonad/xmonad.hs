@@ -17,6 +17,7 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
+import XMonad.Layout.Accordion
 import XMonad.Layout.Grid
 import XMonad.Layout.Master
 import XMonad.Layout.NoBorders
@@ -105,15 +106,16 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) tabs tabs
+    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) sort tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
-    sortIM = sortQuery "im" False step (imWidth tw) panel
+    sortIM = sortQuery "im" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
     tag t  = renamed [ PrependWords t ]
+    sort   = workspaceSort $ head myWorkspaces
     step   = 1/50
 
 myRules ws = manageDocks
@@ -135,8 +137,6 @@ myRules ws = manageDocks
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setWMName "LG3D"
-    <+> setQuery "im" imClients
-    <+> setQuery "work" (workspaceSort $ head myWorkspaces)
     <+> do
         disp <- io $ getEnv "DISPLAY"
         when (disp == ":0") $ mapM_ spawn
@@ -144,6 +144,8 @@ myStartupHook = setDefaultCursor xC_left_ptr
             , "pgrep urxvtd  || exec urxvtd"
             , "pgrep udiskie || exec udiskie"
             ]
+    <+> setQuery "im" imClients
+    <+> setQuery "work" (workspaceSort $ head myWorkspaces)
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
@@ -198,7 +200,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
       , ("M1-C-l", spawn "slock")
-      , ("M1-S-l", delayedSpawn 500 "xset dpms force off")
+      , ("M1-S-l", delayedSpawn 700 "xset dpms force off")
 
       -- multimedia keys
       , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3%-")
