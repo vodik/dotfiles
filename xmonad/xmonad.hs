@@ -59,7 +59,7 @@ imClients :: Query Any
 imClients = composeAll
     [ Any <?> className =? "Empathy" <&&> role =? "contact_list"
     , Any <?> className =? "Pidgin"  <&&> role =? "buddy_list"
-    , Any <?> className =? "Skype"   <&&> title `prefixed` "simongmzlj - Skype"
+    , Any <?> className =? "Skype"   <&&> title `prefixed` "Skype"
     ]
 
 myTerminal    = "urxvtc"
