@@ -64,10 +64,10 @@ imClients = composeAll
     , Any <?> className =? "Skype"   <&&> title `prefixed` "Skype"
     ]
 
-myFloats :: [String]
+myFloats :: Query Bool
 myFloats =
-    [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol", "Nvidia-settings"
-    , "Arandr", "Gimp", "zsnes", "Wine" ]
+    className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
+                         , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
 myTerminal    = "urxvtc"
 myBorderWidth = 3
@@ -126,8 +126,8 @@ myRules ws = manageDocks
         , isFullscreen                  --> doFullFloat
         ]
   where
-    manageFloats w = do
-        f <- className `queryAny` w
+    manageFloats floats = do
+        f <- floats
         d <- isDialog
         if not (f || d)
            then insertPosition Below Newer
