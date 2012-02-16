@@ -23,6 +23,8 @@ import qualified Data.Map as M
 import XMonad hiding (trace)
 import XMonad.Hooks.ManageHelpers
 
+import SortWindows
+
 type PPWS      = (Int, String)
 type PPInfoMap = M.Map String PPWS
 
@@ -48,7 +50,7 @@ workspaceShift (Workspace n prop:xs) =
 workspaceShift [] = idHook
 
 workspaceSort :: Workspace -> Query Any
-workspaceSort (Workspace _ prop) = composeAll [ Any `fmap` p | p <- prop ]
+workspaceSort (Workspace _ prop) = composeAs Any prop
 
 buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
 buildWSInfo root ws = do

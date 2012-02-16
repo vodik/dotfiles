@@ -4,6 +4,7 @@ module SortWindows
     ( sortQuery
     , setQuery
     , (<?>)
+    , composeAs
     , SortLayout
     , SortMessage (..)
     ) where
@@ -33,8 +34,11 @@ data SortLayout l1 l2 a = SortLayout [a] [a] [a] String Bool Rational Rational I
     deriving (Read, Show)
 
 infix 1 <?>
-(<?>) :: Functor f => (a -> b) -> f a -> f b
+(<?>) :: (Monoid (f b), Functor f) => (a -> b) -> f a -> f b
 f <?> p = fmap f p
+
+composeAs :: (Monoid (f b), Functor f) => (a -> b) -> [f a] -> f b
+composeAs f = composeAll . map (fmap f)
 
 sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              => String

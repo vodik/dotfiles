@@ -59,10 +59,10 @@ myWorkspaces =
     ]
 
 imClients :: Query Any
-imClients = composeAll
-    [ Any <?> className =? "Empathy" <&&> role =? "contact_list"
-    , Any <?> className =? "Pidgin"  <&&> role =? "buddy_list"
-    , Any <?> className =? "Skype"   <&&> title `prefixed` "Skype"
+imClients = composeAs Any
+    [ className =? "Empathy" <&&> role =? "contact_list"
+    , className =? "Pidgin"  <&&> role =? "buddy_list"
+    , className =? "Skype"   <&&> title `prefixed` "Skype"
     ]
 
 myFloats :: Query Bool
