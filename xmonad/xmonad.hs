@@ -110,7 +110,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
-    sortIM = sortQuery "im" False step (imWidth tw) imClients panel
+    sortIM = sortQuery "chat" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
@@ -144,8 +144,10 @@ myStartupHook = setDefaultCursor xC_left_ptr
             , "pgrep urxvtd  || exec urxvtd"
             , "pgrep udiskie || exec udiskie"
             ]
-    <+> setQuery "im" imClients
-    <+> setQuery "work" (workspaceSort $ head myWorkspaces)
+    <+> setQuery "chat" imClients
+    <+> setQuery "work" workSort
+  where
+    workSort = workspaceSort $ head myWorkspaces
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
