@@ -3,6 +3,7 @@
 module SortWindows
     ( sortQuery
     , setQuery
+    , (<?>)
     , SortLayout
     , SetSort
     ) where
@@ -30,6 +31,10 @@ instance Message SetSort
 
 data SortLayout l1 l2 a = SortLayout [a] [a] [a] String Bool Rational Rational InvisibleQuery (l1 a) (l2 a)
     deriving (Read, Show)
+
+infix 1 <?>
+(<?>) :: Functor f => (a -> b) -> f a -> f b
+f <?> p = fmap f p
 
 sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              => String

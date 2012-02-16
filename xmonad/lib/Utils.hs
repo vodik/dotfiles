@@ -43,10 +43,6 @@ queryAny q xs = foldl1 (<||>) $ fmap (q =?) xs
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
 
-infix 1 <?>
-(<?>) :: Functor f => (a -> b) -> f a -> f b
-f <?> p = fmap f p
-
 (~?) :: (Functor f) => f String -> String -> f Bool
 q ~? x = fmap (=~ x) q
 
