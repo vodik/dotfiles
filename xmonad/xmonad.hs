@@ -135,6 +135,8 @@ myRules ws = manageDocks
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setWMName "LG3D"
+    <+> setQuery "im" imClients
+    <+> setQuery "work" (workspaceSort $ head myWorkspaces)
     <+> do
         disp <- io $ getEnv "DISPLAY"
         when (disp == ":0") $ mapM_ spawn
@@ -142,8 +144,6 @@ myStartupHook = setDefaultCursor xC_left_ptr
             , "pgrep urxvtd  || exec urxvtd"
             , "pgrep udiskie || exec udiskie"
             ]
-        setQuery "im" imClients
-        setQuery "work" (workspaceSort $ head myWorkspaces)
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
@@ -350,7 +350,7 @@ vodikTweaks = defaultTweaks
     }
 
 gmzljTweaks = defaultTweaks
-    { imWidth    = 3/10
+    { imWidth    = 1/4
     , imGrid     = 3/2
     , wsModifier = filterWS "virt"
     }
