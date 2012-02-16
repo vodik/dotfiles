@@ -64,6 +64,11 @@ imClients = composeAll
     , Any <?> className =? "Skype"   <&&> title `prefixed` "Skype"
     ]
 
+myFloats :: [String]
+myFloats =
+    [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol", "Nvidia-settings"
+    , "Arandr", "Gimp", "zsnes", "Wine" ]
+
 myTerminal    = "urxvtc"
 myBorderWidth = 3
 myModMask     = mod4Mask
@@ -113,7 +118,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
-    <+> manageFloats floats
+    <+> manageFloats myFloats
     <+> workspaceShift ws
     <+> composeAll
         [ resource  =? "desktop_window" --> doIgnore
@@ -127,8 +132,6 @@ myRules ws = manageDocks
         if not (f || d)
            then insertPosition Below Newer
            else if d then doFloat else doCenterFloat
-    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2"
-             , "Pavucontrol", "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setWMName "LG3D"
@@ -141,7 +144,6 @@ myStartupHook = setDefaultCursor xC_left_ptr
             ]
         setQuery "im" imClients
         setQuery "work" (workspaceSort $ head myWorkspaces)
-
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
