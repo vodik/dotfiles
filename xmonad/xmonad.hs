@@ -181,7 +181,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-m", windows W.shiftMaster)
       , ("M-S-j", windows W.swapDown)
       , ("M-S-k", windows W.swapUp)
-      , ("M-0",   swapWindows)
+      , ("M-0",   sendMessage SwapWindow)
 
       -- cycle workspaces
       , ("M-<Down>",    moveTo Next skipWS)
