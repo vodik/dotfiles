@@ -3,9 +3,9 @@
 module SortWindows
     ( sortQuery
     , setQuery
+    , swapWindows
     , (<?>)
     , SortLayout
-    , SetSort
     ) where
 
 import Control.Applicative
@@ -23,11 +23,12 @@ import qualified XMonad.StackSet as W
 
 type InvisibleQuery = Invisible Maybe (Query Any)
 
-data SetSort = SetSort String (Query Any)
-             | ResetSort String
+data SortMessage = SetSort String (Query Any)
+                 | ResetSort String
+                 | SwapWindow String
     deriving (Typeable)
 
-instance Message SetSort
+instance Message SortMessage
 
 data SortLayout l1 l2 a = SortLayout [a] [a] [a] String Bool Rational Rational InvisibleQuery (l1 a) (l2 a)
     deriving (Read, Show)
@@ -48,6 +49,9 @@ sortQuery n f d r = SortLayout [] [] [] n f d r (I Nothing)
 
 setQuery :: String -> Query Any -> X ()
 setQuery n q = broadcastMessage $ SetSort n q
+
+swapWindows :: X ()
+swapWindows = gets (W.currentTag . windowset) >>= sendMessage . SwapWindow
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
     doLayout (SortLayout f w1 w2 name fill delta frac query l1 l2) r s =
@@ -83,10 +87,29 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             if n == name
                 then return . Just $ SortLayout [] [] [] name fill delta frac query l1 l2
                 else passThroughMessage us m
+        | Just (SwapWindow n) <- fromMessage m =
+            if n == name
+                then swap us m
+                else passThroughMessage us m
         | otherwise = passThroughMessage us m
 
     description (SortLayout _ _ _ _ _ _ _ _ l1 l2) =
         unwords [ "SortLayout", description l1, description l2 ]
+
+swap us@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = do
+    mst <- gets $ W.stack . W.workspace . W.current . windowset
+    let (ws1', ws2') = do
+        case mst of
+            Nothing -> (ws1, ws2)
+            Just st -> if foc `elem` ws1
+                          then (foc `delete` ws1, foc : ws2)
+                          else if foc `elem` ws2
+                               then (foc:ws1, foc `delete` ws2)
+                               else (ws1, ws2)
+                       where foc = W.focus st
+    if (ws1, ws2) == (ws1', ws2')
+       then return Nothing
+       else return . Just $ SortLayout f ws1' ws2' name fill delta frac query l1 l2
 
 passThroughMessage (SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = do
     ml1' <- handleMessage l1 m
