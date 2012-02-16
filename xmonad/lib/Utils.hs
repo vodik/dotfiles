@@ -4,8 +4,9 @@ module Utils where
 
 import Control.Monad
 import Control.Concurrent
-import Data.Monoid
+import Data.List
 import Data.Maybe
+import Data.Monoid
 import Text.Regex.Posix ((=~))
 import qualified Data.Map as M
 
@@ -46,8 +47,16 @@ queryAny q xs = foldl1 (<||>) $ fmap (q =?) xs
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
 
+-- (<?>) :: (Monad m, Monoid a) => m Bool -> Monoid Bool -> Monoid Bool
+f <?> p = fmap f p
+
+infix 1 <?>
+
 (~?) :: (Functor f) => f String -> String -> f Bool
 q ~? x = fmap (=~ x) q
+
+prefixed :: (Functor f) => f String -> String -> f Bool
+q `prefixed` x = fmap (x `isPrefixOf`) q
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"

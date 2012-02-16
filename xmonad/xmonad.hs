@@ -1,4 +1,5 @@
 import Control.Monad
+import Data.Monoid
 import System.Environment
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
@@ -54,11 +55,11 @@ myWorkspaces =
     , Workspace "games" $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
     ]
 
-imClients :: [Property]
-imClients =
-    [ ClassName "Empathy" `And` Role "contact_list"
-    , ClassName "Pidgin"  `And` Role "buddy_list"
-    , ClassName "Skype"   `And` Title "simongmzlj - Skype™ (Beta)"
+imClients :: Query Any
+imClients = composeAll
+    [ Any <?> className =? "Empathy" <&&> role =? "contact_list"
+    , Any <?> className =? "Pidgin"  <&&> role =? "buddy_list"
+    , Any <?> className =? "Skype"   <&&> title `prefixed` "simongmzlj - Skype"
     ]
 
 myTerminal    = "urxvtc"
@@ -97,11 +98,11 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortProperties True step (mainWidth tw) (getRules $ head myWorkspaces) tabs tabs
+    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) (return $ Any False) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
-    sortIM = sortProperties False step (imWidth tw) imClients panel
+    sortIM = sortQuery "im" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
@@ -242,7 +243,8 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-myLogHook ppInfo output =
+myLogHook ppInfo output = do
+    setQuery "im" imClients
     dynamicLogWithPP $ (myPP ppInfo) { ppOutput = hPutStrLn output }
 
 myPP ppInfo = defaultPP
