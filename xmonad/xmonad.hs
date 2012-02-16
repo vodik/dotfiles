@@ -91,8 +91,6 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-workSort = workspaceSort $ head myWorkspaces
-
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
@@ -140,7 +138,8 @@ myStartupHook = do
         , "pgrep udiskie || exec udiskie"
         ]
     setQuery "im" imClients
-    setQuery "work" workSort
+    setQuery "work" (workspaceSort $ head myWorkspaces)
+
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
