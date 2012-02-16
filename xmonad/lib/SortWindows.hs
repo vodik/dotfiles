@@ -8,7 +8,6 @@ module SortWindows
     , SortMessage (..)
     ) where
 
-import Control.Applicative
 import Control.Monad
 import Data.List (delete, intersect, (\\))
 import Data.Monoid
@@ -67,7 +66,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             (wrs, ml1', ml2') <- split fill w1' l1 s1 w2' l2 s2 frac r
             return (wrs, Just $ SortLayout f' w1' w2' name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
       where
-        queryFilter (I (Just q)) ws = filterM (\w -> getAny <$> runQuery q w) ws
+        queryFilter (I (Just q)) ws = filterM (fmap getAny . runQuery q) ws
         queryFilter (I Nothing)  _  = return []
 
     handleMessage us@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
