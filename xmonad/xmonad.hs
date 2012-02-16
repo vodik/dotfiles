@@ -165,8 +165,8 @@ myKeys browser conf = mkKeymap conf $ concat
       -- resizing
       , ("M-h",   sendMessage Shrink)
       , ("M-l",   sendMessage Expand)
-      , ("M-S-h", sendMessage MirrorShrink)
-      , ("M-S-l", sendMessage MirrorExpand)
+      , ("M-S-h", sendMessage MirrorExpand)
+      , ("M-S-l", sendMessage MirrorShrink)
       , ("M-,",   sendMessage $ IncMasterN (-1))
       , ("M-.",   sendMessage $ IncMasterN 1)
 
