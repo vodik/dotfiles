@@ -63,7 +63,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
         queryFilter (I (Just q)) ws = filterM (\w -> getAny <$> runQuery q w) ws
         queryFilter (I Nothing)  _  = return []
 
-    handleMessage (SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
+    handleMessage us@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
         | Just Shrink <- fromMessage m =
             let frac' = max 0 $ frac - delta
             in return . Just $ SortLayout f ws1 ws2 name fill delta frac' query l1 l2
@@ -73,20 +73,22 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
         | Just (SetSort n q) <- fromMessage m =
             if n == name
                 then return . Just $ SortLayout f ws1 ws2 name fill delta frac (I (Just q)) l1 l2
-                else return Nothing
+                else passThroughMessage us m
         | Just (ResetSort n) <- fromMessage m =
             if n == name
                 then return . Just $ SortLayout [] [] [] name fill delta frac query l1 l2
-                else return Nothing
-        | otherwise = do
-            ml1' <- handleMessage l1 m
-            ml2' <- handleMessage l2 m
-            if isJust ml1' || isJust ml2'
-               then return . Just $ SortLayout f ws1 ws2 name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2')
-               else return Nothing
+                else passThroughMessage us m
+        | otherwise = passThroughMessage us m
 
     description (SortLayout _ _ _ _ _ _ _ _ l1 l2) =
         unwords [ "SortLayout", description l1, description l2 ]
+
+passThroughMessage (SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = do
+    ml1' <- handleMessage l1 m
+    ml2' <- handleMessage l2 m
+    if isJust ml1' || isJust ml2'
+       then return . Just $ SortLayout f ws1 ws2 name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2')
+       else return Nothing
 
 split True w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
 split _    [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)

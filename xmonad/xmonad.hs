@@ -129,8 +129,8 @@ myRules ws = manageDocks
         if not (f || d)
            then insertPosition Below Newer
            else if d then doFloat else doCenterFloat
-    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Gcolor2", "Pavucontrol"
-             , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
+    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2"
+             , "Pavucontrol", "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
 myStartupHook = do
     disp <- io $ getEnv "DISPLAY"
