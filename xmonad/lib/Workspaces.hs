@@ -22,7 +22,6 @@ import qualified Data.Map as M
 
 import XMonad hiding (trace)
 import XMonad.Hooks.ManageHelpers
-import XMonad.Util.WindowProperties
 
 type PPWS      = (Int, String)
 type PPInfoMap = M.Map String PPWS

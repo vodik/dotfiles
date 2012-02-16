@@ -15,7 +15,6 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
-import XMonad.Util.WindowProperties
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
@@ -34,9 +33,6 @@ data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
 instance Transformer TNBFULL Window where
     transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
       where tag t = renamed [ PrependWords t ]
-
-classNames :: [String] -> [Property]
-classNames = map ClassName
 
 to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]

@@ -17,13 +17,15 @@ import XMonad hiding (focus)
 import XMonad.Core
 import XMonad.StackSet (Workspace (..), Stack (..))
 import XMonad.Layout.WindowNavigation
-import XMonad.Util.WindowProperties
 import XMonad.Util.Invisible
 import qualified XMonad.StackSet as W
 
 type InvisibleQuery = Invisible Maybe (Query Any)
 
-data SetSort = SetSort String (Query Any) deriving Typeable
+data SetSort = SetSort String (Query Any)
+             | ResetSort String
+    deriving (Typeable)
+
 instance Message SetSort
 
 data SortLayout l1 l2 a = SortLayout [a] [a] [a] String Bool Rational Rational InvisibleQuery (l1 a) (l2 a)
@@ -34,11 +36,10 @@ sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              -> Bool
              -> Rational
              -> Rational
-             -> Query Any
              -> l1 a
              -> l2 a
              -> SortLayout l1 l2 a
-sortQuery n f d r q = SortLayout [] [] [] n f d r (I (Just q))
+sortQuery n f d r = SortLayout [] [] [] n f d r (I Nothing)
 
 setQuery :: String -> Query Any -> X ()
 setQuery n q = broadcastMessage $ SetSort n q
@@ -51,7 +52,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             new = origws \\ (w1c ++ w2c)        -- new windows
             f'  = focus s : delete (focus s) f  -- list of focused windows, contains 2 elements at most
         in do
-            matching <- pfilter query new       -- new windows matching predecate
+            matching <- queryFilter query new   -- new windows matching predecate
             let w1' = w1c ++ matching           -- updated first pane windows
                 w2' = w2c ++ (new \\ matching)  -- updated second pane windows
                 s1  = differentiate f' w1'      -- first pane stack
@@ -59,32 +60,30 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             (wrs, ml1', ml2') <- split fill w1' l1 s1 w2' l2 s2 frac r
             return (wrs, Just $ SortLayout f' w1' w2' name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2'))
       where
-        pfilter (I (Just q)) ws = filterM (\w -> getAny <$> runQuery q w) ws
-        pfilter (I Nothing)  _  = return []
+        queryFilter (I (Just q)) ws = filterM (\w -> getAny <$> runQuery q w) ws
+        queryFilter (I Nothing)  _  = return []
 
-    handleMessage (SortLayout f ws1 ws2 name fill delta frac prop l1 l2) m
+    handleMessage (SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
         | Just Shrink <- fromMessage m =
             let frac' = max 0 $ frac - delta
-            in return . Just $ SortLayout f ws1 ws2 name fill delta frac' prop l1 l2
+            in return . Just $ SortLayout f ws1 ws2 name fill delta frac' query l1 l2
         | Just Expand <- fromMessage m =
             let frac' = min 1 $ frac + delta
-            in return . Just $ SortLayout f ws1 ws2 name fill delta frac' prop l1 l2
+            in return . Just $ SortLayout f ws1 ws2 name fill delta frac' query l1 l2
+        | Just (SetSort n q) <- fromMessage m =
+            if n == name
+                then return . Just $ SortLayout f ws1 ws2 name fill delta frac (I (Just q)) l1 l2
+                else return Nothing
+        | Just (ResetSort n) <- fromMessage m =
+            if n == name
+                then return . Just $ SortLayout [] [] [] name fill delta frac query l1 l2
+                else return Nothing
         | otherwise = do
             ml1' <- handleMessage l1 m
             ml2' <- handleMessage l2 m
             if isJust ml1' || isJust ml2'
-               then return . Just $ SortLayout f ws1 ws2 name fill delta frac prop (fromMaybe l1 ml1') (fromMaybe l2 ml2')
+               then return . Just $ SortLayout f ws1 ws2 name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2')
                else return Nothing
-
-    pureMessage (SortLayout f ws1 ws2 name fill delta frac prop l1 l2) m
-        | Just (SetSort t q) <- fromMessage m =
-            if t == name
-                then Just $ SortLayout f ws1 ws2 name fill delta frac (I (Just q)) l1 l2
-                else Nothing
-        | otherwise = Nothing
-        -- | otherwise = do
-        --     let ml1' pureMsg l1 m
-        --     ml2' <- handleMessage l2 m
 
     description (SortLayout _ _ _ _ _ _ _ _ l1 l2) =
         unwords [ "SortLayout", description l1, description l2 ]

@@ -31,7 +31,6 @@ import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Scratchpad
-import XMonad.Util.WindowProperties
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
@@ -47,10 +46,10 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  $
-        [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar" ]
-        , title =? "MusicBrainz Picard"
-        ]
+    [ Workspace "work"  [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar" ]
+                        , title     =? "MusicBrainz Picard"
+                        , className ~? "^[Ll]ibre[Oo]ffice"
+                        ]
     , Workspace "term"  [ ]
     , Workspace "code"  [ ]
     , Workspace "chat"  [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
@@ -103,11 +102,11 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) workSort tabs tabs
+    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
-    sortIM = sortQuery "im" False step (imWidth tw) imClients panel
+    sortIM = sortQuery "im" False step (imWidth tw) panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
@@ -116,13 +115,12 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
-    <+> workspaceShift ws
     <+> manageFloats floats
+    <+> workspaceShift ws
     <+> composeAll
-        [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
-        , resource  =? "desktop_window"     --> doIgnore
-        , isFirefoxPreferences              --> doCenterFloat
-        , isFullscreen                      --> doFullFloat
+        [ resource  =? "desktop_window" --> doIgnore
+        , isFirefoxPreferences          --> doCenterFloat
+        , isFullscreen                  --> doFullFloat
         ]
   where
     manageFloats w = do
@@ -141,6 +139,8 @@ myStartupHook = do
         , "pgrep urxvtd  || exec urxvtd"
         , "pgrep udiskie || exec udiskie"
         ]
+    setQuery "im" imClients
+    setQuery "work" workSort
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
@@ -248,9 +248,7 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-myLogHook ppInfo output = do
-    setQuery "im" imClients
-    setQuery "work" $ workSort
+myLogHook ppInfo output =
     dynamicLogWithPP $ (myPP ppInfo) { ppOutput = hPutStrLn output }
 
 myPP ppInfo = defaultPP
