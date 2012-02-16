@@ -23,7 +23,7 @@ import qualified XMonad.StackSet as W
 
 type InvisibleQuery = Invisible Maybe (Query Any)
 
-data SortMessage = SetSort String (Query Any)
+data SortMessage = SetQuery String (Query Any)
                  | ResetSort String
                  | SwapWindow
     deriving (Typeable)
@@ -48,7 +48,7 @@ sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
 sortQuery n f d r = SortLayout [] [] [] n f d r (I Nothing)
 
 setQuery :: String -> Query Any -> X ()
-setQuery n q = broadcastMessage $ SetSort n q
+setQuery n q = broadcastMessage $ SetQuery n q
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
     doLayout (SortLayout f w1 w2 name fill delta frac query l1 l2) r s =
@@ -76,7 +76,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
         | Just Expand <- fromMessage m =
             let frac' = min 1 $ frac + delta
             in return . Just $ SortLayout f ws1 ws2 name fill delta frac' query l1 l2
-        | Just (SetSort n q) <- fromMessage m =
+        | Just (SetQuery n q) <- fromMessage m =
             if n == name
                 then return . Just $ SortLayout f ws1 ws2 name fill delta frac (I (Just q)) l1 l2
                 else passThroughMessage us m
