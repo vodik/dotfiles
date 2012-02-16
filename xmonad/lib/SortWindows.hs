@@ -85,11 +85,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
             if n == name
                 then return . Just $ SortLayout [] [] [] name fill delta frac query l1 l2
                 else passThroughMessage us m
-        | Just SwapWindow <- fromMessage m = do
-            rst <- swap us m
-            case rst of
-                Just x  -> return $ Just x
-                Nothing -> passThroughMessage us m
+        | Just SwapWindow <- fromMessage m = swap us m
         | otherwise = passThroughMessage us m
 
     description (SortLayout _ _ _ _ _ _ _ _ l1 l2) =
