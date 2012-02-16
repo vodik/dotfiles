@@ -188,7 +188,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
       , ("M1-C-l", spawn "slock")
-      , ("M1-S-l", spawn "sleep 0.5; xset dpms force off")
+      , ("M1-S-l", delayedSpawn 500 "xset dpms force off")
 
       -- multimedia keys
       , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3%-")
@@ -202,7 +202,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("<XF86AudioPrev>", spawn "mpc prev")
 
       -- screenshot
-      , ("C-<Print>", spawn "sleep 0.1; scrot -s -e 'mv $f ~/pictures/screenshots/'")
+      , ("C-<Print>", delayedSpawn 100 "scrot -s -e 'mv $f ~/pictures/screenshots/'")
       , ("<Print>",   spawn "scrot -e 'mv $f ~/pictures/screenshots/'")
 
       -- HACKS: backlight hack, restore screen resolution

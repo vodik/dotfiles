@@ -3,6 +3,7 @@
 module Utils where
 
 import Control.Monad
+import Control.Concurrent
 import Data.Monoid
 import Data.Maybe
 import Text.Regex.Posix ((=~))
@@ -64,3 +65,6 @@ hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) . io $ get
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
     return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
+
+delayedSpawn :: Int -> String -> X ()
+delayedSpawn d cmd = liftIO (threadDelay d) >> spawn cmd
