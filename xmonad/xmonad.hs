@@ -130,15 +130,17 @@ myRules ws = manageDocks
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2"
              , "Pavucontrol", "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
-myStartupHook = do
-    disp <- io $ getEnv "DISPLAY"
-    when (disp == ":0") $ mapM_ spawn
-        [ "pgrep mpd     || exec mpd"
-        , "pgrep urxvtd  || exec urxvtd"
-        , "pgrep udiskie || exec udiskie"
-        ]
-    setQuery "im" imClients
-    setQuery "work" (workspaceSort $ head myWorkspaces)
+myStartupHook = setDefaultCursor xC_left_ptr
+    <+> setWMName "LG3D"
+    <+> do
+        disp <- io $ getEnv "DISPLAY"
+        when (disp == ":0") $ mapM_ spawn
+            [ "pgrep mpd     || exec mpd"
+            , "pgrep urxvtd  || exec urxvtd"
+            , "pgrep udiskie || exec udiskie"
+            ]
+        setQuery "im" imClients
+        setQuery "work" (workspaceSort $ head myWorkspaces)
 
 
 myKeys browser conf = mkKeymap conf $ concat
@@ -304,7 +306,7 @@ main = do
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = myLogHook wsInfo dzenbar
-        , startupHook        = setDefaultCursor xC_left_ptr <+> setWMName "LG3D" <+> myStartupHook
+        , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
         , terminal           = myTerminal
