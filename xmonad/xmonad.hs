@@ -150,7 +150,7 @@ myStartupHook = setDefaultCursor xC_left_ptr
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
       , ("M-w", spawn browser)
-      , ("M-`", scratchpadSpawnActionTerminal $ XMonad.terminal conf)
+      , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
