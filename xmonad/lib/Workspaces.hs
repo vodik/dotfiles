@@ -1,7 +1,8 @@
 module Workspaces
     ( getWorkspaces
     , filterWS
-    , workspaceRules
+    , workspaceShift
+    , workspaceSort
     , getPPInfo
     , PPWS
     , PPInfo (..)
@@ -33,7 +34,7 @@ data PPInfo = PPInfo
 
 data Workspace = Workspace
     { getWSName :: String
-    , getRules  :: [Property]
+    , getRules  :: [Query Bool]
     }
 
 getWorkspaces :: [Workspace] -> [String]
@@ -42,10 +43,13 @@ getWorkspaces = map getWSName
 filterWS :: String -> [Workspace] -> [Workspace]
 filterWS name = filter $ (name /=) . getWSName
 
-workspaceRules :: [Workspace] -> ManageHook
-workspaceRules (Workspace n prop:xs) =
-    composeAll [ propertyToQuery p --> doShift n | p <- prop ] <+> workspaceRules xs
-workspaceRules [] = idHook
+workspaceShift :: [Workspace] -> ManageHook
+workspaceShift (Workspace n prop:xs) =
+    composeAll [ p --> doShift n | p <- prop ] <+> workspaceShift xs
+workspaceShift [] = idHook
+
+workspaceSort :: Workspace -> Query Any
+workspaceSort (Workspace _ prop) = composeAll [ Any `fmap` p | p <- prop ]
 
 buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
 buildWSInfo root ws = do

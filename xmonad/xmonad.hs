@@ -47,12 +47,15 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  $ classNames [ "Firefox", "Chromium", "Zathura", "Thunar" ] ++ [ Title "MusicBrainz Picard" ]
+    [ Workspace "work"  $
+        [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar" ]
+        , title =? "MusicBrainz Picard"
+        ]
     , Workspace "term"  [ ]
     , Workspace "code"  [ ]
-    , Workspace "chat"  $ classNames [ "Empathy", "Pidgin", "Skype" ]
-    , Workspace "virt"  $ classNames [ "VirtualBox" ]
-    , Workspace "games" $ classNames [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ]
+    , Workspace "chat"  [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
+    , Workspace "virt"  [ className =? "VirtualBox" ]
+    , Workspace "games" [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ] ]
     ]
 
 imClients :: Query Any
@@ -89,6 +92,8 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
+workSort = workspaceSort $ head myWorkspaces
+
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
     $ onWorkspace "work"  (mstr tabs ||| tiled)
     $ onWorkspace "term"  (mtiled ||| tiled)
@@ -98,7 +103,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) (return $ Any False) tabs tabs
+    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) workSort tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
     mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
@@ -111,7 +116,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
 
 myRules ws = manageDocks
     <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
-    <+> workspaceRules ws
+    <+> workspaceShift ws
     <+> manageFloats floats
     <+> composeAll
         [ className ~? "^[Ll]ibre[Oo]ffice" --> doShift "work"
@@ -245,6 +250,7 @@ favouritesList =
 
 myLogHook ppInfo output = do
     setQuery "im" imClients
+    setQuery "work" $ workSort
     dynamicLogWithPP $ (myPP ppInfo) { ppOutput = hPutStrLn output }
 
 myPP ppInfo = defaultPP
