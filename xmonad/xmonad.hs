@@ -121,9 +121,9 @@ myRules ws = manageDocks
     <+> manageFloats myFloats
     <+> workspaceShift ws
     <+> composeAll
-        [ resource  =? "desktop_window" --> doIgnore
-        , isFirefoxPreferences          --> doCenterFloat
-        , isFullscreen                  --> doFullFloat
+        [ resource =? "desktop_window" --> doIgnore
+        , isFirefoxPreferences         --> doCenterFloat
+        , isFullscreen                 --> doFullFloat
         ]
   where
     manageFloats floats = do
