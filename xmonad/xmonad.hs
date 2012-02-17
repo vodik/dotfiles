@@ -82,6 +82,7 @@ defaultTweaks = Tweaks
     , wsModifier = id
     }
 
+xftFont         = "xft:Envy Code R:size=9"
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
 colorBlackAlt   = "#050505"
@@ -287,7 +288,7 @@ myTabTheme = defaultTheme
     }
 
 myXPConfig = defaultXPConfig
-    { font              = "xft:Envy Code R:size=9"
+    { font              = xftFont
     , fgColor           = "#8cedff"
     , bgColor           = "black"
     , bgHLight          = "black"
@@ -297,7 +298,7 @@ myXPConfig = defaultXPConfig
     }
 
 myGSConfig = defaultGSConfig
-    { gs_font        = "xft:Envy Code R:size=9"
+    { gs_font        = xftFont
     , gs_cellheight  = 55
     , gs_cellwidth   = 164
     , gs_cellpadding = 10
