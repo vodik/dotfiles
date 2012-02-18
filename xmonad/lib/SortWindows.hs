@@ -76,11 +76,11 @@ setQuery n q = broadcastMessage $ SetQuery n q
 -- loadQuery :: String -> Query Any -> X ()
 -- loadQuery name query = modify (everywhere (sortQueryT name query))
 
--- sortQueryT :: (Typeable a) => String -> Query Any -> a -> a
--- sortQueryT n q = mkT $ \sl ->
---     if name sl == n
---         then sl { query = I (Just q) }
---         else sl
+sortQueryT :: (Typeable a) => String -> Query Any -> a -> a
+sortQueryT n q = mkT $ \sl ->
+    if name sl == n
+        then sl { query = I (Just q) }
+        else sl
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
     doLayout (SortLayout f w1 w2 name fill delta frac query l1 l2) r s =

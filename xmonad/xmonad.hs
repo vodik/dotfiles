@@ -203,7 +203,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
       , ("M1-C-l", spawn "slock")
-      , ("M1-S-l", delayedSpawn 700 "xset dpms force off")
+      , ("M1-S-l", delayedSpawn 1000 "xset dpms force off")
 
       -- multimedia keys
       , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3%-")
