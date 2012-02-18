@@ -10,9 +10,13 @@ module SortWindows
     ) where
 
 import Control.Monad
+import Data.Data
+import Data.Generics.Schemes
+import Data.Generics.Aliases
 import Data.List (delete, intersect, (\\))
-import Data.Monoid
 import Data.Maybe
+import Data.Monoid
+import Data.Typeable
 
 import XMonad hiding (focus)
 import XMonad.Core
@@ -30,7 +34,18 @@ data SortMessage = SetQuery String (Query Any)
 
 instance Message SortMessage
 
-data SortLayout l1 l2 a = SortLayout [a] [a] [a] String Bool Rational Rational InvisibleQuery (l1 a) (l2 a)
+data SortLayout l1 l2 a = SortLayout
+    { focused     :: [a]
+    , left        :: [a]
+    , right       :: [a]
+    , name        :: String
+    , fill        :: Bool
+    , delta       :: Rational
+    , mfrac       :: Rational
+    , query       :: InvisibleQuery
+    , layoutLetf  :: l1 a
+    , layoutRight :: l2 a
+    }
     deriving (Read, Show)
 
 infix 1 <?>
@@ -51,8 +66,21 @@ sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              -> SortLayout l1 l2 a
 sortQuery n f d r q = SortLayout [] [] [] n f d r (I (Just q))
 
+instance Typeable XState
+instance Data XState
+instance Typeable1 (SortLayout l1 l2)
+
 setQuery :: String -> Query Any -> X ()
 setQuery n q = broadcastMessage $ SetQuery n q
+
+-- loadQuery :: String -> Query Any -> X ()
+-- loadQuery name query = modify (everywhere (sortQueryT name query))
+
+-- sortQueryT :: (Typeable a) => String -> Query Any -> a -> a
+-- sortQueryT n q = mkT $ \sl ->
+--     if name sl == n
+--         then sl { query = I (Just q) }
+--         else sl
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
     doLayout (SortLayout f w1 w2 name fill delta frac query l1 l2) r s =
@@ -73,26 +101,26 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
         queryFilter (I (Just q)) ws = filterM (fmap getAny . runQuery q) ws
         queryFilter (I Nothing)  _  = return []
 
-    handleMessage us@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
+    handleMessage sl@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
         | Just Shrink <- fromMessage m =
             let frac' = max 0 $ frac - delta
-            in return . Just $ SortLayout f ws1 ws2 name fill delta frac' query l1 l2
+            in return . Just $ sl { mfrac = frac' }
         | Just Expand <- fromMessage m =
             let frac' = min 1 $ frac + delta
-            in return . Just $ SortLayout f ws1 ws2 name fill delta frac' query l1 l2
+            in return . Just $ sl { mfrac = frac' }
         | Just (SetQuery n q) <- fromMessage m =
             if n == name
-                then return . Just $ SortLayout f ws1 ws2 name fill delta frac (I (Just q)) l1 l2
-                else passThroughMessage us m
+                then return . Just $ sl { query = I (Just q) }
+                else passThroughMessage sl m
         | Just (ResetSort n) <- fromMessage m =
             if n == name
-                then return . Just $ SortLayout [] [] [] name fill delta frac query l1 l2
-                else passThroughMessage us m
-        | Just SwapWindow <- fromMessage m = swap us m
-        | otherwise = passThroughMessage us m
+                then return . Just $ sl { focused = [], left = [], right = [] }
+                else passThroughMessage sl m
+        | Just SwapWindow <- fromMessage m = swap sl m
+        | otherwise = passThroughMessage sl m
 
-    description (SortLayout _ _ _ _ _ _ _ _ l1 l2) =
-        unwords [ "SortLayout", description l1, description l2 ]
+    description sl =
+        unwords [ "SortLayout", description (layoutRight sl), description (layoutRight sl) ]
 
 swap us@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = do
     mst <- gets $ W.stack . W.workspace . W.current . windowset
@@ -110,8 +138,8 @@ passThroughMessage (SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = d
     ml1' <- handleMessage l1 m
     ml2' <- handleMessage l2 m
     if isJust ml1' || isJust ml2'
-       then return . Just $ SortLayout f ws1 ws2 name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2')
-       else return Nothing
+        then return . Just $ SortLayout f ws1 ws2 name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2')
+        else return Nothing
 
 split True w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
 split _    [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
@@ -125,7 +153,7 @@ split _    w1 l1 s1 w2 l2 s2 f r = do
 differentiate :: Eq q => [q] -> [q] -> Maybe (Stack q)
 differentiate (z:zs) xs
     | z `elem` xs = Just Stack { focus = z
-                               , up    = reverse $ takeWhile (/=z) xs
-                               , down  = tail $ dropWhile (/=z) xs }
+                               , up    = reverse $ takeWhile (/= z) xs
+                               , down  = tail $ dropWhile (/= z) xs }
     | otherwise   = differentiate zs xs
 differentiate [] xs = W.differentiate xs

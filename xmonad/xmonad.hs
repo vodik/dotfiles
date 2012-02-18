@@ -71,7 +71,7 @@ myFloats =
                          , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
 
 myTerminal    = "urxvtc"
-myBorderWidth = 3
+myBorderWidth = 2
 myModMask     = mod4Mask
 
 defaultTweaks = Tweaks
