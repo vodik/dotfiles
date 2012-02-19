@@ -1,3 +1,4 @@
+import Control.Arrow ((>>>))
 import Control.Monad
 import Data.Monoid
 import System.Environment
@@ -99,18 +100,18 @@ colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
 myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
-    $ onWorkspace "work"  (mstr tabs ||| tiled)
-    $ onWorkspace "term"  (mtiled ||| tiled)
-    $ onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
-    $ onWorkspace "virt"  full
-    $ onWorkspace "games" full
+    . onWorkspace "work"  (mstr tabs ||| tiled)
+    . onWorkspace "term"  (mtiled ||| tiled)
+    . onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
+    . onWorkspace "virt"  full
+    . onWorkspace "games" full
     $ tiled ||| Mirror tiled
   where
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
     work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) sort tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
-    mtiled = gaps 5 $ Mirror $ BalancedTall (masterN tw) step (1/2) []
+    mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) []
     sortIM = sortQuery "chat" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
