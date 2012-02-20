@@ -124,9 +124,10 @@ myRules ws = manageDocks
     <+> manageFloats myFloats
     <+> workspaceShift ws
     <+> composeAll
-        [ resource =? "desktop_window" --> doIgnore
-        , isFirefoxPreferences         --> doCenterFloat
-        , isFullscreen                 --> doFullFloat
+        [ className =? "Transmission"   --> doShift "work"
+        , resource  =? "desktop_window" --> doIgnore
+        , isFirefoxPreferences          --> doCenterFloat
+        , isFullscreen                  --> doFullFloat
         ]
   where
     manageFloats floats = do
@@ -198,7 +199,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-S-<Right>", shiftToEmpty Next skipWS)
       , ("M-S-<Left>",  shiftToEmpty Prev skipWS)
       , ("M-<Tab>",     toggleWS' skipWS)
-      , ("M-C-0",       windows $ copyOntoNonEmpty skipWS)
+      , ("M-C-0",       toggleCopy . windows $ copyOntoNonEmpty skipWS)
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)

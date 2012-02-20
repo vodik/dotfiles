@@ -5,6 +5,7 @@ import Data.Maybe
 
 import XMonad
 import XMonad.Actions.CopyWindow
+import XMonad.Util.Stack
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.Actions.CycleWS as CW
 import qualified XMonad.StackSet as W
@@ -43,3 +44,8 @@ copyOntoNonEmpty :: Eq s => [String]
                          -> W.StackSet WorkspaceId (Layout Window) Window s sd
                          -> W.StackSet WorkspaceId (Layout Window) Window s sd
 copyOntoNonEmpty ws s = foldr (copy . W.tag) s . filter (skipWS ws) . filter isNonEmpty $ W.workspaces s
+
+toggleCopy :: X () -> X ()
+toggleCopy copier = do
+    copies <- wsContainingCopies
+    if null copies then copier else killAllOtherCopies
