@@ -10,13 +10,9 @@ module SortWindows
     ) where
 
 import Control.Monad
-import Data.Data
-import Data.Generics.Schemes
-import Data.Generics.Aliases
 import Data.List (delete, intersect, (\\))
 import Data.Maybe
 import Data.Monoid
-import Data.Typeable
 
 import XMonad hiding (focus)
 import XMonad.Core
@@ -66,21 +62,8 @@ sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              -> SortLayout l1 l2 a
 sortQuery n f d r q = SortLayout [] [] [] n f d r (I (Just q))
 
-instance Typeable XState
-instance Data XState
-instance Typeable1 (SortLayout l1 l2)
-
 setQuery :: String -> Query Any -> X ()
 setQuery n q = broadcastMessage $ SetQuery n q
-
--- loadQuery :: String -> Query Any -> X ()
--- loadQuery name query = modify (everywhere (sortQueryT name query))
-
-sortQueryT :: (Typeable a) => String -> Query Any -> a -> a
-sortQueryT n q = mkT $ \sl ->
-    if name sl == n
-        then sl { query = I (Just q) }
-        else sl
 
 instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayout l1 l2) Window where
     doLayout (SortLayout f w1 w2 name fill delta frac query l1 l2) r s =
