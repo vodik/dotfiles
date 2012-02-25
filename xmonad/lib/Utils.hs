@@ -36,7 +36,7 @@ instance Transformer TNBFULL Window where
     transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
       where tag t = renamed [ PrependWords t ]
 
-data BorderUrgencyHook = BorderUrgencyHook { color :: !String }
+data BorderUrgencyHook = BorderUrgencyHook !String
     deriving (Show, Read)
 
 instance UrgencyHook BorderUrgencyHook where

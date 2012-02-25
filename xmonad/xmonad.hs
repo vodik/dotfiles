@@ -310,7 +310,7 @@ main = do
     browser <- getBrowser
     wsInfo  <- getPPInfo $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
-    xmonad . withUrgencyHook (BorderUrgencyHook colorRed) $ defaultConfig
+    xmonad . withUrgencyHookC (BorderUrgencyHook colorRed) urgencyConfig { suppressWhen = Focused } $ defaultConfig
         { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
