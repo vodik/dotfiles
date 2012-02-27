@@ -2,6 +2,7 @@
 
 module Utils where
 
+import Control.Applicative
 import Control.Monad
 import Control.Concurrent
 import Data.List
@@ -12,6 +13,7 @@ import qualified Data.Map as M
 
 import XMonad
 import XMonad.Hooks.ManageHelpers
+import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
@@ -33,6 +35,13 @@ data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
 instance Transformer TNBFULL Window where
     transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
       where tag t = renamed [ PrependWords t ]
+
+data BorderUrgencyHook = BorderUrgencyHook !String
+    deriving (Show, Read)
+
+instance UrgencyHook BorderUrgencyHook where
+    urgencyHook (BorderUrgencyHook cs) w = withDisplay $ \dpy -> io $
+        initColor dpy cs >>= maybe (return ()) (setWindowBorder dpy w)
 
 to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]

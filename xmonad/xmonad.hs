@@ -69,7 +69,7 @@ imClients = composeAs Any
 myFloats :: Query Bool
 myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-                         , "Nvidia-settings", "Arandr", "Gimp", "zsnes", "Wine" ]
+                         , "Nvidia-settings", "Arandr", "Gimp", "Rbutil", "zsnes", "Wine" ]
 
 myTerminal    = "urxvtc"
 myBorderWidth = 2
@@ -125,10 +125,10 @@ myRules ws = manageDocks
     <+> manageFloats myFloats
     <+> workspaceShift ws
     <+> composeAll
-        [ className =? "Transmission"   --> doShift "work"
-        , resource  =? "desktop_window" --> doIgnore
-        , isFirefoxPreferences          --> doCenterFloat
-        , isFullscreen                  --> doFullFloat
+        [ className =? "Transmission-gtk" --> doShift "work"
+        , resource  =? "desktop_window"   --> doIgnore
+        , isFirefoxPreferences            --> doCenterFloat
+        , isFullscreen                    --> doFullFloat
         ]
   where
     manageFloats floats = do
@@ -311,7 +311,7 @@ main = do
     browser <- getBrowser
     wsInfo  <- getPPInfo $ ws' tweaks
     dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
-    xmonad . withUrgencyHook NoUrgencyHook $ defaultConfig
+    xmonad . withUrgencyHookC (BorderUrgencyHook colorRed) urgencyConfig { suppressWhen = Focused } $ defaultConfig
         { manageHook         = myRules $ ws' tweaks
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
