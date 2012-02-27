@@ -42,13 +42,11 @@ shiftToEmpty dir ws = do
 
 toggleCopy :: [String] -> X () -> X ()
 toggleCopy ws copier = do
-    copies <- wsContainingCopies
-
-    s <- gets windowset
-    let cur = W.tag . W.workspace $ W.current s
-        set = map W.tag . filter ((/= cur) . W.tag) $ allNonEmpty ws s
-
-    if (copies /= set)
+    cpys <- wsContainingCopies
+    wset <- gets windowset
+    let cur = W.tag . W.workspace $ W.current wset
+        set = map W.tag . filter ((/= cur) . W.tag) $ allNonEmpty ws wset
+    if cpys /= set
         then copier
         else killAllOtherCopies
 
