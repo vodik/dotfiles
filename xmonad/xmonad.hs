@@ -1,4 +1,4 @@
-import Control.Arrow ((>>>))
+import Control.Applicative
 import Control.Monad
 import Data.Monoid
 import System.Environment
@@ -120,8 +120,8 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     sort   = workspaceSort $ head myWorkspaces
     step   = 1/50
 
-myRules ws = manageDocks
-    <+> scratchpadManageHook (W.RationalRect (1/6) (1/6) (2/3) (2/3))
+myRules ws rect = manageDocks
+    <+> scratchpadManageHook rect
     <+> manageFloats myFloats
     <+> workspaceShift ws
     <+> composeAll
@@ -159,10 +159,10 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
-      , ("M-S-q",   io $ exitWith ExitSuccess)
-      , ("M-S-c",   kill1)
-      , ("M-S-C-c", kill)
-      , ("M-q",     restart "xmonad" True)
+      , ("M-S-q", io $ exitWith ExitSuccess)
+      , ("M-S-c", kill1)
+      , ("M-C-c", kill)
+      , ("M-q",   restart "xmonad" True)
 
       -- layout
       , ("M-<Space>",   sendMessage NextLayout)
@@ -310,9 +310,10 @@ main = do
     tweaks  <- getTweaks
     browser <- getBrowser
     wsInfo  <- getPPInfo $ ws' tweaks
-    dzenbar <- spawnPipe . myDzen . head =<< getScreenInfo =<< openDisplay ""
+    screen  <- head <$> (openDisplay "" >>= getScreenInfo)
+    dzenbar <- spawnPipe $ myDzen screen
     xmonad . withUrgencyHookC (BorderUrgencyHook colorRed) urgencyConfig { suppressWhen = Focused } $ defaultConfig
-        { manageHook         = myRules $ ws' tweaks
+        { manageHook         = myRules (ws' tweaks) (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules tweaks
         , logHook            = myLogHook wsInfo dzenbar
@@ -343,9 +344,19 @@ myDzen (Rectangle x y sw sh) =
   where
     quote = wrap "'" "'"
 
+positionRationalRect :: Rectangle -> W.RationalRect
+positionRationalRect (Rectangle sx sy sw sh) =
+    let bh = 15
+        h  = (2 * fi sh / 5) - bh
+        ry = (fi sh - h - bh) / fi sh
+        rh = h / fi sh
+    in W.RationalRect 0 ry 1 rh
+  where
+    fi = fromIntegral
+
 getTweaks :: IO Tweaks
 getTweaks = do
-    hostName <- nodeName `fmap` getSystemID
+    hostName <- nodeName <$> getSystemID
     return $ case hostName of
         "vodik" -> vodikTweaks
         "gmzlj" -> gmzljTweaks
