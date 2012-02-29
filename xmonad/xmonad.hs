@@ -205,7 +205,7 @@ myKeys browser conf = mkKeymap conf $ concat
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
       , ("M1-C-l", spawn "slock")
-      , ("M1-S-l", delayedSpawn 1000 "xset dpms force off")
+      , ("M1-S-l", delayedSpawn 1500 "xset dpms force off")
 
       -- multimedia keys
       , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3%-")
@@ -346,7 +346,7 @@ myDzen (Rectangle x y sw sh) =
 
 positionRationalRect :: Rectangle -> W.RationalRect
 positionRationalRect (Rectangle sx sy sw sh) =
-    let bh = 15
+    let bh = 16
         h  = (2 * fi sh / 5) - bh
         ry = (fi sh - h - bh) / fi sh
         rh = h / fi sh
