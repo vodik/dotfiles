@@ -21,6 +21,7 @@ import System.FilePath
 import qualified Data.Map as M
 
 import XMonad hiding (trace)
+import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
 
 import SortWindows
@@ -34,7 +35,7 @@ data PPInfo = PPInfo
     }
 
 data Workspace = Workspace
-    { getWSName :: String
+    { getWSName :: Topic
     , getRules  :: [Query Bool]
     }
 
