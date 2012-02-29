@@ -4,6 +4,7 @@ import Data.Monoid
 import System.Environment
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
+import qualified Data.Map as M
 
 import Graphics.X11.Xinerama (getScreenInfo)
 
@@ -11,6 +12,7 @@ import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS hiding (moveTo, shiftTo)
 import XMonad.Actions.GridSelect
+import XMonad.Actions.TopicSpace
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
@@ -58,6 +60,28 @@ myWorkspaces =
     , Workspace "virt"  [ className =? "VirtualBox" ]
     , Workspace "games" [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ] ]
     ]
+
+myTopicConfig :: TopicConfig
+myTopicConfig = defaultTopicConfig
+    { topicDirs = M.fromList [ ("code", "~/projects") ]
+    , defaultTopic = "work"
+    , defaultTopicAction = const $ spawnShell >*> 3
+    , topicActions = M.fromList
+        [ ("work",  spawn "firefox")
+        , ("term",  runInTerm "sudo" "systemd-journalctl -f" >> spawnShell >*> 2)
+        , ("chat",  spawn "pidgin" >> spawn "skype")
+        , ("virt",  spawn "VirtualBox --startvm 'Windows 7'")
+        , ("games", spawn "sol")
+        ]
+    }
+
+spawnShell :: X ()
+spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
+
+spawnShellIn :: Dir -> X ()
+spawnShellIn dir = do
+    term <- terminal <$> asks config
+    spawn $ "cd " ++ dir ++ " && exec " ++ term
 
 imClients :: Query Any
 imClients = composeAs Any
@@ -154,6 +178,7 @@ myStartupHook = setDefaultCursor xC_left_ptr
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
+      , ("M-S-<Return>", currentTopicAction myTopicConfig)
       , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
@@ -307,6 +332,7 @@ myGSConfig = defaultGSConfig
     }
 
 main = do
+    -- checkTopicConfig myTopics myTopicConfig
     tweaks  <- getTweaks
     browser <- getBrowser
     wsInfo  <- getPPInfo $ ws' tweaks

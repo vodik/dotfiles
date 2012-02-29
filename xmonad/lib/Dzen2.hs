@@ -26,7 +26,7 @@ dzenPPLayout info tc fc bg (x:xs) =
     let (fg, l) = if x == "Triggered"
                      then (tc, head xs)
                      else (fc, x)
-    in dzenAction 1 "xdotool key super+n"
+    in dzenAction 1 "xdotool key super+space"
      . dzenAction 3 "xdotool key super+a"
      . dzenColor fg bg . pad . dzenIcon
      $ getLayout info l
