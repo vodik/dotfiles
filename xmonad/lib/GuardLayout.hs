@@ -51,7 +51,7 @@ import qualified XMonad.StackSet as W
 --   a set of conditions to match against and the two layouts. We save
 --   the layout choice in the Bool to be used to implement
 --   description.
-data (Show p) => GuardLayout p l1 l2 a = GuardLayout [p] Bool (l1 a) (l2 a)
+data GuardLayout p l1 l2 a = GuardLayout [p] Bool (l1 a) (l2 a)
     deriving (Read, Show)
 
 -- | Every condition must be an instance of 'Condition' which defines

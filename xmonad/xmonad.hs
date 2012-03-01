@@ -78,9 +78,7 @@ spawnShell :: X ()
 spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
 
 spawnShellIn :: Dir -> X ()
-spawnShellIn dir = do
-    term <- terminal <$> asks config
-    spawn $ "cd " ++ dir ++ " && exec " ++ term
+spawnShellIn dir = asks (terminal . config) >>= \t -> spawn $ "cd " ++ dir ++ " && exec " ++ t
 
 imClients :: Query Any
 imClients = composeAs Any
