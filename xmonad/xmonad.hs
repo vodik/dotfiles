@@ -68,7 +68,6 @@ myTopicConfig = defaultTopicConfig
     , defaultTopicAction = const $ spawnShell >*> 3
     , topicActions = M.fromList
         [ ("work",  spawn "firefox")
-        , ("term",  runInTerm "sudo" "systemd-journalctl -f" >> spawnShell >*> 2)
         , ("chat",  spawn "pidgin" >> spawn "skype")
         , ("virt",  spawn "VirtualBox --startvm 'Windows 7'")
         , ("games", spawn "sol")
@@ -79,9 +78,7 @@ spawnShell :: X ()
 spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
 
 spawnShellIn :: Dir -> X ()
-spawnShellIn dir = do
-    term <- terminal <$> asks config
-    spawn $ "cd " ++ dir ++ " && exec " ++ term
+spawnShellIn dir = asks (terminal . config) >>= \t -> spawn $ "cd " ++ dir ++ " && exec " ++ t
 
 imClients :: Query Any
 imClients = composeAs Any
