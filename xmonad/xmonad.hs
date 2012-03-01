@@ -68,7 +68,6 @@ myTopicConfig = defaultTopicConfig
     , defaultTopicAction = const $ spawnShell >*> 3
     , topicActions = M.fromList
         [ ("work",  spawn "firefox")
-        , ("term",  runInTerm "sudo" "systemd-journalctl -f" >> spawnShell >*> 2)
         , ("chat",  spawn "pidgin" >> spawn "skype")
         , ("virt",  spawn "VirtualBox --startvm 'Windows 7'")
         , ("games", spawn "sol")
@@ -134,7 +133,7 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
     work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) sort tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    tiled  = gaps 5 $ BalancedTall 2 step (1/2) []
+    tiled  = gaps 5 $ BalancedTall 2 step (11/20) []
     mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) []
     sortIM = sortQuery "chat" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
