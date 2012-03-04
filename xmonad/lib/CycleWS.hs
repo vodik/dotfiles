@@ -47,11 +47,11 @@ toggleCopy :: [String] -> X ()
 toggleCopy ws = do
     cpys <- wsContainingCopies
     wset <- gets windowset
-    let cur = W.tag . W.workspace $ W.current wset
-        set = map W.tag . filter ((/= cur) . W.tag) $ allNonEmpty ws wset
-    if cpys /= set
-        then windows $ copyOntoNonEmpty ws
+    let cur  = W.tag . W.workspace $ W.current wset
+        set  = allNonEmpty ws wset
+        tags = map W.tag . filter ((/= cur) . W.tag) $ set
+    if cpys /= tags
+        then windows $ ($ set) . foldr (copy . W.tag)
         else killAllOtherCopies
   where
     allNonEmpty ws = filter (skipWS ws) . filter isNonEmpty . W.workspaces
-    copyOntoNonEmpty ws s = foldr (copy . W.tag) s $ allNonEmpty ws s
