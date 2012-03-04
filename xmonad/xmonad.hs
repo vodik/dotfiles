@@ -12,7 +12,7 @@ import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS hiding (moveTo, shiftTo)
 import XMonad.Actions.GridSelect
-import XMonad.Actions.TopicSpace
+-- import XMonad.Actions.TopicSpace
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
@@ -45,6 +45,7 @@ import Gaps
 import GuardLayout
 import GuardLayout.Instances
 import SortWindows
+import Topic
 import Workspaces
 import Utils
 
@@ -61,7 +62,7 @@ myWorkspaces =
     , Workspace "games" [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ] ]
     ]
 
-myTopicConfig :: TopicConfig
+myTopicConfig :: TopicConfig Dir
 myTopicConfig = defaultTopicConfig
     { topicDirs = M.fromList [ ("code", "~/projects") ]
     , defaultTopic = "work"
