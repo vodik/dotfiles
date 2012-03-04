@@ -130,7 +130,7 @@ pprWindowSet :: TopicConfig Dir -> PP -> X String
 pprWindowSet tg pp = do
     winset <- gets windowset
     urgents <- readUrgents
-    let empty_workspaces = map W.tag $ filter (isNothing . W.stack) $ W.workspaces winset
+    let empty_workspaces = map W.tag . filter (isNothing . W.stack) $ W.workspaces winset
         maxDepth = maxTopicHistory tg
     setLastFocusedTopic (W.tag . W.workspace . W.current $ winset)
                         (`notElem` empty_workspaces)
@@ -148,7 +148,7 @@ topicActionWithPrompt xp tg = workspacePrompt xp (liftM2 (>>) (switchTopic tg) (
 
 -- | Given a configuration and a topic, triggers the action associated with the given topic.
 topicAction :: TopicConfig a -> Topic -> X ()
-topicAction tg topic = fromMaybe (defaultTopicAction tg topic) $ M.lookup topic $ topicActions tg
+topicAction tg topic = fromMaybe (defaultTopicAction tg topic) . M.lookup topic $ topicActions tg
 
 -- | Trigger the action associated with the current topic.
 currentTopicAction :: TopicConfig a -> X ()

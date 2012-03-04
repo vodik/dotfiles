@@ -348,16 +348,16 @@ main = do
     ws' t = wsModifier t myWorkspaces
 
 myDzen :: Rectangle -> String
-myDzen (Rectangle x y sw sh) =
-    "dzen2 -x "  ++ show x
-      ++ " -w "  ++ show sw
-      ++ " -y "  ++ show (sh - 16)
-      ++ " -h "  ++ show 16
-      ++ " -fn " ++ quote dzenFont
-      ++ " -fg " ++ quote colorWhite
-      ++ " -bg " ++ quote colorBlackAlt
-      ++ " -ta l"
-      ++ " -e 'onstart=lower'"
+myDzen (Rectangle x y sw sh) = "dzen2 " ++ unwords
+    [ "-x"   , show x
+    , "-w"   , show sw
+    , "-y"   , show (sh - 16)
+    , "-h"   , show 16
+    , "-fn"  , quote dzenFont
+    , "-fg"  , quote colorWhite
+    , "-bg"  , quote colorBlackAlt
+    , "-ta l"
+    , "-e 'onstart=lower'" ]
   where
     quote = wrap "'" "'"
 

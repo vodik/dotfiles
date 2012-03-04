@@ -8,8 +8,10 @@ import Control.Monad
 import Data.List
 import Data.Maybe
 import Data.Monoid
+import Data.Set (Set)
 import System.Environment (getEnvironment)
 import Text.Regex.Posix ((=~))
+import qualified Data.Set as S
 
 import XMonad
 import XMonad.Hooks.ManageHelpers
@@ -80,10 +82,13 @@ getHome :: IO String
 getHome = (<$> env "HOME") $ fromMaybe "/home/simongmzlj"
 
 services :: [String] -> X ()
-services cmds = io primaryX >>= flip when (mapM_ spawnOnce cmds)
+services cmds = whenPrimaryX $ io (spawnService <$> pidSet) >>= forM_ cmds
 
-spawnOnce :: String -> X ()
-spawnOnce cmd = io (pgrep cmd) >>= \pids -> if null $ pids then spawn cmd else return ()
+spawnService :: Set (String, Int) -> String -> X ()
+spawnService pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
 
 primaryX :: IO Bool
 primaryX = maybe False (== ":0") <$> env "DISPLAY"
+
+whenPrimaryX :: X () -> X ()
+whenPrimaryX f = io primaryX >>= flip when f
