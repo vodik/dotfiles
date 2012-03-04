@@ -7,6 +7,7 @@ module Workspaces
     , PPWS
     , PPInfo (..)
     , Workspace (..)
+    , Tweaks (..)
     ) where
 
 import Control.Monad
@@ -25,6 +26,15 @@ import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
 
 import SortWindows
+import Utils
+
+data Tweaks = Tweaks
+    { mainWidth  :: Rational
+    , imWidth    :: Rational
+    , imGrid     :: Double
+    , masterN    :: Int
+    , wsModifier :: [Workspace] -> [Workspace]
+    }
 
 type PPWS      = (Int, String)
 type PPInfoMap = M.Map String PPWS
@@ -61,7 +71,7 @@ buildWSInfo root ws = do
 
 getPPInfo :: [Workspace] -> IO PPInfo
 getPPInfo ws = do
-    root <- (++ "/.xmonad/icons") . fromMaybe "/home/simongmzlj" . lookup "HOME" <$> getEnvironment
+    root <- (++ "/.xmonad/icons") <$> getHome
     return PPInfo
         { getWSInfo = \l -> M.lookup l . M.fromList $ buildWSInfo root ws
         , getLayout = (root </>) . ("layout-" ++) . (++ ".xbm")
