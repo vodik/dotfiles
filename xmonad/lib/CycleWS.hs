@@ -40,22 +40,15 @@ shiftToEmpty dir ws = do
     windows $ W.shift ws
     windows $ W.greedyView ws
 
-toggleCopy :: [String] -> X () -> X ()
-toggleCopy ws copier = do
+toggleCopy :: [String] -> X ()
+toggleCopy ws = do
     cpys <- wsContainingCopies
     wset <- gets windowset
     let cur = W.tag . W.workspace $ W.current wset
         set = map W.tag . filter ((/= cur) . W.tag) $ allNonEmpty ws wset
     if cpys /= set
-        then copier
+        then windows $ copyOntoNonEmpty ws
         else killAllOtherCopies
-
-copyOntoNonEmpty :: Eq s => [String]
-                         -> W.StackSet WorkspaceId (Layout Window) Window s sd
-                         -> W.StackSet WorkspaceId (Layout Window) Window s sd
-copyOntoNonEmpty ws s = foldr (copy . W.tag) s $ allNonEmpty ws s
-
-allNonEmpty :: [String]
-            -> W.StackSet WorkspaceId (Layout Window) Window s sd
-            -> [WindowSpace]
-allNonEmpty ws = filter (skipWS ws) . filter isNonEmpty . W.workspaces
+  where
+    allNonEmpty ws = filter (skipWS ws) . filter isNonEmpty . W.workspaces
+    copyOntoNonEmpty ws s = foldr (copy . W.tag) s $ allNonEmpty ws s
