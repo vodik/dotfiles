@@ -81,8 +81,8 @@ getBrowser = (<$> env "BROWSER") . fromMaybe
 getHome :: IO String
 getHome = (<$> env "HOME") $ fromMaybe "/home/simongmzlj"
 
-services :: [String] -> X ()
-services cmds = whenPrimaryX $ io (spawnService <$> pidSet) >>= forM_ cmds
+startServices :: [String] -> X ()
+startServices cmds = whenPrimaryX $ io (spawnService <$> pidSet) >>= forM_ cmds
 
 spawnService :: Set (String, Int) -> String -> X ()
 spawnService pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd

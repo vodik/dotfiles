@@ -162,9 +162,9 @@ myRules ws rect = manageDocks
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setWMName "LG3D"
-    <+> services [ "mpd", "urxvtd", "udiskie" ]
     <+> setQuery "chat" imClients
     <+> setQuery "work" workSort
+    <+> startServices [ "urxvtd", "udiskie", "mpd" ]
   where
     workSort = workspaceSort $ head myWorkspaces
 
