@@ -19,24 +19,24 @@ isEmpty = isNothing . W.stack
 isNonEmpty :: WindowSpace -> Bool
 isNonEmpty = isJust . W.stack
 
-mkWSI :: (WindowSpace -> Bool) -> CW.WSType
-mkWSI = CW.WSIs . return
+mkWSI :: [(WindowSpace -> Bool)] -> CW.WSType
+mkWSI = CW.WSIs . return . foldr1 (liftA2 (&&))
 
 moveTo :: CW.Direction1D -> [String] -> X ()
-moveTo dir ws = CW.moveTo dir . mkWSI $ skipWS ws
+moveTo dir ws = CW.moveTo dir $ mkWSI [ skipWS ws ]
 
 moveToNonEmpty :: CW.Direction1D -> [String] -> X ()
-moveToNonEmpty dir ws = CW.moveTo dir . mkWSI $ (&&) <$> isNonEmpty <*> skipWS ws
+moveToNonEmpty dir ws = CW.moveTo dir $ mkWSI [ isNonEmpty, skipWS ws ]
 
 shiftTo :: CW.Direction1D -> [String] -> X ()
 shiftTo dir ws = do
-    ws <- CW.findWorkspace getSortByIndex dir (mkWSI $ skipWS ws) 1
+    ws <- CW.findWorkspace getSortByIndex dir (mkWSI [ skipWS ws ]) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
 shiftToEmpty :: CW.Direction1D -> [String] -> X ()
 shiftToEmpty dir ws = do
-    ws <- CW.findWorkspace getSortByIndex dir (mkWSI $ (&&) <$> isEmpty <*> skipWS ws) 1
+    ws <- CW.findWorkspace getSortByIndex dir (mkWSI [ isEmpty, skipWS ws ]) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
