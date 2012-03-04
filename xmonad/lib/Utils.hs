@@ -80,14 +80,7 @@ getBrowser = (<$> env "BROWSER") . fromMaybe
 getHome :: IO String
 getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
 
-primaryX :: IO Bool
-primaryX = maybe False (== ":0") <$> env "DISPLAY"
-
 startServices :: [String] -> X ()
-startServices cmds = whenPrimaryX $
-    io (service <$> pidSet) >>= forM_ cmds
+startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
     service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
-
-whenPrimaryX :: X () -> X ()
-whenPrimaryX f = io primaryX >>= flip when f
