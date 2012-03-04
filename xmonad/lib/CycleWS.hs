@@ -49,7 +49,7 @@ toggleCopy ws = do
     wset <- gets windowset
     let cur  = W.tag . W.workspace $ W.current wset
         set  = allNonEmpty ws wset
-        tags = map W.tag . filter ((/= cur) . W.tag) $ set
+        tags = filter (/= cur) . map W.tag $ set
     if cpys /= tags
         then windows $ ($ set) . foldr (copy . W.tag)
         else killAllOtherCopies
