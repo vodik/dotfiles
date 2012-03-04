@@ -12,13 +12,11 @@ import XMonad
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS hiding (moveTo, shiftTo)
 import XMonad.Actions.GridSelect
--- import XMonad.Actions.TopicSpace
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
-import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Accordion
 import XMonad.Layout.Grid
@@ -161,7 +159,6 @@ myRules ws rect = manageDocks
            else if d then doFloat else doCenterFloat
 
 myStartupHook = setDefaultCursor xC_left_ptr
-    <+> setWMName "LG3D"
     <+> setQuery "chat" imClients
     <+> setQuery "work" workSort
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
