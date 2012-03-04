@@ -40,6 +40,9 @@ shiftToEmpty dir ws = do
     windows $ W.shift ws
     windows $ W.greedyView ws
 
+toggleWS :: [String] -> X ()
+toggleWS = CW.toggleWS'
+
 toggleCopy :: [String] -> X ()
 toggleCopy ws = do
     cpys <- wsContainingCopies
