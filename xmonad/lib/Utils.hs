@@ -41,16 +41,16 @@ to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 
 queryAny :: Eq a => Query a -> [a] -> Query Bool
-queryAny q xs = foldl1 (<||>) $ fmap (q =?) xs
+queryAny q xs = foldl1 (<||>) $ (q =?) <$> xs
 
 (-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
 p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
 
 (~?) :: (Functor f) => f String -> String -> f Bool
-q ~? x = fmap (=~ x) q
+q ~? x = (=~ x) <$> q
 
 prefixed :: (Functor f) => f String -> String -> f Bool
-q `prefixed` x = fmap (x `isPrefixOf`) q
+q `prefixed` x = (x `isPrefixOf`) <$> q
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"
@@ -60,14 +60,13 @@ isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 withFocused' :: (Window -> X ()) -> X ()
 withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
-    \w -> hasResource ["scratchpad"] w >>= \ign -> unless ign $ f w
+    \w -> hasResource [ "scratchpad" ] w >>= flip unless (f w)
 
 hasResource :: [String] -> Window -> X Bool
-hasResource ign w = withDisplay $ \d -> fmap ((`elem` ign) . resName) . io $ getClassHint d w
+hasResource ign w = withDisplay $ \d -> io $ (`elem` ign) . resName <$> getClassHint d w
 
 getSortByIndexWithoutNSP :: X WorkspaceSort
-getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
-    return $ s . filter (\(W.Workspace tag _ _) -> tag /= "NSP")
+getSortByIndexWithoutNSP = getSortByIndex >>= \s -> return $ s . filter ((/= "NSP") . W.tag)
 
 delayedSpawn :: Int -> String -> X ()
 delayedSpawn d cmd = liftIO (threadDelay d) >> spawn cmd
@@ -79,16 +78,16 @@ getBrowser :: String -> IO String
 getBrowser = (<$> env "BROWSER") . fromMaybe
 
 getHome :: IO String
-getHome = (<$> env "HOME") $ fromMaybe "/home/simongmzlj"
-
-startServices :: [String] -> X ()
-startServices cmds = whenPrimaryX $ io (spawnService <$> pidSet) >>= forM_ cmds
-
-spawnService :: Set (String, Int) -> String -> X ()
-spawnService pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
+getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
 
 primaryX :: IO Bool
 primaryX = maybe False (== ":0") <$> env "DISPLAY"
+
+startServices :: [String] -> X ()
+startServices cmds = whenPrimaryX $
+    io (service <$> pidSet) >>= forM_ cmds
+  where
+    service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
 
 whenPrimaryX :: X () -> X ()
 whenPrimaryX f = io primaryX >>= flip when f
