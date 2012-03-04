@@ -89,7 +89,7 @@ imClients = composeAs Any
 myFloats :: Query Bool
 myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Wine" ]
+                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes" ]
 
 myTerminal    = "urxvtc"
 myBorderWidth = 2
@@ -142,21 +142,18 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
 
 myRules ws rect = manageDocks
     <+> scratchpadManageHook rect
-    <+> manageFloats myFloats
     <+> workspaceShift ws
     <+> composeAll
         [ className =? "Transmission-gtk" --> doShift "work"
         , resource  =? "desktop_window"   --> doIgnore
-        , isFirefoxPreferences            --> doCenterFloat
-        , isFullscreen                    --> doFullFloat
         ]
-  where
-    manageFloats floats = do
-        f <- floats
-        d <- isDialog
-        if not (f || d)
-           then insertPosition Below Newer
-           else if d then doFloat else doCenterFloat
+    <+> composeOneCaught (insertPosition Below Newer)
+        [ className =? "Wine"  -?> doFloat
+        , myFloats             -?> doCenterFloat
+        , isFirefoxPreferences -?> doCenterFloat
+        , isDialog             -?> doCenterFloat
+        , isFullscreen         -?> doFullFloat
+        ]
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients

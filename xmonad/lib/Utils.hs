@@ -43,14 +43,14 @@ to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 queryAny :: Eq a => Query a -> [a] -> Query Bool
 queryAny q xs = foldl1 (<||>) $ (q =?) <$> xs
 
-(-|>) :: (Monad m, Monoid a) => m Bool -> (m a, m a) -> m a
-p -|> (f1, f2) = p >>= \b -> if b then f1 else f2
-
 (~?) :: (Functor f) => f String -> String -> f Bool
 q ~? x = (=~ x) <$> q
 
 prefixed :: (Functor f) => f String -> String -> f Bool
 q `prefixed` x = (x `isPrefixOf`) <$> q
+
+composeOneCaught :: ManageHook -> [MaybeManageHook] -> ManageHook
+composeOneCaught f h = composeOne $ h ++ [ Just <$> f ]
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"
