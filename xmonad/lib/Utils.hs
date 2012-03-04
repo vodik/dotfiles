@@ -3,13 +3,13 @@
 module Utils where
 
 import Control.Applicative
-import Control.Monad
 import Control.Concurrent
+import Control.Monad
 import Data.List
 import Data.Maybe
 import Data.Monoid
+import System.Environment (getEnvironment)
 import Text.Regex.Posix ((=~))
-import qualified Data.Map as M
 
 import XMonad
 import XMonad.Hooks.ManageHelpers
@@ -20,15 +20,7 @@ import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
-import Workspaces
-
-data Tweaks = Tweaks
-    { mainWidth  :: Rational
-    , imWidth    :: Rational
-    , imGrid     :: Double
-    , masterN    :: Int
-    , wsModifier :: [Workspace] -> [Workspace]
-    }
+import Proc
 
 data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
 
@@ -77,3 +69,21 @@ getSortByIndexWithoutNSP = getSortByIndex >>= \s ->
 
 delayedSpawn :: Int -> String -> X ()
 delayedSpawn d cmd = liftIO (threadDelay d) >> spawn cmd
+
+env :: String -> IO (Maybe String)
+env = (<$> getEnvironment) . lookup
+
+getBrowser :: String -> IO String
+getBrowser = (<$> env "BROWSER") . fromMaybe
+
+getHome :: IO String
+getHome = (<$> env "HOME") $ fromMaybe "/home/simongmzlj"
+
+services :: [String] -> X ()
+services cmds = io primaryX >>= flip when (mapM_ spawnOnce cmds)
+
+spawnOnce :: String -> X ()
+spawnOnce cmd = io (pgrep cmd) >>= \pids -> if null $ pids then spawn cmd else return ()
+
+primaryX :: IO Bool
+primaryX = maybe False (== ":0") <$> env "DISPLAY"

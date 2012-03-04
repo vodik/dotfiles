@@ -1,7 +1,7 @@
 import Control.Applicative
 import Control.Monad
+import Data.Maybe
 import Data.Monoid
-import System.Environment
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
@@ -30,7 +30,7 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.TrackFloating
 import XMonad.Prompt
-import XMonad.Prompt.Shell
+import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
@@ -51,7 +51,7 @@ import Utils
 
 myWorkspaces :: [Workspace]
 myWorkspaces =
-    [ Workspace "work"  [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar" ]
+    [ Workspace "work"  [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
                         , title     =? "MusicBrainz Picard"
                         , className ~? "^[Ll]ibre[Oo]ffice"
                         ]
@@ -91,7 +91,7 @@ imClients = composeAs Any
 myFloats :: Query Bool
 myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-                         , "Nvidia-settings", "Arandr", "Gimp", "Rbutil", "zsnes", "Wine" ]
+                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Wine" ]
 
 myTerminal    = "urxvtc"
 myBorderWidth = 2
@@ -162,13 +162,7 @@ myRules ws rect = manageDocks
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setWMName "LG3D"
-    <+> do
-        disp <- io $ getEnv "DISPLAY"
-        when (disp == ":0") $ mapM_ spawn
-            [ "pgrep mpd     || exec mpd"
-            , "pgrep urxvtd  || exec urxvtd"
-            , "pgrep udiskie || exec udiskie"
-            ]
+    <+> services [ "mpd", "urxvtd", "udiskie" ]
     <+> setQuery "chat" imClients
     <+> setQuery "work" workSort
   where
@@ -330,9 +324,8 @@ myGSConfig = defaultGSConfig
     }
 
 main = do
-    -- checkTopicConfig myTopics myTopicConfig
     tweaks  <- getTweaks
-    browser <- getBrowser
+    browser <- getBrowser "firefox"
     wsInfo  <- getPPInfo $ ws' tweaks
     screen  <- head <$> (openDisplay "" >>= getScreenInfo)
     dzenbar <- spawnPipe $ myDzen screen
