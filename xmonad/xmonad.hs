@@ -2,6 +2,7 @@ import Control.Applicative
 import Control.Monad
 import Data.Maybe
 import Data.Monoid
+import System.Environment
 import System.Exit
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M

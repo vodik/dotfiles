@@ -19,7 +19,7 @@ isEmpty = isNothing . W.stack
 isNonEmpty :: WindowSpace -> Bool
 isNonEmpty = isJust . W.stack
 
-mkWSI :: [(WindowSpace -> Bool)] -> CW.WSType
+mkWSI :: [WindowSpace -> Bool] -> CW.WSType
 mkWSI = CW.WSIs . return . foldr1 (liftA2 (&&))
 
 moveTo :: CW.Direction1D -> [String] -> X ()
