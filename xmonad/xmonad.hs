@@ -146,6 +146,7 @@ myRules ws rect = manageDocks
     <+> workspaceShift ws
     <+> composeAll
         [ className =? "Transmission-gtk" --> doShift "work"
+        , className =? "MPlayer"          --> doCopy [ "NSP" ]
         , resource  =? "desktop_window"   --> doIgnore
         ]
     <+> composeOneCaught (insertPosition Below Newer)
