@@ -49,16 +49,15 @@ toggleCopy ws = do
     wset <- gets windowset
     let cur  = W.tag . W.workspace $ W.current wset
         set  = allNonEmpty ws wset
-        tags = filter (/= cur) . map W.tag $ set
+        tags = filter (/= cur) $ map W.tag set
     if cpys /= tags
         then windows $ ($ set) . foldr (copy . W.tag)
         else killAllOtherCopies
 
 doCopy :: [WorkspaceId] -> ManageHook
 doCopy ws = ask >>= \w -> do
-    wset <- liftX $ gets windowset
-    let set = allNonEmpty ws wset
-    doF $ \s -> foldr (copyWindow w) s . map W.tag $ set
+    wset <- liftX $ allNonEmpty ws <$> gets windowset
+    doF $ \s -> foldr (copyWindow w) s $ map W.tag wset
 
 filterWSI :: [a -> Bool] -> [a] -> [a]
 filterWSI = foldr1 (.) . map filter
