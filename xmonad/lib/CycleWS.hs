@@ -1,6 +1,7 @@
 module CycleWS where
 
 import Control.Applicative
+import Control.Arrow
 import Data.Maybe
 
 import XMonad
@@ -20,7 +21,7 @@ isNonEmpty :: WindowSpace -> Bool
 isNonEmpty = isJust . W.stack
 
 mkWSI :: [WindowSpace -> Bool] -> CW.WSType
-mkWSI = CW.WSIs . return . foldr1 (liftA2 (&&))
+mkWSI = foldr1 (liftA2 (&&)) >>> return >>> CW.WSIs
 
 moveTo :: CW.Direction1D -> [WorkspaceId] -> X ()
 moveTo dir ws = CW.moveTo dir $ mkWSI [ skipWS ws ]
@@ -60,7 +61,7 @@ doCopy ws = ask >>= \w -> do
     doF $ \s -> foldr (copyWindow w . W.tag) s wset
 
 filterWSI :: [a -> Bool] -> [a] -> [a]
-filterWSI = foldr1 (.) . map filter
+filterWSI = map filter >>> foldr1 (.)
 
 allNonEmpty :: [String] -> W.StackSet WorkspaceId (Layout Window) Window s sd -> [WindowSpace]
-allNonEmpty ws = filterWSI [ isNonEmpty, skipWS ws ] . W.workspaces
+allNonEmpty ws = W.workspaces >>> filterWSI [ isNonEmpty, skipWS ws ]

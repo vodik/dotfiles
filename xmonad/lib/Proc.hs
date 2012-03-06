@@ -1,6 +1,7 @@
 module Proc where
 
 import Control.Applicative
+import Control.Arrow
 import Control.Monad
 import Control.Monad.List
 import Data.Char
@@ -14,7 +15,7 @@ findCmd :: String -> Set (String, Int) -> Set (String, Int)
 findCmd cmd = S.filter (cmdFilter cmd)
 
 cmdFilter :: String -> (String, Int) -> Bool
-cmdFilter cmd = (cmd `isInfixOf`) . fst
+cmdFilter cmd = fst >>> (cmd `isInfixOf`)
 
 pidSet :: IO (Set (String, Int))
 pidSet = runSetT $ do
