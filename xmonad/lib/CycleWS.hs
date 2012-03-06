@@ -20,6 +20,9 @@ isEmpty = isNothing . W.stack
 isNonEmpty :: WindowSpace -> Bool
 isNonEmpty = isJust . W.stack
 
+filterWSI :: [WindowSpace -> Bool] -> [WindowSpace] -> [WindowSpace]
+filterWSI = map filter >>> foldr1 (.)
+
 mkWSI :: [WindowSpace -> Bool] -> CW.WSType
 mkWSI = foldr1 (liftA2 (&&)) >>> return >>> CW.WSIs
 
@@ -58,10 +61,7 @@ toggleCopy ws = do
 doCopy :: [WorkspaceId] -> ManageHook
 doCopy ws = ask >>= \w -> do
     wset <- liftX $ allNonEmpty ws <$> gets windowset
-    doF $ \s -> foldr (copyWindow w . W.tag) s wset
-
-filterWSI :: [a -> Bool] -> [a] -> [a]
-filterWSI = map filter >>> foldr1 (.)
+    doF $ flip (foldr (copyWindow w . W.tag)) wset
 
 allNonEmpty :: [String] -> W.StackSet WorkspaceId (Layout Window) Window s sd -> [WindowSpace]
 allNonEmpty ws = W.workspaces >>> filterWSI [ isNonEmpty, skipWS ws ]
