@@ -44,6 +44,7 @@ import Gaps
 import GuardLayout
 import GuardLayout.Instances
 import SortWindows
+import Submap
 import Topic
 import Workspaces
 import Utils
@@ -239,17 +240,34 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-x z", spawn "xrandr -s 0")
       , ("M-x x", spawn "xbacklight -set 100%")
       ]
-    , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
-                                  , ("M-S-", windows . W.shift)
-                                  , ("M-C-", windows . copy)
-                                  ]
+
+      -- SUBMAP TEST
+    , [ submapTest ]
+
+    , [ (command m i, f w) | (i, w) <- zip tuples $ workspaces conf
+                           , (m, f) <- [ ("M-",   windows . W.greedyView)
+                                       , ("M-S-", windows . W.shift)
+                                       , ("M-C-", windows . copy)
+                                       ]
       ]
+    -- , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
+    --                   , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
+    --                               , ("M-S-", windows . W.shift)
+    --                               , ("M-C-", windows . copy)
+    --                               ]
+    --   ]
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
   where
     skipWS = [ "NSP" ]
+    tuples = [ (x, y) | x <- [1..], y <- [1..3] ]
+    command m (x, y) = concat [ m, show x, " ", m, show y ]
+
+submapTest = submapP "M-z" defaultSubmapConfig $ M.fromList
+    [ ((0, xK_n), Action $ spawn "mpc next")
+    , ((0, xK_p), Action $ spawn "mpc prev")
+    ]
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
