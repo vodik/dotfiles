@@ -57,7 +57,7 @@ toggleCopy ws = do
 doCopy :: [WorkspaceId] -> ManageHook
 doCopy ws = ask >>= \w -> do
     wset <- liftX $ allNonEmpty ws <$> gets windowset
-    doF $ \s -> foldr (copyWindow w) s $ map W.tag wset
+    doF $ \s -> foldr (copyWindow w . W.tag) s wset
 
 filterWSI :: [a -> Bool] -> [a] -> [a]
 filterWSI = foldr1 (.) . map filter
