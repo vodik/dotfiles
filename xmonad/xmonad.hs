@@ -58,7 +58,7 @@ myWorkspaces =
     , Workspace "code"  [ ]
     , Workspace "chat"  [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
     , Workspace "virt"  [ className =? "VirtualBox" ]
-    , Workspace "games" [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine" ] ]
+    , Workspace "games" [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
     ]
 
 myTopicConfig :: TopicConfig Dir
@@ -90,7 +90,7 @@ imClients = composeAs Any
 myFloats :: Query Bool
 myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes" ]
+                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress" ]
 
 myTerminal    = "urxvtc"
 myBorderWidth = 2
