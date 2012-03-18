@@ -25,9 +25,6 @@ import Control.Applicative ((<$>))
 import System.Environment (getEnvironment)
 import System.Directory (getDirectoryContents)
 import System.FilePath
-import qualified Data.Map as M
-
-import Data.Map (Map)
 
 import XMonad (XConfig, Query, X, LayoutClass, Window, WorkspaceId)
 import XMonad.Actions.TopicSpace

@@ -107,8 +107,8 @@ instance (Condition p, LayoutClass l1 a, LayoutClass l2 a, Show a) => LayoutClas
                            return (wrs, Just $ mkNewPerScreenF p mlt')
 
     handleMessage (GuardLayout ps bool lt lf) m
-        | bool      = handleMessage lt m >>= maybe (return Nothing) (\nt -> return . Just $ GuardLayout ps bool nt lf)
-        | otherwise = handleMessage lf m >>= maybe (return Nothing) (\nf -> return . Just $ GuardLayout ps bool lt nf)
+        | bool      = handleMessage lt m >>= maybe (return Nothing) (return . Just . flip (GuardLayout ps bool) lf)
+        | otherwise = handleMessage lf m >>= maybe (return Nothing) (return . Just . GuardLayout ps bool lt)
 
     description (GuardLayout _ True l1 _) = description l1
     description (GuardLayout _ _    _ l2) = description l2
@@ -119,7 +119,7 @@ checkCondition ws = foldM (\a p -> (a ||) <$> validate ws p) False
 
 -- | Construct new GuardLayout values with possibly modified layouts.
 mkNewPerScreenT :: (Condition p) => GuardLayout p l1 l2 a -> Maybe (l1 a) -> GuardLayout p l1 l2 a
-mkNewPerScreenT (GuardLayout ps _ lt lf) mlt' = (\lt' -> GuardLayout ps True lt' lf) $ fromMaybe lt mlt'
+mkNewPerScreenT (GuardLayout ps _ lt lf) mlt' = flip (GuardLayout ps True) lf $ fromMaybe lt mlt'
 
 mkNewPerScreenF :: (Condition p) => GuardLayout p l1 l2 a -> Maybe (l2 a) -> GuardLayout p l1 l2 a
-mkNewPerScreenF (GuardLayout ps _ lt lf) mlf' = (\lf' -> GuardLayout ps False lt lf') $ fromMaybe lf mlf'
+mkNewPerScreenF (GuardLayout ps _ lt lf) mlf' = GuardLayout ps False lt $ fromMaybe lf mlf'

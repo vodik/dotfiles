@@ -10,8 +10,6 @@ import System.Environment (getEnvironment)
 import System.Directory (getDirectoryContents)
 import System.FilePath
 import System.Posix.Unistd (getSystemID, nodeName)
-import qualified Data.Map as M
-import Data.Map (Map)
 
 import XMonad hiding (workspaces)
 import XMonad.Actions.TopicSpace
@@ -44,11 +42,11 @@ getMachine = do
 
 data W = W String [Query Bool] (Maybe Dir) (Maybe (X ()))
 
-defaultMachine :: String -> [W] -> Machine
-defaultMachine root w = Machine
+defaultMachine :: String -> Tweaks -> [W] -> Machine
+defaultMachine root tweaks w = Machine
     { rootDir       = root
     , workspaces    = [ mkWS i ws | (ws, i) <- zip w [1..] ]
-    , tweaks        = defaultTweaks
+    , tweaks        = tweaks
     , defaultTerm   = "urxvtc"
     }
   where
@@ -61,21 +59,21 @@ defaultMachine root w = Machine
         })
 
 gmzlj :: Dir -> Machine
-gmzlj root = defaultMachine root
-    [ ( W "work"   [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
+gmzlj root = defaultMachine root defaultTweaks
+    [ W "work"   [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
                    , title     =? "MusicBrainz Picard"
                    , className ~? "^[Ll]ibre[Oo]ffice" ]
                    Nothing
-                   (Just $ spawn "firefox") )
-    , ( W "term"   [] Nothing Nothing )
-    , ( W "code"   [] (Just "~/projects") Nothing )
-    , ( W "chat"   [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
+                   (Just $ spawn "firefox")
+    , W "term"   [] Nothing Nothing
+    , W "code"   [] (Just "~/projects") Nothing
+    , W "chat"   [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
                    Nothing
-                   (Just $ spawn "pidgin" >> spawn "skype") )
-    , ( W "virt"   [ className =? "VirtualBox" ]
+                   (Just $ spawn "pidgin" >> spawn "skype")
+    , W "virt"   [ className =? "VirtualBox" ]
                    Nothing
-                   (Just $ spawn "VirtualBox --startvm 'Windows 7'") )
-    , ( W "games"  [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
+                   (Just $ spawn "VirtualBox --startvm 'Windows 7'")
+    , W "games"  [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
                    Nothing
-                   (Just $ spawn "sol") )
+                   (Just $ spawn "sol")
     ]

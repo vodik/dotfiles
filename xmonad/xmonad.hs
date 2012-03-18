@@ -138,7 +138,7 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-p", shellPrompt myXPConfig)
 
       -- quit, or restart
-      , ("M-S-q", io $ exitWith ExitSuccess)
+      , ("M-S-q", io exitSuccess)
       , ("M-S-c", kill1)
       , ("M-C-c", kill)
       , ("M-q",   restart "xmonad" True)
