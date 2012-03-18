@@ -1,14 +1,20 @@
-module Workspaces
-    ( getWorkspaces
-    , filterWS
-    , workspaceShift
-    , workspaceSort
-    , getPPInfo
-    , PPWS
-    , PPInfo (..)
-    , Workspace (..)
-    , Tweaks (..)
-    ) where
+{-# LANGUAGE ExistentialQuantification #-}
+
+{-# LANGUAGE FlexibleContexts #-}
+
+module Workspaces where
+
+-- module Workspaces
+--     ( getWorkspaces
+--     , filterWS
+--     , workspaceShift
+--     , workspaceSort
+--     , getPPInfo
+--     , PPWS
+--     , PPInfo (..)
+--     , Workspace (..)
+--     , Tweaks (..)
+--     ) where
 
 import Control.Monad
 import Control.Monad.List
@@ -21,9 +27,12 @@ import System.Directory (getDirectoryContents)
 import System.FilePath
 import qualified Data.Map as M
 
-import XMonad hiding (trace)
+import Data.Map (Map)
+
+import XMonad (XConfig, Query, X, LayoutClass, Window, WorkspaceId)
 import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
+import qualified XMonad as X
 
 import SortWindows
 import Utils
@@ -33,46 +42,32 @@ data Tweaks = Tweaks
     , imWidth    :: Rational
     , imGrid     :: Double
     , masterN    :: Int
-    , wsModifier :: [Workspace] -> [Workspace]
     }
 
-type PPWS      = (Int, String)
-type PPInfoMap = M.Map String PPWS
-
-data PPInfo = PPInfo
-    { getWSInfo :: String -> Maybe PPWS
-    , getLayout :: String -> String
+data WS = WS
+    { wsIndex  :: Int
+    , wsIcon   :: Maybe String
+    , wsRules  :: [Query Bool]
+    , wsDir    :: Maybe Dir
+    , wsAction :: Maybe (X ())
     }
 
-data Workspace = Workspace
-    { getWSName :: Topic
-    , getRules  :: [Query Bool]
+defaultTweaks = Tweaks
+    { mainWidth = 1/2
+    , imWidth   = 1/5
+    , imGrid    = 2/3
+    , masterN   = 2
     }
 
-getWorkspaces :: [Workspace] -> [String]
-getWorkspaces = map getWSName
+class Profile a where
+    getTweaks     :: a -> Tweaks
+    getWSNames    :: a -> [WorkspaceId]
+    getWorkspace  :: a -> WorkspaceId -> Maybe WS
+    getTerminal   :: a -> String
+    getLayoutIcon :: a -> String -> String
 
-filterWS :: String -> [Workspace] -> [Workspace]
-filterWS name = filter $ (name /=) . getWSName
-
-workspaceShift :: [Workspace] -> ManageHook
-workspaceShift (Workspace n prop:xs) =
-    composeAll [ p --> doShift n | p <- prop ] <+> workspaceShift xs
-workspaceShift [] = idHook
-
-workspaceSort :: Workspace -> Query Any
-workspaceSort (Workspace _ prop) = composeAs Any prop
-
-buildWSInfo :: FilePath -> [Workspace] -> [(WorkspaceId, PPWS)]
-buildWSInfo root ws = do
-    (Workspace n _, pos) <- zip ws [1..]
-    let icon = root </> n ++ ".xbm"
-    return (n, (pos, icon))
-
-getPPInfo :: [Workspace] -> IO PPInfo
-getPPInfo ws = do
-    root <- (++ "/.xmonad/icons") <$> getHome
-    return PPInfo
-        { getWSInfo = \l -> M.lookup l . M.fromList $ buildWSInfo root ws
-        , getLayout = (root </>) . ("layout-" ++) . (++ ".xbm")
-        }
+applyProfile :: (LayoutClass l Window, Profile c) => c -> XConfig l -> XConfig l
+applyProfile conf xconf = xconf
+    { X.workspaces = to9 $ getWSNames conf
+    , X.terminal   = getTerminal conf
+    }

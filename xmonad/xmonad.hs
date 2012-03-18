@@ -37,6 +37,7 @@ import XMonad.Util.Scratchpad
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
+import Machine
 import BalancedTile
 import CycleWS
 import Dzen2
@@ -44,41 +45,14 @@ import Gaps
 import GuardLayout
 import GuardLayout.Instances
 import SortWindows
-import Topic
 import Workspaces
 import Utils
 
-myWorkspaces :: [Workspace]
-myWorkspaces =
-    [ Workspace "work"  [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
-                        , title     =? "MusicBrainz Picard"
-                        , className ~? "^[Ll]ibre[Oo]ffice"
-                        ]
-    , Workspace "term"  [ ]
-    , Workspace "code"  [ ]
-    , Workspace "chat"  [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
-    , Workspace "virt"  [ className =? "VirtualBox" ]
-    , Workspace "games" [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
-    ]
+-- spawnShell :: X ()
+-- spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
 
-myTopicConfig :: TopicConfig Dir
-myTopicConfig = defaultTopicConfig
-    { topicDirs = M.fromList [ ("code", "~/projects") ]
-    , defaultTopic = "work"
-    , defaultTopicAction = const $ spawnShell >*> 3
-    , topicActions = M.fromList
-        [ ("work",  spawn "firefox")
-        , ("chat",  spawn "pidgin" >> spawn "skype")
-        , ("virt",  spawn "VirtualBox --startvm 'Windows 7'")
-        , ("games", spawn "sol")
-        ]
-    }
-
-spawnShell :: X ()
-spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
-
-spawnShellIn :: Dir -> X ()
-spawnShellIn dir = asks (terminal . config) >>= \t -> spawn $ "cd " ++ dir ++ " && exec " ++ t
+-- spawnShellIn :: Dir -> X ()
+-- spawnShellIn dir = asks (terminal . config) >>= \t -> spawn $ "cd " ++ dir ++ " && exec " ++ t
 
 imClients :: Query Any
 imClients = composeAs Any
@@ -96,14 +70,6 @@ myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
 
-defaultTweaks = Tweaks
-    { mainWidth  = 1/2
-    , imWidth    = 1/5
-    , imGrid     = 2/3
-    , masterN    = 2
-    , wsModifier = id
-    }
-
 xftFont         = "xft:Envy Code R:size=9"
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
@@ -120,7 +86,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
+myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
     . onWorkspace "work"  (mstr tabs ||| tiled)
     . onWorkspace "term"  (mtiled ||| tiled)
     . onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
@@ -138,12 +104,11 @@ myLayoutRules tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFUL
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
     tag t  = renamed [ PrependWords t ]
-    sort   = workspaceSort $ head myWorkspaces
     step   = 1/50
 
 myRules ws rect = manageDocks
     <+> scratchpadManageHook rect
-    <+> workspaceShift ws
+    -- <+> workspaceShift ws
     <+> composeAll
         [ className =? "Transmission-gtk" --> doShift "work"
         , className =? "MPlayer"          --> doCopy [ "NSP" ]
@@ -159,14 +124,14 @@ myRules ws rect = manageDocks
 
 myStartupHook = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
-    <+> setQuery "work" workSort
+    -- <+> setQuery "work" workSort
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
   where
-    workSort = workspaceSort $ head myWorkspaces
+    -- workSort = workspaceSort $ head myWorkspaces
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
-      , ("M-S-<Return>", currentTopicAction myTopicConfig)
+      -- , ("M-S-<Return>", currentTopicAction myTopicConfig)
       , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
@@ -239,12 +204,12 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-x z", spawn "xrandr -s 0")
       , ("M-x x", spawn "xbacklight -set 100%")
       ]
-    , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
-                                  , ("M-S-", windows . W.shift)
-                                  , ("M-C-", windows . copy)
-                                  ]
-      ]
+    -- , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
+    --                   , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
+    --                               , ("M-S-", windows . W.shift)
+    --                               , ("M-C-", windows . copy)
+    --                               ]
+    --   ]
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
@@ -282,7 +247,7 @@ myPP ppInfo = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon ppInfo True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon ppInfo False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenPPLayout ppInfo colorRed colorBlue colorBlack . words
+    -- , ppLayout          = dzenPPLayout ppInfo colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = getSortByIndexWithoutNSP
@@ -319,29 +284,33 @@ myGSConfig = defaultGSConfig
     , gs_cellpadding = 10
     }
 
+applyUrgency = withUrgencyHookC (BorderUrgencyHook colorRed)
+    urgencyConfig { suppressWhen = Focused }
+
+getScreen = head <$> (openDisplay "" >>= getScreenInfo)
+
+startDzen = spawnPipe . myDzen
+
 main = do
-    tweaks  <- getTweaks
+    machine <- getMachine
+    screen  <- getScreen
     browser <- getBrowser "firefox"
-    wsInfo  <- getPPInfo $ ws' tweaks
-    screen  <- head <$> (openDisplay "" >>= getScreenInfo)
-    dzenbar <- spawnPipe $ myDzen screen
-    xmonad . withUrgencyHookC (BorderUrgencyHook colorRed) urgencyConfig { suppressWhen = Focused } $ defaultConfig
-        { manageHook         = myRules (ws' tweaks) (positionRationalRect screen)
+    dzenbar <- startDzen screen
+
+    let tweaks  = getTweaks machine
+    xmonad . applyProfile machine . applyUrgency $ defaultConfig
+        { manageHook         = myRules tweaks (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules tweaks
-        , logHook            = myLogHook wsInfo dzenbar
+        , layoutHook         = myLayoutRules (Any <?> return False) tweaks
+        -- , logHook            = myLogHook wsInfo dzenbar
         , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
-        , terminal           = myTerminal
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
-        , workspaces         = to9 . getWorkspaces $ ws' tweaks
         , focusFollowsMouse  = True
         }
-  where
-    ws' t = wsModifier t myWorkspaces
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) = "dzen2 " ++ unwords
@@ -367,25 +336,16 @@ positionRationalRect (Rectangle sx sy sw sh) =
   where
     fi = fromIntegral
 
-getTweaks :: IO Tweaks
-getTweaks = do
-    hostName <- nodeName <$> getSystemID
-    return $ case hostName of
-        "vodik" -> vodikTweaks
-        "gmzlj" -> gmzljTweaks
-        "beno"  -> benoTweaks
-        _       -> defaultTweaks
+-- vodikTweaks = defaultTweaks
+--     { mainWidth  = 2/3
+--     }
 
-vodikTweaks = defaultTweaks
-    { mainWidth  = 2/3
-    }
+-- gmzljTweaks = defaultTweaks
+--     { imWidth    = 1/4
+--     , imGrid     = 3/2
+--     , wsModifier = filterWS "virt"
+--     }
 
-gmzljTweaks = defaultTweaks
-    { imWidth    = 1/4
-    , imGrid     = 3/2
-    , wsModifier = filterWS "virt"
-    }
-
-benoTweaks = defaultTweaks
-    { masterN  = 3
-    }
+-- benoTweaks = defaultTweaks
+--     { masterN  = 3
+--     }
