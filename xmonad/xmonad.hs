@@ -205,12 +205,12 @@ myKeys browser conf = mkKeymap conf $ concat
       , ("M-x z", spawn "xrandr -s 0")
       , ("M-x x", spawn "xbacklight -set 100%")
       ]
-    -- , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ workspaces conf
-    --                   , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
-    --                               , ("M-S-", windows . W.shift)
-    --                               , ("M-C-", windows . copy)
-    --                               ]
-    --   ]
+    , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ XMonad.workspaces conf
+                      , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
+                                  , ("M-S-", windows . W.shift)
+                                  , ("M-C-", windows . copy)
+                                  ]
+      ]
     , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
     ]
@@ -285,9 +285,10 @@ myGSConfig = defaultGSConfig
     , gs_cellpadding = 10
     }
 
-applyUrgency = withUrgencyHookC (BorderUrgencyHook colorRed)
-    urgencyConfig { suppressWhen = Focused }
+applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
+    where conf = urgencyConfig { suppressWhen = Focused }
 
+getScreen :: IO Rectangle
 getScreen = head <$> (openDisplay "" >>= getScreenInfo)
 
 startDzen :: MonadIO m => Rectangle -> m Handle
@@ -300,7 +301,7 @@ main = do
     dzenbar <- startDzen screen
 
     let tweaks  = getTweaks machine
-    xmonad . applyProfile machine . applyUrgency $ defaultConfig
+    xmonad . applyProfile machine . applyUrgency colorRed $ defaultConfig
         { manageHook         = myRules tweaks (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules (Any <?> return False) tweaks
