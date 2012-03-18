@@ -4,7 +4,7 @@ import Control.Monad
 import Control.Monad.List
 import Data.Monoid
 import Data.List (isPrefixOf)
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import Control.Applicative ((<$>))
 import System.Environment (getEnvironment)
 import System.Directory (getDirectoryContents)
@@ -23,37 +23,38 @@ import Workspaces
 
 data Machine = Machine
     { rootDir     :: String
-    , workspaces  :: Map WorkspaceId WS
+    , workspaces  :: [(WorkspaceId, WS)]
     , tweaks      :: Tweaks
     , defaultTerm :: String
     }
 
 instance Profile Machine where
     getTweaks         = tweaks
-    getWSNames        = M.keys . workspaces
-    getWorkspace p ws = M.lookup ws (workspaces p)
+    getWSNames        = map fst . workspaces
+    getWorkspace p ws = lookup ws (workspaces p)
     getLayoutIcon p   = (rootDir p </>) . ("/icons" </>) . ("layout-" ++) . (++ ".xbm")
     getTerminal       = defaultTerm
 
 getMachine :: IO Machine
 getMachine = do
     host <- nodeName <$> getSystemID
-    root <- (</> "/.xmonad/") <$> getHome
+    root <- (</> ".xmonad/") <$> getHome
     return $ case host of
         _ -> gmzlj root
 
 data W = W String [Query Bool] (Maybe Dir) (Maybe (X ()))
 
+defaultMachine :: String -> [W] -> Machine
 defaultMachine root w = Machine
     { rootDir       = root
-    , workspaces    = M.fromList $ [ mkWS i ws | (ws, i) <- zip w [1..] ]
+    , workspaces    = [ mkWS i ws | (ws, i) <- zip w [1..] ]
     , tweaks        = defaultTweaks
     , defaultTerm   = "urxvtc"
     }
   where
     mkWS i (W name r d x) = (name, WS
         { wsIndex  = i
-        , wsIcon   = Nothing
+        , wsIcon   = Just $ root </> "icons/" </> name <.> ".xbm"
         , wsRules  = r
         , wsDir    = d
         , wsAction = x

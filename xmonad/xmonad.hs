@@ -4,6 +4,7 @@ import Data.Maybe
 import Data.Monoid
 import System.Environment
 import System.Exit
+import System.IO
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
 
@@ -237,15 +238,15 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-myLogHook ppInfo output =
-    dynamicLogWithPP $ (myPP ppInfo) { ppOutput = hPutStrLn output }
+myLogHook machine output =
+    dynamicLogWithPP $ (myPP machine) { ppOutput = hPutStrLn output }
 
-myPP ppInfo = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon ppInfo True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon ppInfo True
-    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon ppInfo True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon ppInfo True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon ppInfo False
+myPP machine = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon machine True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon machine True
+    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon machine True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon machine True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon machine False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     -- , ppLayout          = dzenPPLayout ppInfo colorRed colorBlue colorBlack . words
     , ppSep             = ""
@@ -289,6 +290,7 @@ applyUrgency = withUrgencyHookC (BorderUrgencyHook colorRed)
 
 getScreen = head <$> (openDisplay "" >>= getScreenInfo)
 
+startDzen :: MonadIO m => Rectangle -> m Handle
 startDzen = spawnPipe . myDzen
 
 main = do
@@ -302,7 +304,7 @@ main = do
         { manageHook         = myRules tweaks (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules (Any <?> return False) tweaks
-        -- , logHook            = myLogHook wsInfo dzenbar
+        , logHook            = myLogHook machine dzenbar
         , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser

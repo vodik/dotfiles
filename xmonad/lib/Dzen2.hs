@@ -9,19 +9,23 @@ import Data.Maybe
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
-import XMonad
+import Debug.Trace
+import XMonad hiding (trace)
 import XMonad.Hooks.DynamicLog
 
 import Workspaces
 
-dzenWSIcon :: WS -> Bool -> String -> String
-dzenWSIcon ws showAll c = fromMaybe without $ do
-    icon  <- wsIcon ws
-    let index = wsIndex ws
-    return . dzenAction 1 (cmd index) . pad . (++ ' ' : c) $ dzenIcon icon
+dzenWSIcon :: Profile p => p -> Bool -> String -> String
+dzenWSIcon profile showAll name =
+    fromMaybe without $ do
+        info <- getWorkspace profile name
+        icon <- wsIcon info
+        let index = wsIndex info
+        return . dzenAction 1 (show index)
+               . pad . (++ ' ' : name) $ dzenIcon icon
   where
     cmd n = "xdotool key super+" ++ show n
-    without | showAll   = dzenAction 1 (cmd c) $ pad c
+    without | showAll   = dzenAction 1 (cmd name) $ pad name
             | otherwise = ""
 
 -- TODO: first arg was PPInfo
