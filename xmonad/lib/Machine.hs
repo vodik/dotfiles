@@ -32,7 +32,7 @@ instance Profile Machine where
     getTweaks         = tweaks
     getWSNames        = map fst . workspaces
     getWorkspace p ws = lookup ws (workspaces p)
-    getLayoutIcon p   = (rootDir p </>) . ("/icons" </>) . ("layout-" ++) . (++ ".xbm")
+    getLayoutIcon p   = (rootDir p </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
     getTerminal       = defaultTerm
 
 getMachine :: IO Machine
