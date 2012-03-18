@@ -21,8 +21,7 @@ dzenWSIcon profile showAll name =
         info <- getWorkspace profile name
         icon <- wsIcon info
         let index = wsIndex info
-        return . dzenAction 1 (cmd $ show index)
-               . pad . (++ ' ' : name) $ dzenIcon icon
+        return . dzenAction 1 (cmd index) . pad . (++ ' ' : name) $ dzenIcon icon
   where
     cmd n = "xdotool key super+" ++ show n
     without | showAll   = dzenAction 1 (cmd name) $ pad name
