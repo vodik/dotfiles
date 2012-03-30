@@ -38,7 +38,6 @@ import XMonad.Util.Scratchpad
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
-import Machine
 import BalancedTile
 import CycleWS
 import Dzen2
@@ -243,17 +242,17 @@ favouritesList =
     , ("a", "http://www.arstechnica.com")
     ]
 
-myLogHook machine output =
-    dynamicLogWithPP $ (myPP machine) { ppOutput = hPutStrLn output }
+myLogHook res output =
+    dynamicLogWithPP $ (myPP res) { ppOutput = hPutStrLn output }
 
-myPP machine = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon machine True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon machine True
-    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon machine True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon machine True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon machine False
+myPP res = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon res True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon res True
+    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon res True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon res True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon res False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenPPLayout machine colorRed colorBlue colorBlack . words
+    , ppLayout          = dzenPPLayout res colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = getSortByIndexWithoutNSP
@@ -299,13 +298,13 @@ getScreen = head <$> (openDisplay "" >>= getScreenInfo)
 startDzen :: MonadIO m => Rectangle -> m Handle
 startDzen = spawnPipe . myDzen
 
-getMachine' = buildTags $ do
+getMachine = buildTags $ do
     tag  "work"  $ Work :> work
     tag1 "term"  $ Terminals Nothing
     tag1 "code"  $ Terminals (Just "~/projects")
     tag  "chat"  $ Chat :> chat
     tag  "virt"  $ Topic "VirtualBox --startvm 'Windows 7'" :> virt
-    tag " games" $ Topic "sol" :> games
+    tag  "games" $ Topic "sol" :> games
   where
     work  = [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
             , title     =? "MusicBrainz Picard"
@@ -317,21 +316,22 @@ getMachine' = buildTags $ do
 ws = map fst
 
 main = do
-    machine <- getMachine
+    (t, r)  <- getMachine
     screen  <- getScreen
     browser <- getBrowser "firefox"
     dzenbar <- startDzen screen
 
-    let tweaks  = getTweaks machine
+    -- let tweaks  = getTweaks machine
+    let tweaks  = defaultTweaks
     xmonad . applyUrgency colorRed $ defaultConfig
         { manageHook         = myRules tweaks (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules (Any <?> return False) tweaks
-        , logHook            = myLogHook machine dzenbar
+        , logHook            = myLogHook r dzenbar
         , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
-        , XMonad.workspaces         = to9 $ ws $ getMachine'
+        , workspaces         = to9 $ tagSet t
         , terminal           = "urxvtc"
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray

@@ -44,22 +44,6 @@ data Tweaks = Tweaks
     , masterN    :: Int
     }
 
-data WS = WS
-    { wsIndex  :: Int
-    , wsIcon   :: Maybe String
-    , wsRules  :: [Query Bool]
-    , wsDir    :: Maybe Dir
-    , wsAction :: Maybe (X ())
-    }
-
-data WSOp = WSOp
-    { getIndex  :: String -> Int
-    , getIcon   :: String -> Maybe String
-    , getRules  :: String -> [Query Bool]
-    , getDir    :: String -> Maybe Dir
-    , getAction :: String -> Maybe (X ())
-    }
-
 defaultTweaks = Tweaks
     { mainWidth = 1/2
     , imWidth   = 1/5
@@ -67,32 +51,50 @@ defaultTweaks = Tweaks
     , masterN   = 2
     }
 
-class Profile a where
-    getTweaks     :: a -> Tweaks
-    getWSNames    :: a -> [WorkspaceId]
-    getWorkspace  :: a -> WorkspaceId -> Maybe WS
-    getTerminal   :: a -> String
-    getLayoutIcon :: a -> String -> String
-
 class Workspace a where
     action :: a -> X ()
+    rules  :: a -> [Query Bool]
+    rules _ = []
 
 data Tag = forall a. (Workspace a) => Tag a
          | forall a. (Workspace a) => a :> [Query Bool]
 
--- infixr 0 $=, $>
--- infixr 1 :>
-
 instance Workspace Tag where
+    action (Tag  a) = action a
     action (a :> _) = action a
 
-type WSGenT = WriterT [(String, Tag)]
-type WSGen  = Writer  [(String, Tag)]
+    rules (Tag  _) =  []
+    rules (a :> _) = rules a
 
+type WSGenT = WriterT [(WorkspaceId, Tag)]
+
+tag1 :: (MonadWriter [(WorkspaceId, Tag)] m, Workspace w) => String -> w -> m ()
 tag1 n t = tell [(n, Tag t)]
+
+tag :: MonadWriter [(WorkspaceId, Tag)] m => String -> Tag -> m ()
 tag  n t = tell [(n, t)]
 
-buildTags = execWriter
+data TagData = TagData
+    { tagSet :: [WorkspaceId]
+    , getTag :: WorkspaceId -> Maybe Tag
+    }
 
--- mkSpawner :: [Tag] -> M.Map String (X ())
--- mkSpawner = M.fromList . map (\(n :>> a) -> (n, action a))
+data Resources = Resources
+    { layoutIcon    :: String -> FilePath
+    , workspaceData :: String -> Maybe (Int, Maybe FilePath)
+    }
+
+buildTags :: MonadIO m => WSGenT m () -> m (TagData, Resources)
+buildTags gen = do
+    info <- execWriterT gen
+    root <- liftM (</> ".xmonad/") $ liftIO getHome
+    let t = TagData { tagSet = map fst info
+                    , getTag = (`M.lookup` M.fromList info)
+                    }
+        r = Resources { layoutIcon    = (root </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
+                      , workspaceData = (`M.lookup` wsData root info)
+                      }
+    return (t, r)
+  where
+    wsData r info = M.fromList $ [ (x, (i, f r x)) | (i, x) <- zip [1..] $ map fst info ]
+    f root = Just . (root </>) . ("icons/" </>) . (<.> ".xbm")
