@@ -46,8 +46,13 @@ import Gaps
 import GuardLayout
 import GuardLayout.Instances
 import SortWindows
-import Workspaces
 import Utils
+
+import Workspaces
+import Workspaces.Chat
+import Workspaces.Terminals
+import Workspaces.Topic
+import Workspaces.Work
 
 -- spawnShell :: X ()
 -- spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
@@ -294,6 +299,23 @@ getScreen = head <$> (openDisplay "" >>= getScreenInfo)
 startDzen :: MonadIO m => Rectangle -> m Handle
 startDzen = spawnPipe . myDzen
 
+getMachine' = buildTags $ do
+    tag  "work"  $ Work :> work
+    tag1 "term"  $ Terminals Nothing
+    tag1 "code"  $ Terminals (Just "~/projects")
+    tag  "chat"  $ Chat :> chat
+    tag  "virt"  $ Topic "VirtualBox --startvm 'Windows 7'" :> virt
+    tag " games" $ Topic "sol" :> games
+  where
+    work  = [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
+            , title     =? "MusicBrainz Picard"
+            , className ~? "^[Ll]ibre[Oo]ffice" ]
+    chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
+    virt  = [ className =? "VirtualBox" ]
+    games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
+
+ws = map fst
+
 main = do
     machine <- getMachine
     screen  <- getScreen
@@ -301,7 +323,7 @@ main = do
     dzenbar <- startDzen screen
 
     let tweaks  = getTweaks machine
-    xmonad . applyProfile machine . applyUrgency colorRed $ defaultConfig
+    xmonad . applyUrgency colorRed $ defaultConfig
         { manageHook         = myRules tweaks (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules (Any <?> return False) tweaks
@@ -309,6 +331,8 @@ main = do
         , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
+        , XMonad.workspaces         = to9 $ ws $ getMachine'
+        , terminal           = "urxvtc"
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
