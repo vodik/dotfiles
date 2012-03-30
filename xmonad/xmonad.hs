@@ -127,12 +127,10 @@ myRules ws rect = manageDocks
         , isFullscreen         -?> doFullFloat
         ]
 
-myStartupHook = setDefaultCursor xC_left_ptr
+myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
-    -- <+> setQuery "work" workSort
+    <+> setQuery "work" sort
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
-  where
-    -- workSort = workspaceSort $ head myWorkspaces
 
 myKeys browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
@@ -323,13 +321,15 @@ main = do
     dzenbar <- startDzen screen
 
     -- let tweaks  = getTweaks machine
-    let tweaks  = defaultTweaks
+    let tweaks = defaultTweaks
+        sort   = workspaceSort "work" machine
+
     xmonad . applyUrgency colorRed $ defaultConfig
         { manageHook         = myRules machine (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
-        , layoutHook         = myLayoutRules (Any <?> return False) tweaks
+        , layoutHook         = myLayoutRules sort tweaks
         , logHook            = myLogHook res dzenbar
-        , startupHook        = myStartupHook
+        , startupHook        = myStartupHook sort
         , modMask            = myModMask
         , keys               = myKeys browser
         , workspaces         = to9 $ tagSet machine

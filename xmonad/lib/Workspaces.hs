@@ -98,3 +98,6 @@ mkResources info = do
 
 workspaceShift :: [(WorkspaceId, Tag)] -> ManageHook
 workspaceShift = foldr (\(w, t) -> (composeAll [ r --> doShift w | r <- rules t ] <+>)) idHook
+
+workspaceSort :: WorkspaceId -> [(WorkspaceId, Tag)] -> Query Any
+workspaceSort w ws = composeAs Any . fromMaybe [] $ rules <$> lookup w ws
