@@ -79,17 +79,13 @@ data Resources = Resources
     , workspaceData :: String -> Maybe (Int, Maybe FilePath)
     }
 
+tagSet :: [(WorkspaceId, Tag)] -> [WorkspaceId]
 tagSet = map fst
 
-workspaceShift :: [(WorkspaceId, Tag)] -> ManageHook
-workspaceShift = foldr f idHook
-    where f (w, t) xs = composeAll [ r --> doShift w | r <- rules t ] <+> xs
-
 buildTags :: MonadIO m => WSGenT m () -> m [(WorkspaceId, Tag)]
-buildTags gen = do
-    info <- execWriterT gen
-    return info
+buildTags = execWriterT
 
+mkResources :: MonadIO m => [(WorkspaceId, Tag)] -> m Resources
 mkResources info = do
     root <- liftM (</> ".xmonad/") $ liftIO getHome
     return Resources
@@ -97,8 +93,8 @@ mkResources info = do
         , workspaceData = (`M.lookup` wsData root info)
         }
   where
-    wsData r info = M.fromList $ [ (x, (i, f r x)) | (i, x) <- zip [1..] $ map fst info ]
+    wsData r info = M.fromList [ (x, (i, f r x)) | (i, x) <- zip [1..] $ map fst info ]
     f root = Just . (root </>) . ("icons/" </>) . (<.> ".xbm")
 
--- workspaceShift :: Resources -> X.ManageHook
--- workspaceShift res = X.composeAll [ getTag res t rules X.--> t | t <- tagSet res ]
+workspaceShift :: [(WorkspaceId, Tag)] -> ManageHook
+workspaceShift = foldr (\(w, t) -> (composeAll [ r --> doShift w | r <- rules t ] <+>)) idHook
