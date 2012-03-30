@@ -297,12 +297,17 @@ startDzen :: MonadIO m => Rectangle -> m Handle
 startDzen = spawnPipe . myDzen
 
 getMachine = buildTags $ do
-    tag  "work"  $ Work :> work
-    tag1 "term"  $ Terminals Nothing
-    tag1 "code"  $ Terminals (Just "~/projects")
-    tag  "chat"  $ Chat :> chat
-    tag  "virt"  $ Topic "VirtualBox --startvm 'Windows 7'" :> virt
-    tag  "games" $ Topic "sol" :> games
+    host <- nodeName <$> liftIO getSystemID
+
+    tag  "work" $ Work :> work
+    tag1 "term" $ Terminals Nothing
+    tag1 "code" $ Terminals (Just "~/projects")
+    tag  "chat" $ Chat :> chat
+
+    unless (host == "gmzlj") $
+        tag "virt" $ Topic "VirtualBox --startvm 'Windows 7'" :> virt
+
+    tag "games" $ Topic "sol" :> games
   where
     work  = [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
             , title     =? "MusicBrainz Picard"
