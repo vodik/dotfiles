@@ -1,6 +1,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Workspaces where
 
@@ -27,10 +28,9 @@ import System.Environment (getEnvironment)
 import System.Directory (getDirectoryContents)
 import System.FilePath
 
-import XMonad (XConfig, Query, X, LayoutClass, Window, WorkspaceId)
+import XMonad
 import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
-import qualified XMonad as X
 
 import SortWindows
 import Utils
@@ -63,8 +63,8 @@ instance Workspace Tag where
     action (Tag  a) = action a
     action (a :> _) = action a
 
-    rules (Tag  _) =  []
-    rules (a :> _) = rules a
+    rules (Tag  a) = rules a
+    rules (_ :> r) = r
 
 type WSGenT = WriterT [(WorkspaceId, Tag)]
 
@@ -74,27 +74,31 @@ tag1 n t = tell [(n, Tag t)]
 tag :: MonadWriter [(WorkspaceId, Tag)] m => String -> Tag -> m ()
 tag  n t = tell [(n, t)]
 
-data TagData = TagData
-    { tagSet :: [WorkspaceId]
-    , getTag :: WorkspaceId -> Maybe Tag
-    }
-
 data Resources = Resources
     { layoutIcon    :: String -> FilePath
     , workspaceData :: String -> Maybe (Int, Maybe FilePath)
     }
 
-buildTags :: MonadIO m => WSGenT m () -> m (TagData, Resources)
+tagSet = map fst
+
+workspaceShift :: [(WorkspaceId, Tag)] -> ManageHook
+workspaceShift = foldr f idHook
+    where f (w, t) xs = composeAll [ r --> doShift w | r <- rules t ] <+> xs
+
+buildTags :: MonadIO m => WSGenT m () -> m [(WorkspaceId, Tag)]
 buildTags gen = do
     info <- execWriterT gen
+    return info
+
+mkResources info = do
     root <- liftM (</> ".xmonad/") $ liftIO getHome
-    let t = TagData { tagSet = map fst info
-                    , getTag = (`M.lookup` M.fromList info)
-                    }
-        r = Resources { layoutIcon    = (root </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
-                      , workspaceData = (`M.lookup` wsData root info)
-                      }
-    return (t, r)
+    return Resources
+        { layoutIcon    = (root </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
+        , workspaceData = (`M.lookup` wsData root info)
+        }
   where
     wsData r info = M.fromList $ [ (x, (i, f r x)) | (i, x) <- zip [1..] $ map fst info ]
     f root = Just . (root </>) . ("icons/" </>) . (<.> ".xbm")
+
+-- workspaceShift :: Resources -> X.ManageHook
+-- workspaceShift res = X.composeAll [ getTag res t rules X.--> t | t <- tagSet res ]

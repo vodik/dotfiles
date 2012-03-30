@@ -113,7 +113,7 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single T
 
 myRules ws rect = manageDocks
     <+> scratchpadManageHook rect
-    -- <+> workspaceShift ws
+    <+> workspaceShift ws
     <+> composeAll
         [ className =? "Transmission-gtk" --> doShift "work"
         , className =? "MPlayer"          --> doCopy [ "NSP" ]
@@ -316,7 +316,8 @@ getMachine = buildTags $ do
 ws = map fst
 
 main = do
-    (t, r)  <- getMachine
+    machine <- getMachine
+    res     <- mkResources machine
     screen  <- getScreen
     browser <- getBrowser "firefox"
     dzenbar <- startDzen screen
@@ -324,14 +325,14 @@ main = do
     -- let tweaks  = getTweaks machine
     let tweaks  = defaultTweaks
     xmonad . applyUrgency colorRed $ defaultConfig
-        { manageHook         = myRules tweaks (positionRationalRect screen)
+        { manageHook         = myRules machine (positionRationalRect screen)
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules (Any <?> return False) tweaks
-        , logHook            = myLogHook r dzenbar
+        , logHook            = myLogHook res dzenbar
         , startupHook        = myStartupHook
         , modMask            = myModMask
         , keys               = myKeys browser
-        , workspaces         = to9 $ tagSet t
+        , workspaces         = to9 $ tagSet machine
         , terminal           = "urxvtc"
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray
