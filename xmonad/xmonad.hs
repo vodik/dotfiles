@@ -48,10 +48,7 @@ import SortWindows
 import Utils
 
 import Workspaces
-import Workspaces.Chat
-import Workspaces.Terminals
-import Workspaces.Topic
-import Workspaces.Work
+import Workspaces.Instances
 
 -- spawnShell :: X ()
 -- spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
@@ -132,9 +129,9 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "work" sort
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
 
-myKeys browser conf = mkKeymap conf $ concat
+myKeys ws browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
-      -- , ("M-S-<Return>", currentTopicAction myTopicConfig)
+      , ("M-S-<Return>", currentAction (spawn $ terminal conf) ws)
       , ("M-w", spawn browser)
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
@@ -299,15 +296,15 @@ startDzen = spawnPipe . myDzen
 getMachine = buildTags $ do
     host <- nodeName <$> liftIO getSystemID
 
-    tag  "work" $ Work :> work
+    tag  "work" $ Workspace [ "firefox" ] :> work
     tag1 "term" $ Terminals Nothing
     tag1 "code" $ Terminals (Just "~/projects")
-    tag  "chat" $ Chat :> chat
+    tag  "chat" $ Workspace [ "pidgin", "skype" ] :> chat
 
     unless (host == "gmzlj") $
-        tag "virt" $ Topic "VirtualBox --startvm 'Windows 7'" :> virt
+        tag "virt" $ Workspace [ "VirtualBox --startvm 'Windows 7'" ] :> virt
 
-    tag "games" $ Topic "sol" :> games
+    tag "games" $ Workspace [ "sol" ] :> games
   where
     work  = [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
             , title     =? "MusicBrainz Picard"
@@ -336,7 +333,7 @@ main = do
         , logHook            = myLogHook res dzenbar
         , startupHook        = myStartupHook sort
         , modMask            = myModMask
-        , keys               = myKeys browser
+        , keys               = myKeys machine browser
         , workspaces         = to9 $ tagSet machine
         , terminal           = "urxvtc"
         , borderWidth        = myBorderWidth

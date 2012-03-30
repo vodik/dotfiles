@@ -31,6 +31,7 @@ import System.FilePath
 import XMonad
 import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
+import qualified XMonad.StackSet as W
 
 import SortWindows
 import Utils
@@ -51,15 +52,16 @@ defaultTweaks = Tweaks
     , masterN   = 2
     }
 
-class Workspace a where
-    action :: a -> X ()
+class WorkspaceI a where
+    action :: a -> X () -> X ()
+    action = const id
     rules  :: a -> [Query Bool]
-    rules _ = []
+    rules = const []
 
-data Tag = forall a. (Workspace a) => Tag a
-         | forall a. (Workspace a) => a :> [Query Bool]
+data Tag = forall a. (WorkspaceI a) => Tag a
+         | forall a. (WorkspaceI a) => a :> [Query Bool]
 
-instance Workspace Tag where
+instance WorkspaceI Tag where
     action (Tag  a) = action a
     action (a :> _) = action a
 
@@ -68,7 +70,7 @@ instance Workspace Tag where
 
 type WSGenT = WriterT [(WorkspaceId, Tag)]
 
-tag1 :: (MonadWriter [(WorkspaceId, Tag)] m, Workspace w) => String -> w -> m ()
+tag1 :: (MonadWriter [(WorkspaceId, Tag)] m, WorkspaceI w) => String -> w -> m ()
 tag1 n t = tell [(n, Tag t)]
 
 tag :: MonadWriter [(WorkspaceId, Tag)] m => String -> Tag -> m ()
@@ -101,3 +103,9 @@ workspaceShift = foldr (\(w, t) -> (composeAll [ r --> doShift w | r <- rules t 
 
 workspaceSort :: WorkspaceId -> [(WorkspaceId, Tag)] -> Query Any
 workspaceSort w ws = composeAs Any . fromMaybe [] $ rules <$> lookup w ws
+
+workspaceAction :: WorkspaceId -> X () -> [(WorkspaceId, Tag)] -> X ()
+workspaceAction w x ws = fromMaybe x $ (`action` x) <$> lookup w ws
+
+currentAction :: X () -> [(WorkspaceId, Tag)] -> X ()
+currentAction x ws = (\w -> workspaceAction w x ws) =<< gets (W.tag . W.workspace . W.current . windowset)
