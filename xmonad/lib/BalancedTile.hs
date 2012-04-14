@@ -26,8 +26,8 @@ instance LayoutClass BalancedTall a where
         . ap zip (tile frac (mfrac ++ repeat 1) r nmaster . length) . W.integrate
 
     handleMessage (BalancedTall nmaster delta frac mfrac) m = do
-        ms <- (W.stack . W.workspace . W.current) `fmap` gets windowset
-        fs <- (M.keys . W.floating) `fmap` gets windowset
+        ms <- gets $ W.stack . W.workspace . W.current . windowset
+        fs <- gets $ M.keys . W.floating . windowset
         return $ ms >>= unfloat fs >>= handleMsg
       where
         handleMsg s = msum [ fmap resize $ fromMessage m
