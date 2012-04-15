@@ -192,14 +192,14 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("<XF86AudioMute>",        safeSpawn "amixer" [ "-q", "set", "Master", "toggle" ])
 
       -- mpd controls
-      , ("M1-C-1", withMPD $ MPD.toggle)
-      , ("M1-C-2", withMPD $ MPD.stop)
-      , ("M1-C-3", withMPD $ MPD.previous)
-      , ("M1-C-4", withMPD $ MPD.next)
-      , ("<XF86AudioPlay>", withMPD $ MPD.toggle)
-      , ("<XF86AudioStop>", withMPD $ MPD.stop)
-      , ("<XF86AudioPrev>", withMPD $ MPD.previous)
-      , ("<XF86AudioNext>", withMPD $ MPD.next)
+      , ("M1-C-1", withMPD MPD.toggle)
+      , ("M1-C-2", withMPD MPD.stop)
+      , ("M1-C-3", withMPD MPD.previous)
+      , ("M1-C-4", withMPD MPD.next)
+      , ("<XF86AudioPlay>", withMPD MPD.toggle)
+      , ("<XF86AudioStop>", withMPD MPD.stop)
+      , ("<XF86AudioPrev>", withMPD MPD.previous)
+      , ("<XF86AudioNext>", withMPD MPD.next)
 
       -- screenshot
       , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "-e", "'mv $f ~/pictures/screenshots/'" ])

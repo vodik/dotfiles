@@ -88,4 +88,4 @@ startServices cmds = io (service <$> pidSet) >>= forM_ cmds
     service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
 
 withMPD :: MPD.MPD a -> X ()
-withMPD = void . liftIO . MPD.withMPD
+withMPD = liftIO . void . MPD.withMPD
