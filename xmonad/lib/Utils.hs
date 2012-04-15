@@ -68,10 +68,10 @@ hasResource :: [String] -> Window -> X Bool
 hasResource ign w = withDisplay $ \d -> io $ (`elem` ign) . resName <$> getClassHint d w
 
 getSortByIndexWithoutNSP :: X WorkspaceSort
-getSortByIndexWithoutNSP = getSortByIndex >>= \s -> return $ s . filter ((/= "NSP") . W.tag)
+getSortByIndexWithoutNSP = (. filter ((/= "NSP") . W.tag)) <$> getSortByIndex
 
 delayedSpawn :: Int -> String -> [String] -> X ()
-delayedSpawn d cmd args = liftIO (threadDelay d) >> safeSpawn cmd args
+delayedSpawn d cmd args = io (threadDelay d) >> safeSpawn cmd args
 
 env :: String -> IO (Maybe String)
 env = (<$> getEnvironment) . lookup
@@ -85,7 +85,7 @@ getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
 startServices :: [String] -> X ()
 startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
-    service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
+    service pm cmd = when (S.null $ findCmd cmd pm) $ safeSpawn cmd []
 
 withMPD :: MPD.MPD a -> X ()
-withMPD = liftIO . void . MPD.withMPD
+withMPD = io . void . MPD.withMPD

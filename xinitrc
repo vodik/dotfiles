@@ -5,14 +5,14 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
   unset f
 fi
 
-cd "$HOME"
-xrdb -merge ~/.Xresources &
-nitrogen --restore &
-
-case ${2} in
+cd
+case $2 in
+  gnome)
+    exec ck-launch-session dbus-launch --exit-with-session gnome-session ;;
   *)
-    exec ck-launch-session "${2-xmonad}"
-    ;;
+    xrdb -merge ~/.Xresources &
+    nitrogen --restore &
+    exec ck-launch-session "${2-xmonad}" ;;
 esac
 
 # vi: ft=sh
