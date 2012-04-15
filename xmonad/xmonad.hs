@@ -7,6 +7,8 @@ import System.Exit
 import System.IO
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
+import qualified Network.MPD as MPD
+import qualified Network.MPD.Commands.Extensions as MPD
 
 import Graphics.X11.Xinerama (getScreenInfo)
 
@@ -130,9 +132,9 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
 
 myKeys ws browser conf = mkKeymap conf $ concat
-    [ [ ("M-<Return>", spawn $ terminal conf)
-      , ("M-S-<Return>", currentAction (spawn $ terminal conf) ws)
-      , ("M-w", spawn browser)
+    [ [ ("M-<Return>", safeSpawn (terminal conf) [])
+      , ("M-S-<Return>", currentAction (safeSpawn (terminal conf) []) ws)
+      , ("M-w", safeSpawn browser [])
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
 
@@ -182,27 +184,26 @@ myKeys ws browser conf = mkKeymap conf $ concat
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
-      , ("M1-C-l", spawn "slock")
-      , ("M1-S-l", delayedSpawn 1500 "xset dpms force off")
+      , ("M1-C-l", safeSpawn "slock" [])
 
       -- multimedia keys
-      , ("<XF86AudioLowerVolume>", spawn "amixer -q set Master 3%-")
-      , ("<XF86AudioRaiseVolume>", spawn "amixer -q set Master on 3%+")
-      , ("<XF86AudioMute>",        spawn "amixer -q set Master toggle")
+      , ("<XF86AudioLowerVolume>", safeSpawn "amixer" [ "-q", "set", "Master", "3%-" ])
+      , ("<XF86AudioRaiseVolume>", safeSpawn "amixer" [ "-q", "set", "Master", "on", "3%+" ])
+      , ("<XF86AudioMute>",        safeSpawn "amixer" [ "-q", "set", "Master", "toggle" ])
 
       -- mpd controls
-      , ("<XF86AudioPlay>", spawn "mpc toggle")
-      , ("<XF86AudioStop>", spawn "mpc stop")
-      , ("<XF86AudioNext>", spawn "mpc next")
-      , ("<XF86AudioPrev>", spawn "mpc prev")
+      , ("M1-C-1", withMPD $ MPD.toggle)
+      , ("M1-C-2", withMPD $ MPD.stop)
+      , ("M1-C-3", withMPD $ MPD.previous)
+      , ("M1-C-4", withMPD $ MPD.next)
+      , ("<XF86AudioPlay>", withMPD $ MPD.toggle)
+      , ("<XF86AudioStop>", withMPD $ MPD.stop)
+      , ("<XF86AudioPrev>", withMPD $ MPD.previous)
+      , ("<XF86AudioNext>", withMPD $ MPD.next)
 
       -- screenshot
-      , ("C-<Print>", delayedSpawn 100 "scrot -s -e 'mv $f ~/pictures/screenshots/'")
-      , ("<Print>",   spawn "scrot -e 'mv $f ~/pictures/screenshots/'")
-
-      -- HACKS: backlight hack, restore screen resolution
-      , ("M-x z", spawn "xrandr -s 0")
-      , ("M-x x", spawn "xbacklight -set 100%")
+      , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "-e", "'mv $f ~/pictures/screenshots/'" ])
+      , ("<Print>",   safeSpawn "scrot" [ "-e", "'mv $f ~/pictures/screenshots/'" ])
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ XMonad.workspaces conf
                       , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
@@ -210,8 +211,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
                                   , ("M-C-", windows . copy)
                                   ]
       ]
-    , [ ("M-C-w " ++ k, spawn $ unwords [ browser, f ]) | (k, f) <- favouritesList ]
-    , [ ("M-s "   ++ k, S.promptSearch myXPConfig f)    | (k, f) <- searchList ]
+    , [ ("M-C-w " ++ k, safeSpawn browser [ f ])     | (k, f) <- favouritesList ]
+    , [ ("M-s "   ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
     ]
   where
     skipWS = [ "NSP" ]

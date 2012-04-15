@@ -3,7 +3,7 @@
 module Utils where
 
 import Control.Applicative
-import Control.Concurrent
+import Control.Concurrent (threadDelay)
 import Control.Monad
 import Data.List
 import Data.Maybe
@@ -12,6 +12,7 @@ import Data.Set (Set)
 import System.Environment (getEnvironment)
 import Text.Regex.Posix ((=~))
 import qualified Data.Set as S
+import qualified Network.MPD as MPD
 
 import XMonad
 import XMonad.Hooks.ManageHelpers
@@ -20,6 +21,7 @@ import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
+import XMonad.Util.Run
 import qualified XMonad.StackSet as W
 
 import Proc
@@ -68,8 +70,8 @@ hasResource ign w = withDisplay $ \d -> io $ (`elem` ign) . resName <$> getClass
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = getSortByIndex >>= \s -> return $ s . filter ((/= "NSP") . W.tag)
 
-delayedSpawn :: Int -> String -> X ()
-delayedSpawn d cmd = liftIO (threadDelay d) >> spawn cmd
+delayedSpawn :: Int -> String -> [String] -> X ()
+delayedSpawn d cmd args = liftIO (threadDelay d) >> safeSpawn cmd args
 
 env :: String -> IO (Maybe String)
 env = (<$> getEnvironment) . lookup
@@ -84,3 +86,6 @@ startServices :: [String] -> X ()
 startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
     service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd
+
+withMPD :: MPD.MPD a -> X ()
+withMPD = void . liftIO . MPD.withMPD

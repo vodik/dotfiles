@@ -9,7 +9,6 @@ Xft*rgba:      vrgb
 
 URxvt*font:         xft:Envy Code R:size=9
 URxvt*buffered:     true
-URxvt*termName:     rxvt-256color
 URxvt*scrollBar:    false
 URxvt*loginShell:   true
 URxvt*saveLines:    262144
