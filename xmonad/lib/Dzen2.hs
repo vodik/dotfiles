@@ -20,7 +20,7 @@ dzenWSIcon res showAll name =
     fromMaybe without $ do
         (index, i) <- workspaceData res name
         icon <- i
-        return $ dzenAction 1 (xDoTool index)
+        return . dzenAction 1 (xDoTool index)
                . pad . (++ ' ' : name) $ dzenIcon icon
   where
     without | showAll   = dzenAction 1 (xDoTool $ read name) $ pad name
