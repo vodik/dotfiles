@@ -24,6 +24,9 @@ URxvt*cursorBlink:  false
 URxvt*cursorColor:  #ff9900
 URxvt*cursorColor2: #000000
 
+URxvt.depth: 32
+URxvt.background: rgba:1111/1111/1111/dddd
+
 URxvt*perl-ext-common:  default,matcher
 URxvt*urlLauncher:      /usr/bin/firefox
 URxvt*matcher.button:   1
