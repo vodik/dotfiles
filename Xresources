@@ -25,7 +25,7 @@ URxvt*cursorColor:  #ff9900
 URxvt*cursorColor2: #000000
 
 URxvt.depth: 32
-URxvt.background: rgba:1111/1111/1111/dddd
+URxvt.background: rgba:1111/1111/1111/bbbb
 
 URxvt*perl-ext-common:  default,matcher
 URxvt*urlLauncher:      /usr/bin/firefox
