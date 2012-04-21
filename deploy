@@ -10,6 +10,9 @@ while (($#)); do
       ln -fs .vim/vimrc .vimrc
       ln -fs .vim/gvimrc .gvimrc
       ;;
+    "dircolors")
+      ln -fs $dotfiles/dircolors .dircolors
+      ;;
     "ncmpcpp")
       ln -fs $dotfiles/ncmpcpp .ncmpcpp
       ;;
