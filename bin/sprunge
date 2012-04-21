@@ -10,8 +10,8 @@ USAGE:
   piped_data | sprunge
 
 OPTIONS:
-   -h         Show this message
-   -l --lang  Set the language manually
+  -h         Show this message
+  -l --lang  Set the language manually
 
 Upload data and fetch URL from http://sprunge.us.
 HERE
@@ -29,12 +29,12 @@ except:
 CODE
 }
 
+# the magic happens here
 sprunge() {
   curl -s -F 'sprunge=<-' http://sprunge.us
 }
 
 declare -a urls=()
-
 options=$(getopt -o hl: -l help,lang: -- "$@") || sprunge_usage 1
 
 eval set -- $options
@@ -45,7 +45,7 @@ do
     -l|--lang) L="$2" ;;
 
     --) shift; break  ;;
-    -*) echo "$0: error - unrecognized option $1" >& 2; sprunge_usage 1 ;;
+    -*) echo >&2 "$0: error - unrecognized option $1"; sprunge_usage 1 ;;
   esac
   shift
 done
@@ -58,12 +58,12 @@ else
    # treat arguments as a list of files to upload
    for file in $@; do
      if [[ ! -f "$file" ]]; then
-       echo "$file isn't a file" >&2
+       echo >&2 "$file isn't a file"
        continue
      fi
 
      [[ -z $L ]] && lang=$(sprunge_pygment "$file") || lang="$L"
-     url=$(sprunge < "$file")
+     url=$(sprunge <"$file")
      urls+=("${url/ /}?$lang")
    done
 fi
@@ -73,8 +73,9 @@ for url in "${urls[@]}"; do
   echo "$url"
 done
 
-# don't copy to clipboad if piped
-if [[ -t 1 ]]; then
+# send to clipboard if xclip is installed. Don't copy to clipboad
+# if output is piped.
+if [[ -t 1 ]] && type xclip &>/dev/null; then
   echo -n "${urls[@]}" | xclip -sel primary
   echo -n "${urls[@]}" | xclip -sel clipboard
 fi
