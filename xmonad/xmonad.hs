@@ -14,7 +14,6 @@ import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
 import XMonad.Actions.CopyWindow
-import XMonad.Actions.CycleWS hiding (moveTo, shiftTo, toggleWS)
 import XMonad.Actions.GridSelect
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
@@ -220,7 +219,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
 
 myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
     [ ((modm, button1), \w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster)
-    , ((modm, button2), \w -> focus w >> windows W.shiftMaster)
+    , ((modm, button2), killWindow)
     , ((modm, button3), \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
 
     , ((modm,               button4), const $ moveTo Prev skipWS)

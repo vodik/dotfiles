@@ -1,4 +1,9 @@
-module CycleWS where
+module CycleWS
+    ( moveTo, moveToNonEmpty
+    , shiftTo, shiftToEmpty
+    , toggleWS, CW.toggleOrDoSkip
+    , toggleCopy, doCopy
+    ) where
 
 import Control.Applicative
 import Control.Arrow

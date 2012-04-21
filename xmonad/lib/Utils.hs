@@ -43,6 +43,12 @@ instance UrgencyHook BorderUrgencyHook where
     urgencyHook (BorderUrgencyHook cs) w = withDisplay $ \dpy -> io $
         initColor dpy cs >>= maybe (return ()) (setWindowBorder dpy w)
 
+data CompositorPID = CompositorPID (Maybe ProcessGroupID) deriving (Read, Show, Typeable)
+
+instance ExtensionClass CompositorPID where
+   initialValue  = CompositorPID Nothing
+   extensionType = PersistentExtension
+
 to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 
@@ -91,12 +97,6 @@ startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
     service pm cmd = when (S.null $ findCmd cmd pm) $ safeSpawn cmd []
 
-data CompositorPID = CompositorPID (Maybe ProcessGroupID) deriving (Read, Show, Typeable)
-
-instance ExtensionClass CompositorPID where
-   initialValue  = CompositorPID Nothing
-   extensionType = PersistentExtension
-
 startCompositor :: String -> [String] -> X ()
 startCompositor prog args = XS.get >>= \(CompositorPID p) -> do
     case p of
@@ -105,9 +105,9 @@ startCompositor prog args = XS.get >>= \(CompositorPID p) -> do
 
 safeSpawnPid :: MonadIO m => FilePath -> [String] -> m ProcessGroupID
 safeSpawnPid prog args = io $ forkProcess $ do
-  uninstallSignalHandlers
-  _ <- createSession
-  executeFile (encodeString prog) True (map encodeString args) Nothing
+    uninstallSignalHandlers
+    _ <- createSession
+    executeFile (encodeString prog) True (map encodeString args) Nothing
 
 withMPD :: MPD.MPD a -> X ()
 withMPD = io . void . MPD.withMPD
