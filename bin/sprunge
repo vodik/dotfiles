@@ -2,7 +2,7 @@
 
 # Depends on curl, python, python-pygments
 
-sprunge_usage() {
+usage() {
   cat << HERE
 USAGE:
   sprunge [files]
@@ -18,37 +18,37 @@ HERE
   exit "${1:-0}"
 }
 
-# use python to attempt to detect the lang
-sprunge_pygment() {
-  python << CODE
-try:
-	from pygments.lexers import get_lexer_for_filename
-	print(get_lexer_for_filename('$1').aliases[0])
-except:
-	print('text')
-CODE
-}
+declare -a urls=()
+options=$(getopt -o hl: -l help,lang: -- "$@") || usage 1
+
+eval set -- $options
+while [ $# -gt 0 ]
+do
+  case $1 in
+    -h|--help) usage  ;;
+    -l|--lang) L="$2" ;;
+
+    --) shift; break  ;;
+    -*) echo >&2 "$0: error - unrecognized option $1"; usage 1 ;;
+  esac
+  shift
+done
 
 # the magic happens here
 sprunge() {
   curl -s -F 'sprunge=<-' http://sprunge.us
 }
 
-declare -a urls=()
-options=$(getopt -o hl: -l help,lang: -- "$@") || sprunge_usage 1
-
-eval set -- $options
-while [ $# -gt 0 ]
-do
-  case $1 in
-    -h|--help) sprunge_usage ;;
-    -l|--lang) L="$2" ;;
-
-    --) shift; break  ;;
-    -*) echo >&2 "$0: error - unrecognized option $1"; sprunge_usage 1 ;;
-  esac
-  shift
-done
+# use python to attempt to detect the lang
+pygment() {
+  python << CODE
+try:
+	from pygments.lexers import get_lexer_for_filename
+	print(get_lexer_for_filename('$1').aliases[0])
+except:
+	print('${L:-text}')
+CODE
+}
 
 if [[ ! -t 0 || $# -eq 0 ]]; then
   # read from stdin
@@ -62,7 +62,7 @@ else
        continue
      fi
 
-     [[ -z $L ]] && lang=$(sprunge_pygment "$file") || lang="$L"
+     lang=$(pygment "$file")
      url=$(sprunge <"$file")
      urls+=("${url/ /}?$lang")
    done
