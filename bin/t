@@ -11,5 +11,4 @@ session() {
 
 # XXX: Needed hack since a bug in epoll/tmux causes tmux
 # to hang if we redirect stderr directly into /dev/null
-
 session $1 $2 |& cat >/dev/null
