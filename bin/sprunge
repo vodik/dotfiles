@@ -36,7 +36,7 @@ done
 
 # the magic happens here
 sprunge() {
-  curl -s -F 'sprunge=<-' http://sprunge.us
+  curl -sF 'sprunge=<-' http://sprunge.us
 }
 
 # use python to attempt to detect the lang
