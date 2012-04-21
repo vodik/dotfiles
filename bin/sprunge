@@ -15,11 +15,13 @@ HERE
 
 # use python to attempt to detect the syntax
 sprunge_syntax() {
-  echo "try:
+  python << CODE
+try:
 	from pygments.lexers import get_lexer_for_filename
 	print(get_lexer_for_filename('$1').aliases[0])
 except:
-	print('text')" | python
+	print('text')
+CODE
 }
 
 sprunge() {
