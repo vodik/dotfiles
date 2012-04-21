@@ -11,14 +11,13 @@ USAGE:
 
 OPTIONS:
   -h         Show this message
-  -l --lang  Set the language manually
+  -l --lang  Set the fallback language manually (default text)
 
 Upload data and fetch URL from http://sprunge.us.
 HERE
   exit "${1:-0}"
 }
 
-declare -a urls=()
 options=$(getopt -o hl: -l help,lang: -- "$@") || usage 1
 
 eval set -- $options
@@ -50,28 +49,26 @@ except:
 CODE
 }
 
+declare -a urls=()
+add() {
+  url="${1/ /}?$2"
+  echo "$url"; urls+=("$url")
+}
+
 if [[ ! -t 0 || $# -eq 0 ]]; then
   # read from stdin
-  url=$(cat | sprunge)
-  urls=("${url/ /}?${L:-text}")
+  add $(cat | sprunge) ${L:-text}
 else
-   # treat arguments as a list of files to upload
-   for file in $@; do
-     if [[ ! -f "$file" ]]; then
-       echo >&2 "$file isn't a file"
-       continue
-     fi
+  # treat arguments as a list of files to upload
+  for file in $@; do
+    if [[ ! -f "$file" ]]; then
+      echo >&2 "$file isn't a file"
+      continue
+    fi
 
-     lang=$(pygment "$file")
-     url=$(sprunge <"$file")
-     urls+=("${url/ /}?$lang")
-   done
+    add $(sprunge <"$file") $(pygment "$file")
+  done
 fi
-
-# output each url on its own line
-for url in "${urls[@]}"; do
-  echo "$url"
-done
 
 # send to clipboard if xclip is installed. Don't copy to clipboad
 # if output is piped.
