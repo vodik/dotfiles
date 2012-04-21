@@ -4,17 +4,22 @@
 
 sprunge_usage() {
   cat << HERE
-Usage:
+USAGE:
   sprunge [files]
   sprunge < file
   piped_data | sprunge
 
-Upload data and fetch URL from the pastebin http://sprunge.us.
+OPTIONS:
+   -h         Show this message
+   -l --lang  Set the language manually
+
+Upload data and fetch URL from http://sprunge.us.
 HERE
+  exit "${1:-0}"
 }
 
-# use python to attempt to detect the syntax
-sprunge_syntax() {
+# use python to attempt to detect the lang
+sprunge_pygment() {
   python << CODE
 try:
 	from pygments.lexers import get_lexer_for_filename
@@ -30,15 +35,26 @@ sprunge() {
 
 declare -a urls=()
 
-if [[ $1 == '-h' || $1 == '--help' ]]; then
-  # print usage information
-  sprunge_usage
-  exit 0
-elif [[ ! -t 0 || $# -eq 0 ]]; then
+options=$(getopt -o hl: -l help,lang: -- "$@") || sprunge_usage 1
+
+eval set -- $options
+while [ $# -gt 0 ]
+do
+  case $1 in
+    -h|--help) sprunge_usage ;;
+    -l|--lang) L="$2" ;;
+
+    --) shift; break  ;;
+    -*) echo "$0: error - unrecognized option $1" >& 2; sprunge_usage 1 ;;
+  esac
+  shift
+done
+
+if [[ ! -t 0 || $# -eq 0 ]]; then
   # read from stdin
   url=$(cat | sprunge)
-  urls=("${url/ /}?text")
- else
+  urls=("${url/ /}?${L:-text}")
+else
    # treat arguments as a list of files to upload
    for file in $@; do
      if [[ ! -f "$file" ]]; then
@@ -46,9 +62,9 @@ elif [[ ! -t 0 || $# -eq 0 ]]; then
        continue
      fi
 
-     syntax=$(sprunge_syntax "$file")
+     [[ -z $L ]] && lang=$(sprunge_pygment "$file") || lang="$L"
      url=$(sprunge < "$file")
-     urls+=("${url/ /}?$syntax")
+     urls+=("${url/ /}?$lang")
    done
 fi
 
