@@ -2,6 +2,7 @@
 
 module Utils where
 
+import Codec.Binary.UTF8.String
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
@@ -10,6 +11,8 @@ import Data.Maybe
 import Data.Monoid
 import Data.Set (Set)
 import System.Environment (getEnvironment)
+import System.Posix.Process (createSession, executeFile, forkProcess)
+import System.Posix.Types (ProcessGroupID(..))
 import Text.Regex.Posix ((=~))
 import qualified Data.Set as S
 import qualified Network.MPD as MPD
@@ -23,6 +26,7 @@ import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
 import XMonad.Util.Run
 import qualified XMonad.StackSet as W
+import qualified XMonad.Util.ExtensibleState as XS
 
 import Proc
 
@@ -86,6 +90,24 @@ startServices :: [String] -> X ()
 startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
     service pm cmd = when (S.null $ findCmd cmd pm) $ safeSpawn cmd []
+
+data CompositorPID = CompositorPID (Maybe ProcessGroupID) deriving (Read, Show, Typeable)
+
+instance ExtensionClass CompositorPID where
+   initialValue  = CompositorPID Nothing
+   extensionType = PersistentExtension
+
+startCompositor :: String -> [String] -> X ()
+startCompositor prog args = XS.get >>= \(CompositorPID p) -> do
+    case p of
+        Just pid -> return ()
+        Nothing  -> CompositorPID . Just <$> safeSpawnPid prog args >>= XS.put
+
+safeSpawnPid :: MonadIO m => FilePath -> [String] -> m ProcessGroupID
+safeSpawnPid prog args = io $ forkProcess $ do
+  uninstallSignalHandlers
+  _ <- createSession
+  executeFile (encodeString prog) True (map encodeString args) Nothing
 
 withMPD :: MPD.MPD a -> X ()
 withMPD = io . void . MPD.withMPD

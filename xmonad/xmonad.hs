@@ -129,6 +129,7 @@ myRules ws rect = manageDocks
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
+    <+> startCompositor "compton" [ "-cGb" ]
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
 
 myKeys ws browser conf = mkKeymap conf $ concat
