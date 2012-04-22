@@ -38,6 +38,9 @@ while (($#)); do
     "htop")
       ln -fs $dotfiles/htoprc .htoprc
       ;;
+    "cower")
+      ln -fs $dotfiles/cower .config/cower
+      ;;
     *)
       echo "$0: deploy command $1 not understood"
       ;;
