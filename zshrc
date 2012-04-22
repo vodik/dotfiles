@@ -18,6 +18,7 @@ setopt multios
 setopt extended_glob
 setopt prompt_subst
 setopt long_list_jobs
+setopt noflowcontrol
 
 unsetopt clobber
 

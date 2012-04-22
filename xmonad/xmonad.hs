@@ -12,7 +12,7 @@ import qualified Network.MPD.Commands.Extensions as MPD
 
 import Graphics.X11.Xinerama (getScreenInfo)
 
-import XMonad
+import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.GridSelect
 import XMonad.Hooks.DynamicLog
@@ -34,7 +34,7 @@ import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
-import XMonad.Util.Run
+import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.Scratchpad
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
@@ -45,17 +45,14 @@ import Dzen2
 import Gaps
 import GuardLayout
 import GuardLayout.Instances
+import Run
 import SortWindows
 import Utils
 
+import DynamicTopic
+
 import Workspaces
 import Workspaces.Instances
-
--- spawnShell :: X ()
--- spawnShell = currentTopicDir myTopicConfig >>= spawnShellIn
-
--- spawnShellIn :: Dir -> X ()
--- spawnShellIn dir = asks (terminal . config) >>= \t -> spawn $ "cd " ++ dir ++ " && exec " ++ t
 
 imClients :: Query Any
 imClients = composeAs Any
@@ -132,11 +129,14 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> startServices [ "urxvtd", "udiskie", "mpd" ]
 
 myKeys ws browser conf = mkKeymap conf $ concat
-    [ [ ("M-<Return>", safeSpawn (terminal conf) [])
-      , ("M-S-<Return>", currentAction (safeSpawn (terminal conf) []) ws)
-      , ("M-w", safeSpawn browser [])
+    [ [ ("M-<Return>", spawn (terminal conf) [])
+      , ("M-S-<Return>", currentAction (spawn (terminal conf) []) ws)
+      , ("M-w", spawn browser [])
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
+
+      , ("M-C-<Return>", spawnShell)
+      , ("M-C-<Space>",  changeDir myXPConfig)
 
       -- quit, or restart
       , ("M-S-q", io exitSuccess)
@@ -184,12 +184,12 @@ myKeys ws browser conf = mkKeymap conf $ concat
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
-      , ("M1-C-l", safeSpawn "slock" [])
+      , ("M1-C-l", spawn "slock" [])
 
       -- multimedia keys
-      , ("<XF86AudioLowerVolume>", safeSpawn "amixer" [ "-q", "set", "Master", "3%-" ])
-      , ("<XF86AudioRaiseVolume>", safeSpawn "amixer" [ "-q", "set", "Master", "on", "3%+" ])
-      , ("<XF86AudioMute>",        safeSpawn "amixer" [ "-q", "set", "Master", "toggle" ])
+      , ("<XF86AudioLowerVolume>", spawn "amixer" [ "-q", "set", "Master", "3%-" ])
+      , ("<XF86AudioRaiseVolume>", spawn "amixer" [ "-q", "set", "Master", "on", "3%+" ])
+      , ("<XF86AudioMute>",        spawn "amixer" [ "-q", "set", "Master", "toggle" ])
 
       -- mpd controls
       , ("M1-C-1", withMPD MPD.toggle)
@@ -203,7 +203,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
 
       -- screenshot
       , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "-e", "'mv $f ~/pictures/screenshots/'" ])
-      , ("<Print>",   safeSpawn "scrot" [ "-e", "'mv $f ~/pictures/screenshots/'" ])
+      , ("<Print>",   spawn "scrot" [ "-e", "'mv $f ~/pictures/screenshots/'" ])
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ XMonad.workspaces conf
                       , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
@@ -211,7 +211,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
                                   , ("M-C-", windows . copy)
                                   ]
       ]
-    , [ ("M-C-w " ++ k, safeSpawn browser [ f ])     | (k, f) <- favouritesList ]
+    , [ ("M-C-w " ++ k, spawn browser [ f ])         | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
     ]
   where
@@ -304,9 +304,6 @@ applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
 getScreen :: IO Rectangle
 getScreen = head <$> (openDisplay "" >>= getScreenInfo)
 
-startDzen :: MonadIO m => Rectangle -> m Handle
-startDzen = spawnPipe . myDzen
-
 getMachine = buildTags $ do
     host <- nodeName <$> liftIO getSystemID
 
@@ -356,6 +353,9 @@ main = do
         , focusedBorderColor = colorBlue
         , focusFollowsMouse  = True
         }
+
+startDzen :: MonadIO m => Rectangle -> m Handle
+startDzen = spawnPipe . myDzen
 
 myDzen :: Rectangle -> String
 myDzen (Rectangle x y sw sh) = "dzen2 " ++ unwords

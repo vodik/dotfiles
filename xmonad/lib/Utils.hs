@@ -17,18 +17,18 @@ import Text.Regex.Posix ((=~))
 import qualified Data.Set as S
 import qualified Network.MPD as MPD
 
-import XMonad
+import XMonad hiding (spawn)
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
-import XMonad.Util.Run
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
 
 import Proc
+import Run
 
 data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
 
@@ -81,7 +81,7 @@ getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = (. filter ((/= "NSP") . W.tag)) <$> getSortByIndex
 
 delayedSpawn :: Int -> String -> [String] -> X ()
-delayedSpawn d cmd args = io (threadDelay d) >> safeSpawn cmd args
+delayedSpawn d cmd args = io (threadDelay d) >> spawn cmd args
 
 env :: String -> IO (Maybe String)
 env = (<$> getEnvironment) . lookup
@@ -95,19 +95,13 @@ getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
 startServices :: [String] -> X ()
 startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
-    service pm cmd = when (S.null $ findCmd cmd pm) $ safeSpawn cmd []
+    service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd []
 
 startCompositor :: String -> [String] -> X ()
 startCompositor prog args = XS.get >>= \(CompositorPID p) ->
     case p of
         Just pid -> return ()
-        Nothing  -> CompositorPID . Just <$> safeSpawnPid prog args >>= XS.put
-
-safeSpawnPid :: MonadIO m => FilePath -> [String] -> m ProcessGroupID
-safeSpawnPid prog args = io . forkProcess $ do
-    uninstallSignalHandlers
-    _ <- createSession
-    executeFile (encodeString prog) True (map encodeString args) Nothing
+        Nothing  -> CompositorPID . Just <$> run prog args >>= XS.put
 
 withMPD :: MPD.MPD a -> X ()
 withMPD = io . void . MPD.withMPD
