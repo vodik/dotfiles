@@ -1,7 +1,7 @@
 local pmt="red"
 
 (( EUID == 0 )) && pmt="blue"
-[[ -n $SSH_CONNECTION ]] && pmt="green"
+[[ -n $SSH_CONNECTION ]] && pmt="magenta"
 
 PROMPT="%{$fg[$pmt]%}[%0~] "
 
