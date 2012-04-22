@@ -34,7 +34,6 @@ zstyle ':completion:*:*:*:users'               ignored-patterns \
                                                    rtkit ntp usbmux gdm
 
 # COMMANDS {{{1
-
 zstyle ':completion:*:cd:*'                    tag-order local-directories directory-stack path-directories
 
 # pacman zstyle {{{2

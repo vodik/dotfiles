@@ -4,3 +4,6 @@ alias la="ls -a"
 alias lp="ls -a --color=always | $PAGER -R"
 
 alias history="fc -l 1"
+
+# stderred support (https://github.com/albinoloverats/stderred)
+alias _='LD_PRELOAD=/usr/lib/stderred.so'
