@@ -10,6 +10,10 @@ while (($#)); do
       ln -fs .vim/vimrc .vimrc
       ln -fs .vim/gvimrc .gvimrc
       ;;
+    "zsh")
+      ln -fs $dotfiles/zshrc .zshrc
+      ln -fs $dotfiles/zprofile .zprofile
+      ;;
     "dircolors")
       ln -fs $dotfiles/dircolors .dircolors
       ;;
