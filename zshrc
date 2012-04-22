@@ -1,6 +1,7 @@
 #!/bin/zsh
 
-autoload colors && colors
+autoload -U colors && colors
+autoload -U compinit && compinit
 
 # smart urls
 autoload -U url-quote-magic

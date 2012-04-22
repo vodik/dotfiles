@@ -98,13 +98,13 @@ startServices cmds = io (service <$> pidSet) >>= forM_ cmds
     service pm cmd = when (S.null $ findCmd cmd pm) $ safeSpawn cmd []
 
 startCompositor :: String -> [String] -> X ()
-startCompositor prog args = XS.get >>= \(CompositorPID p) -> do
+startCompositor prog args = XS.get >>= \(CompositorPID p) ->
     case p of
         Just pid -> return ()
         Nothing  -> CompositorPID . Just <$> safeSpawnPid prog args >>= XS.put
 
 safeSpawnPid :: MonadIO m => FilePath -> [String] -> m ProcessGroupID
-safeSpawnPid prog args = io $ forkProcess $ do
+safeSpawnPid prog args = io . forkProcess $ do
     uninstallSignalHandlers
     _ <- createSession
     executeFile (encodeString prog) True (map encodeString args) Nothing
