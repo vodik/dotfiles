@@ -1,8 +1,17 @@
+local pmt="red"
+
+(( EUID == 0 )) && pmt="blue"
+[[ -n $SSH_CONNECTION ]] && pmt="green"
+
+PROMPT="%{$fg[$pmt]%}[%0~] "
+
 if (( EUID == 0 )); then
-  PROMPT="%{$fg[blue]%}[%0~] %{$fg[red]%}##%{$reset_color%} "
+  PROMPT+="%{$fg[red]%}##%{$reset_color%} "
 else
-  PROMPT="%{$fg[red]%}[%0~] %{$fg[blue]%}//%{$reset_color%} "
+  PROMPT+="%{$fg[blue]%}//%{$reset_color%} "
 fi
+
+unset pmt
 
 # RPROMPT="$(git_prompt_info)"
 
