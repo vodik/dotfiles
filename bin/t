@@ -5,10 +5,10 @@ session() {
   tmux has -t "$1" || tmux new -ds "$1" "${2-$1}"
 
   # Either switch or attach depending on context
-  [[ -n $TMUX ]] && tmux switch -t "$1" \
-                 || tmux attach -t "$1"
+  [[ -n $TMUX ]] && exec tmux switch -t "$1" \
+                 || exec tmux attach -t "$1"
 }
 
-# XXX: Needed hack since a bug in epoll/tmux causes tmux
-# to hang if we redirect stderr directly into /dev/null
-session $1 $2 |& cat >/dev/null
+# XXX: A bug in epoll/tmux causes tmux to hang
+# if we redirect stderr directly into /dev/null
+session $1 $2 #>/dev/null
