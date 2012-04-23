@@ -22,6 +22,8 @@ hash -d build=~/.build
 hash -d abs=/var/abs
 hash -d repo=/srv/http/archlinux/vodik/os
 
+eval $(keychain start) >/dev/null
+
 function precmd {
   _title "%15<..<%~%<<" "%n@%m: %~"
 }

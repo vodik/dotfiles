@@ -1,0 +1,67 @@
+#!/bin/bash
+
+usage() {
+  cat << HERE
+Wrapper to control ssh-agent.
+
+USAGE:
+  keychain start   Start ssh-agent or print into to attach to it
+  keychain stop    Stop the running ssh-agent keychain
+  keychain status  Print status information
+
+OPTIONS:
+  -h         Show this message
+  -e --env   Override where the environment file will be stored.
+HERE
+  exit "${1:-0}"
+}
+
+env="$HOME/.ssh/environment-$HOST"
+options=$(getopt -o he: -l help,env: -- "$@") || usage 1
+
+eval set -- $options
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help) usage    ;;
+    -e|--env)  env="$2" ;;
+
+    --) shift; break    ;;
+    -*) echo >&2 "$0: error - unrecognized option $1"; usage 1 ;;
+  esac
+  shift
+done
+
+# start ssh-agent and setup environment
+start_agent() {
+  ssh-agent >"$env"
+  chmod 600 "$env"
+  source "$env" >/dev/null
+  ssh-add
+}
+
+[[ -f "$env" ]] && source "$env" >/dev/null
+
+case "$1" in
+  start)
+    if [[ -n $SSH_AGENT_PID ]]; then
+      ps -p $SSH_AGENT_PID >/dev/null || start_agent
+    else
+      start_agent
+    fi
+    cat "$env"
+    ;;
+  stop)
+    [[ -f "$env" ]] && rm "$env"
+    [[ -n $SSH_AGENT_PID ]] && ssh-agent -k
+    ;;
+  status)
+    if [[ -f "$env" ]]; then
+      echo "Agent is running (pid $SSH_AGENT_PID)"
+    else
+      echo "Agent isn't running"
+    fi
+    ;;
+  *)
+    echo 2&>1 "$0: error - invalid command $1"; usage 1
+    ;;
+esac
