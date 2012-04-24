@@ -1,0 +1,21 @@
+#!/bin/bash
+
+send() {
+  path="${1%.*}"
+  dbus-send --system --print-reply --dest="org.freedesktop.${1%%.*}" \
+            "org/freedesktop/${path/.//}" \
+            "org.freedesktop.$1"
+}
+
+case "$1" in
+  powerdown|down)
+    send "ConsoleKit.Manager.Stop" ;;
+  restart)
+    send "ConsoleKit.Manager.Restart" ;;
+  suspend)
+    send "UPower.Suspend" ;;
+  hibernate)
+    send "UPower.Hibernate" ;;
+  *)
+    echo 2&>1 "$0: error - invalid command $1"; exit 1 ;;
+esac
