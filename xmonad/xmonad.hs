@@ -66,7 +66,8 @@ myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
                          , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress" ]
 
-myTerminal    = "urxvtc"
+-- myTerminal    = "urxvtc"
+myTerminal    = "urxvt"
 myBorderWidth = 2
 myModMask     = mod4Mask
 
@@ -126,7 +127,8 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
     <+> startCompositor "compton" [ "-cGb" ]
-    <+> startServices [ "urxvtd", "udiskie", "mpd" ]
+    -- <+> startServices [ "urxvtd", "udiskie", "mpd" ]
+    <+> startServices [ "udiskie", "mpd" ]
 
 myKeys ws browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn (terminal conf) [])
@@ -347,7 +349,7 @@ main = do
         , keys               = myKeys machine browser
         , mouseBindings      = myMouseBindings
         , workspaces         = to9 $ tagSet machine
-        , terminal           = "urxvtc"
+        , terminal           = myTerminal
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray
         , focusedBorderColor = colorBlue
