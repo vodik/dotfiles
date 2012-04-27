@@ -30,7 +30,7 @@ xDoTool n | n <= 9    = "xdotool key super+" ++ show n
           | otherwise = ""
 
 dzenPPLayout :: Resources -> String -> String -> String -> [String] -> String
-dzenPPLayout res tc fc bg (x:xs) =
+dzenPPLayout res tc fc bg (_:x:xs) =
     let (fg, l) = if x == "Triggered"
                      then (tc, head xs)
                      else (fc, x)
