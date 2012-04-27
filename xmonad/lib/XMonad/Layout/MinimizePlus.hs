@@ -120,7 +120,7 @@ restore w minimized unfloated = do
         Just r  -> do
             -- modifyWindowset $ W.focusWindow w . W.float w r
             modifyWindowset $ W.float w r
-            return . Just $ Minimize (w `delete` minimized) (M.delete w unfloated)
+            return . Just $ Minimize (w `delete` minimized) (w `M.delete` unfloated)
 
 modifyWindowset :: (WindowSet -> WindowSet) -> X ()
 modifyWindowset f = modify $ \s -> s { windowset = f (windowset s) }
