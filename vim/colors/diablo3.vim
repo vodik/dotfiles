@@ -2,7 +2,7 @@
 " Name:         diablo3
 " Maintainer:   Vayn <vayn@vayn.de>
 " Last Change:  2011年 08月 24日 星期三 22:44:21 CST
-" Thanks To:    lilydjwg, Tomas Restrepo(author of molokai.vim), terremoto 
+" Thanks To:    lilydjwg, Tomas Restrepo(author of molokai.vim), terremoto
 " License:      MIT License
 " Options:
 "
@@ -31,40 +31,12 @@ let g:colors_name="diablo3"
 
 " Error format when a line is longer than g:diablo3_longlen, {{{1
 " default length is 120.
-if exists('g:diablo3_longline') && g:diablo3_longline == 1 
+if exists('g:diablo3_longline') && g:diablo3_longline == 1
   if ! exists('g:diablo3_len')
     let g:diablo3_len = 121
   end
   exe 'match LongLineWarning "\%'.g:diablo3_len.'v.*"'
 end
-
-" Change term cursor color in insert mode {{{1
-let s:color_normal = 'azure4'
-let s:color_insert = 'DarkGoldenrod1'
-let s:color_exit = 'azure4'
-if &term =~ 'xterm\|rxvt'
-  exe 'silent !echo -ne "\e]12;"' . shellescape(s:color_normal, 1) . '"\007"'
-  let &t_SI="\e]12;" . s:color_insert . "\007"
-  let &t_EI="\e]12;" . s:color_normal . "\007"
-  exe 'autocmd VimLeave * :!echo -ne "\e]12;"' . shellescape(s:color_exit, 1) . '"\007"'
-elseif &term =~ "screen"
-  if !exists('$SUDO_UID')
-    if exists('$TMUX')
-      exe 'silent !echo -ne "\033Ptmux;\033\e]12;"' . shellescape(s:color_normal, 1) . '"\007\033\\"'
-      let &t_SI="\033Ptmux;\033\e]12;" . s:color_insert . "\007\033\\"
-      let &t_EI="\033Ptmux;\033\e]12;" . s:color_normal . "\007\033\\"
-      exe 'autocmd VimLeave * :!echo -ne "\033Ptmux;\033\e]12;"' . shellescape(s:color_exit, 1) . '"\007\033\\"'
-    else
-      exe 'silent !echo -ne "\033P\e]12;"' . shellescape(s:color_normal, 1) . '"\007\033\\"'
-      let &t_SI="\033P\e]12;" . s:color_insert . "\007\033\\"
-      let &t_EI="\033P\e]12;" . s:color_normal . "\007\033\\"
-      exe 'autocmd VimLeave * :!echo -ne "\033P\e]12;"' . shellescape(s:color_exit, 1) . '"\007\033\\"'
-    endif
-  endif
-endif
-unlet s:color_normal
-unlet s:color_insert
-unlet s:color_exit
 
 " Colors {{{1
 hi Boolean         guifg=#ae81ff               gui=bold
@@ -152,7 +124,7 @@ hi Comment         guifg=#666666
 hi CursorLine                    guibg=#293739
 hi CursorColumn                  guibg=#293739
 hi LineNr          guifg=#bcbcbc guibg=#151825
-hi NonText         guifg=#151825 guibg=#151825 
+hi NonText         guifg=#151825 guibg=#151825
 
 hi LongLineWarning guifg=#960050 guibg=#1e0010 gui=underline
 

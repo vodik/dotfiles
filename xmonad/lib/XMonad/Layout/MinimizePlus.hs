@@ -75,7 +75,7 @@ instance LayoutModifier Minimize Window where
             filt  = stack >>= W.filter (`notElem` minimized)
         runLayout (wksp { W.stack = filt }) rect
 
-    handleMess msg@(Minimize minimized unfloated) m
+    handleMess (Minimize minimized unfloated) m
         | Just (MinimizeWin w) <- fromMessage m, w `notElem` minimized = do
             setMinimized True w
             floats <- gets $ W.floating . windowset
