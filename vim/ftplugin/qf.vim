@@ -1,0 +1,1 @@
+setl wrap linebreak nolist
