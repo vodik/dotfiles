@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses #-}
 
-module BalancedTile
+module XMonad.Layout.BalancedTile
     ( BalancedTall (..)
     , MirrorResize (..)
     ) where

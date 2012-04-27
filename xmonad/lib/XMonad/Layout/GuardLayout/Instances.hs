@@ -11,7 +11,7 @@
 -- layout modifiers selectively based on arbitrary run-time conditions.
 -----------------------------------------------------------------------------
 
-module GuardLayout.Instances
+module XMonad.Layout.GuardLayout.Instances
     ( ScreenSpace (..)
     , ScreenSize (..)
     , AspectRatio (..)
@@ -34,10 +34,9 @@ import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
+import XMonad.Layout.GuardLayout
 import XMonad.Layout.LayoutModifier
 import qualified XMonad.StackSet as W
-
-import GuardLayout
 
 -- |
 ifWider :: (LayoutClass l1 a, LayoutClass l2 a)

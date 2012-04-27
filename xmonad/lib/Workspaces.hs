@@ -31,9 +31,9 @@ import System.FilePath
 import XMonad
 import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
+import XMonad.Layout.SortWindows
 import qualified XMonad.StackSet as W
 
-import SortWindows
 import Utils
 
 import qualified Data.Map as M

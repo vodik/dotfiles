@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses, FlexibleContexts, FlexibleInstances #-}
 
-module SortWindows
+module XMonad.Layout.SortWindows
     ( sortQuery
     , setQuery
     , (<?>)

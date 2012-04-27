@@ -1,7 +1,9 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 
-module Gaps ( gaps
-            , Gaps ) where
+module XMonad.Layout.WindowGaps
+    ( gaps
+    , Gaps
+    ) where
 
 import Graphics.X11 (Rectangle(..), Position, Dimension)
 import Control.Arrow (second)

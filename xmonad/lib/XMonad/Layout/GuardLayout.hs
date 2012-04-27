@@ -13,7 +13,7 @@
 -- layout modifiers selectively based on arbitrary run-time conditions.
 -----------------------------------------------------------------------------
 
-module GuardLayout
+module XMonad.Layout.GuardLayout
     ( -- * Usage
       -- $usage
       GuardLayout

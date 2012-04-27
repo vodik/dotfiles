@@ -2,6 +2,7 @@ import Control.Applicative
 import Control.Monad
 import Data.Maybe
 import Data.Monoid
+import Data.Ratio
 import System.Environment
 import System.Exit
 import System.IO
@@ -21,15 +22,20 @@ import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
-import XMonad.Layout.Accordion
+import XMonad.Layout.BalancedTile
 import XMonad.Layout.Grid
+import XMonad.Layout.GuardLayout
+import XMonad.Layout.GuardLayout.Instances
 import XMonad.Layout.Master
+import XMonad.Layout.Minimize
+import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
+import XMonad.Layout.SortWindows
 import XMonad.Layout.Tabbed
-import XMonad.Layout.MultiToggle
 import XMonad.Layout.TrackFloating
+import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Cursor
@@ -39,18 +45,11 @@ import XMonad.Util.Scratchpad
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
-import BalancedTile
+import DynamicTopic
 import CycleWS
 import Dzen2
-import Gaps
-import GuardLayout
-import GuardLayout.Instances
 import Run
-import SortWindows
 import Utils
-
-import DynamicTopic
-
 import Workspaces
 import Workspaces.Instances
 
@@ -87,7 +86,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL)
+myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single TNBFULL) . minimize
     . onWorkspace "work"  (mstr tabs ||| tiled)
     . onWorkspace "term"  (mtiled ||| tiled)
     . onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
@@ -98,14 +97,14 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . mkToggle (single T
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
     work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) sort tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    tiled  = gaps 5 $ BalancedTall 2 step (11/20) []
+    tiled  = gaps 5 $ BalancedTall 2 step (11 % 20) [ 63 % 50 ]
     mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) []
     sortIM = sortQuery "chat" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
     grid   = gaps 5 $ GridRatio (imGrid tw)
     full   = noBorders Full
     tag t  = renamed [ PrependWords t ]
-    step   = 1/50
+    step   = 1 % 50
 
 myRules ws rect = manageDocks
     <+> scratchpadManageHook rect
@@ -141,10 +140,11 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-C-<Space>",  changeDir myXPConfig)
 
       -- quit, or restart
-      , ("M-S-q", io exitSuccess)
-      , ("M-S-c", kill1)
-      , ("M-C-c", kill)
-      , ("M-q",   restart "xmonad" True)
+      , ("M-S-q",   io exitSuccess)
+      , ("M-S-c",   kill1)
+      , ("M-C-c",   kill)
+      , ("M-S-C-c", spawn "xkill" [])
+      , ("M-q",     restart "xmonad" True)
 
       -- layout
       , ("M-<Space>",   sendMessage NextLayout)
@@ -173,16 +173,21 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-0",   sendMessage SwapWindow)
 
       -- cycle workspaces
-      , ("M-<Down>",    moveTo Next skipWS)
-      , ("M-<Up>",      moveTo Prev skipWS)
-      , ("M-<Right>",   moveToNonEmpty Next skipWS)
-      , ("M-<Left>",    moveToNonEmpty Prev skipWS)
-      , ("M-S-<Down>",  shiftTo Next skipWS)
-      , ("M-S-<Up>",    shiftTo Prev skipWS)
-      , ("M-S-<Right>", shiftToEmpty Next skipWS)
-      , ("M-S-<Left>",  shiftToEmpty Prev skipWS)
-      , ("M-<Tab>",     toggleWS skipWS)
-      , ("M-C-0",       toggleCopy skipWS)
+      , ("M-<D>",   moveTo Next skipWS)
+      , ("M-<U>",   moveTo Prev skipWS)
+      , ("M-<R>",   moveToNonEmpty Next skipWS)
+      , ("M-<L>",   moveToNonEmpty Prev skipWS)
+      , ("M-S-<D>", shiftTo Next skipWS)
+      , ("M-S-<U>", shiftTo Prev skipWS)
+      , ("M-S-<R>", shiftToEmpty Next skipWS)
+      , ("M-S-<L>", shiftToEmpty Prev skipWS)
+      , ("M-<Tab>", toggleWS skipWS)
+      , ("M-C-0",   toggleCopy skipWS)
+
+      -- minimizing
+      , ("M-z",   withFocused' minimizeWindow)
+      , ("M-S-z", sendMessage RestoreNextMinimizedWin)
+
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
