@@ -185,9 +185,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
 
       -- minimizing
       , ("M-z",   sendMessage MinimizeFloating)
-      , ("M-S-z", sendMessage RestoreAll)
       , ("M-x",   withFocused' minimizeWindow)
-      , ("M-S-x", sendMessage RestoreNextMinimized)
+      , ("M-S-z", sendMessage RestoreAll)
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
