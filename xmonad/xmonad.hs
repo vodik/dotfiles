@@ -3,6 +3,7 @@ import Control.Monad
 import Data.Maybe
 import Data.Monoid
 import Data.Ratio
+import Graphics.X11.Xinerama (getScreenInfo)
 import System.Environment
 import System.Exit
 import System.IO
@@ -10,8 +11,6 @@ import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
 import qualified Network.MPD.Commands.Extensions as MPD
-
-import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
@@ -27,7 +26,7 @@ import XMonad.Layout.Grid
 import XMonad.Layout.GuardLayout
 import XMonad.Layout.GuardLayout.Instances
 import XMonad.Layout.Master
-import XMonad.Layout.Minimize
+import XMonad.Layout.MinimizePlus
 import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
@@ -185,9 +184,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-C-0",   toggleCopy skipWS)
 
       -- minimizing
-      , ("M-z",   withFocused' minimizeWindow)
-      , ("M-S-z", sendMessage RestoreNextMinimizedWin)
-
+      , ("M-z",   sendMessage MinimizeFloating)
+      , ("M-S-z", sendMessage RestoreAll)
 
       -- misc keybinds against alt
       , ("M1-`",   goToSelected myGSConfig)
