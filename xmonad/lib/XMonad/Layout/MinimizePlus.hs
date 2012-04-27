@@ -24,16 +24,16 @@ module XMonad.Layout.MinimizePlus (
     ) where
 
 import Control.Applicative
-import XMonad
-import qualified XMonad.StackSet as W
-import XMonad.Layout.LayoutModifier
-import XMonad.Layout.BoringWindows as BW
-import XMonad.Util.WindowProperties (getProp32)
-import Data.List
-import Data.Monoid
-import qualified Data.Map as M
 import Data.Maybe
+import Data.Monoid
+import Data.List
 import Foreign.C.Types (CLong)
+import XMonad
+import XMonad.Layout.BoringWindows as BW
+import XMonad.Layout.LayoutModifier
+import XMonad.Util.WindowProperties (getProp32)
+import qualified Data.Map as M
+import qualified XMonad.StackSet as W
 
 data Minimize a = Minimize [Window] (M.Map Window W.RationalRect) deriving ( Read, Show )
 
@@ -89,7 +89,7 @@ instance LayoutModifier Minimize Window where
             floats <- gets $ W.floating . windowset
             mapM_ (setMinimized True) $ M.keys floats
             modifyWindowset $ \s -> s { W.floating = M.empty }
-            return . Just $ Minimize (M.keys floats `mappend` minimized) (unfloated `M.union` floats)
+            return . Just $ Minimize (M.keys floats `mappend` minimized) (floats `M.union` unfloated)
 
         | Just RestoreAll <- fromMessage m = do
             mapM_ (setMinimized False) minimized
