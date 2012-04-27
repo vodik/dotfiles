@@ -30,6 +30,7 @@ import XMonad.Layout.LayoutModifier
 import XMonad.Layout.BoringWindows as BW
 import XMonad.Util.WindowProperties (getProp32)
 import Data.List
+import Data.Monoid
 import qualified Data.Map as M
 import Data.Maybe
 import Foreign.C.Types (CLong)
@@ -83,24 +84,44 @@ instance LayoutModifier Minimize Window where
                 Just r  -> do
                     modify (\s -> s { windowset = W.sink w ws })
                     return . Just $ Minimize (w : minimized) (M.insert w r unfloated)
-        | Just (RestoreMinimizedWin w) <- fromMessage m = restoreWindow w msg
+
+        | Just MinimizeFloating <- fromMessage m = do
+            floats <- gets $ W.floating . windowset
+            mapM_ (setMinimized True) $ M.keys floats
+            let f k v xs = if k `elem` M.keys floats then W.sink k xs else xs
+            modify (\s -> s { windowset = M.foldrWithKey f (windowset s) floats })
+            return . Just $ Minimize (M.keys floats `mappend` minimized) (unfloated `M.union` floats)
+
+        | Just (RestoreMinimizedWin w) <- fromMessage m = restore w minimized unfloated
+
+        | Just RestoreAll              <- fromMessage m = restoreAll minimized unfloated
+
         | Just RestoreNextMinimized <- fromMessage m =
             if null minimized
                 then return Nothing
-                else restoreWindow (head minimized) msg
-        -- | Just RestoreAll <- fromMessage m = do
-        --     mapM (restoreWindow msg) $ M.elems unfloating
+                else restore (head minimized) minimized unfloated
+
         | Just BW.UpdateBoring <- fromMessage m = do
             ws <- gets $ W.workspace . W.current . windowset
             flip sendMessageWithNoRefresh ws $ BW.Replace "Minimize" minimized
             return Nothing
+
         | otherwise = return Nothing
 
-restoreWindow msg@(Minimize minimized unfloated) w = do
+restore w minimized unfloated = do
     setMinimized False w
     case M.lookup w unfloated of
-        Nothing -> return . Just $ Minimize (w `delete` minimized) unfloated
+        Nothing -> do
+            modify (\s -> s { windowset = W.focusWindow w (windowset s) })
+            return . Just $ Minimize (w `delete` minimized) unfloated
         Just r  -> do
-            ws <- gets windowset
-            modify (\s -> s { windowset = W.float w r ws })
+            modify (\s -> s { windowset = W.focusWindow w $ W.float w r (windowset s) })
             return . Just $ Minimize (w `delete` minimized) (M.delete w unfloated)
+
+restoreAll minimized unfloated = do
+    mapM_ (setMinimized False) minimized
+    modify (\s -> s { windowset = M.foldrWithKey f (windowset s) unfloated })
+    modify (\s -> s { windowset = W.focusWindow (head minimized) (windowset s) })
+    return . Just $ Minimize [] (M.filterWithKey (\k v -> k `elem` minimized) unfloated)
+  where
+    f k v xs = if k `elem` minimized then W.float k v xs else xs
