@@ -41,6 +41,9 @@ while (($#)); do
     "cower")
       ln -fs $dotfiles/cower .config/cower
       ;;
+    "nethack")
+      ln -fs $dotfiles/nethackrc .nethackrc
+      ;;
     *)
       echo "$0: deploy command $1 not understood"
       ;;

@@ -1,0 +1,46 @@
+OPTIONS=color,hilite_pet,lit_corridor,DECgraphics
+OPTIONS=showexp,showscore,time,!autopickup
+# OPTIONS=msg_window:f,sortloot=loot,disclose:+i+a+v+g+c
+OPTIONS=boulder:0
+OPTIONS=!legacy
+
+# === MENUCOLOR ===
+# lightcyan - good food
+# orange - cursed (or under +0)
+# lightgreen - blessed
+OPTIONS=menucolors
+MENUCOLOR="safe"=yellow
+MENUCOLOR="[0-9]:[0-9]"=yellow
+MENUCOLOR="\+[0-9]"=yellow
+MENUCOLOR="[Cc]ursed"=orange
+MENUCOLOR="[Uu]ncursed"=
+MENUCOLOR="[Bb]lessed"=lightgreen
+MENUCOLOR="-[0-9]"=orange
+MENUCOLOR="(lit)"=yellow
+
+# underline objects "(wielded)", "(in quiver)", "(being worn)", ...
+MENUCOLOR="safe .* ([a-z]"=yellow,&underline
+MENUCOLOR="+[0-9] .* ([a-z]"=underline
+MENUCOLOR="[Cc]ursed .* ([a-z]"=orange&underline
+MENUCOLOR="[Uu]ncursed .* ([a-z]"=underline
+MENUCOLOR="[Bb]lessed .* ([a-z]"=lightgreen&underline
+MENUCOLOR="-[0-9] .* ([a-z]"=orange&underline
+
+# lightcyan - good food
+MENUCOLOR="ration"=lightcyan
+MENUCOLOR="lembas wafer"=lightcyan
+MENUCOLOR="corpse"=brown
+
+# === STATUSCOLOR ===
+OPTIONS=statuscolors
+STATUSCOLOR=hp%100=green,hp%66=yellow,hp%50=orange
+STATUSCOLOR=hp%33=red&bold,hp%15:red&inverse,hp%0:red&inverse&blink
+STATUSCOLOR=pw%100=green,pw%66=yellow,pw%50:orange,pw%33=red&bold
+
+STATUSCOLOR=burdened:yellow,stressed:orange,strained:red&bold
+STATUSCOLOR=overtaxed:red&inverse,overloaded:red&inverse&blink
+STATUSCOLOR=satiated:yellow,hungry:orange,weak:red&bold
+STATUSCOLOR=fainting:red&inverse,fainted:red&inverse&blink
+STATUSCOLOR=hallu:yellow,conf:orange,stun:red&bold
+STATUSCOLOR=ill:red&inverse,foodpois:red&inverse,slime:red&inverse
+STATUSCOLOR=held:red&inverse,blind:red&inverse
