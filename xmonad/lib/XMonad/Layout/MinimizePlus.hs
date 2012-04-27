@@ -42,7 +42,7 @@ minimize = ModifiedLayout $ Minimize [] M.empty
 data MinimizeMsg = MinimizeWin Window
                  | MinimizeFloating
                  | RestoreMinimizedWin Window
-                 | RestoreNextMinimizedWin
+                 | RestoreNextMinimized
                  | RestoreAll
                  deriving (Typeable, Eq)
 
@@ -62,11 +62,9 @@ setMinimizedState win st f = do
             fi_mini = fromIntegral mini
         io . changeProperty32 dpy win state ptype propModeReplace $ f fi_mini wstate
 
-setMinimized :: Window -> X ()
-setMinimized win = setMinimizedState win iconicState (:)
-
-setNotMinimized :: Window -> X ()
-setNotMinimized win = setMinimizedState win normalState delete
+setMinimized :: Bool -> Window -> X ()
+setMinimized True  win = setMinimizedState win iconicState (:)
+setMinimized False win = setMinimizedState win normalState delete
 
 instance LayoutModifier Minimize Window where
     modifierDescription _ = "Minimize"
@@ -76,40 +74,33 @@ instance LayoutModifier Minimize Window where
             filtStack = stack >>= W.filter (`notElem` minimized)
         runLayout (wksp {W.stack = filtStack}) rect
 
-    handleMess (Minimize minimized unfloated) m
-        | Just (MinimizeWin w) <- fromMessage m, (w `notElem` minimized) = do
-            setMinimized w
+    handleMess msg@(Minimize minimized unfloated) m
+        | Just (MinimizeWin w) <- fromMessage m, w `notElem` minimized = do
+            setMinimized True w
             ws <- gets windowset
             case M.lookup w (W.floating ws) of
-                Nothing -> return $ Just $ Minimize (w:minimized) unfloated
-                Just r -> do
-                    modify (\s -> s { windowset = W.sink w ws})
-                    return $ Just $ Minimize (w:minimized) (M.insert w r unfloated)
-        | Just (RestoreMinimizedWin w) <- fromMessage m = do
-            setNotMinimized w
-            case M.lookup w unfloated of
-                Nothing -> return $ Just $ Minimize (minimized \\ [w]) unfloated
-                Just r -> do
-                    ws <- gets windowset
-                    modify (\s -> s { windowset = W.float w r ws})
-                    return $ Just $ Minimize (minimized \\ [w]) (M.delete w unfloated)
-        | Just RestoreNextMinimizedWin <- fromMessage m = do
-            ws <- gets windowset
-            if not (null minimized)
-                then case M.lookup (head minimized) unfloated of
-                    Nothing -> do
-                        let w = head minimized
-                        setNotMinimized w
-                        modify (\s -> s { windowset = W.focusWindow w ws})
-                        return $ Just $ Minimize (tail minimized) unfloated
-                    Just r -> do
-                        let w = head minimized
-                        setNotMinimized w
-                        modify (\s -> s { windowset = (W.focusWindow w . W.float w r) ws})
-                        return $ Just $ Minimize (tail minimized) (M.delete w unfloated)
-                else return Nothing
+                Nothing -> return . Just $ Minimize (w : minimized) unfloated
+                Just r  -> do
+                    modify (\s -> s { windowset = W.sink w ws })
+                    return . Just $ Minimize (w : minimized) (M.insert w r unfloated)
+        | Just (RestoreMinimizedWin w) <- fromMessage m = restoreWindow w msg
+        | Just RestoreNextMinimized <- fromMessage m =
+            if null minimized
+                then return Nothing
+                else restoreWindow (head minimized) msg
+        -- | Just RestoreAll <- fromMessage m = do
+        --     mapM (restoreWindow msg) $ M.elems unfloating
         | Just BW.UpdateBoring <- fromMessage m = do
-            ws <- gets (W.workspace . W.current . windowset)
+            ws <- gets $ W.workspace . W.current . windowset
             flip sendMessageWithNoRefresh ws $ BW.Replace "Minimize" minimized
             return Nothing
         | otherwise = return Nothing
+
+restoreWindow msg@(Minimize minimized unfloated) w = do
+    setMinimized False w
+    case M.lookup w unfloated of
+        Nothing -> return . Just $ Minimize (w `delete` minimized) unfloated
+        Just r  -> do
+            ws <- gets windowset
+            modify (\s -> s { windowset = W.float w r ws })
+            return . Just $ Minimize (w `delete` minimized) (M.delete w unfloated)
