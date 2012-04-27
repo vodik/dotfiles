@@ -124,7 +124,7 @@ myRules ws rect = manageDocks
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
-    <+> startCompositor "compton" [ "-cGb" ]
+    <+> startCompositor "compton" [ "-cGbfI", "0.20", "-O", "0.20" ]
     -- <+> startServices [ "urxvtd", "udiskie", "mpd" ]
     <+> startServices [ "udiskie", "mpd" ]
 
