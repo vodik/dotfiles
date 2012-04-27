@@ -72,31 +72,33 @@ instance LayoutModifier Minimize Window where
 
     modifyLayout (Minimize minimized _) wksp rect = do
         let stack = W.stack wksp
-            filtStack = stack >>= W.filter (`notElem` minimized)
-        runLayout (wksp {W.stack = filtStack}) rect
+            filt  = stack >>= W.filter (`notElem` minimized)
+        runLayout (wksp { W.stack = filt }) rect
 
     handleMess msg@(Minimize minimized unfloated) m
         | Just (MinimizeWin w) <- fromMessage m, w `notElem` minimized = do
             setMinimized True w
-            ws <- gets windowset
-            case M.lookup w (W.floating ws) of
+            floats <- gets $ W.floating . windowset
+            case M.lookup w floats of
                 Nothing -> return . Just $ Minimize (w : minimized) unfloated
                 Just r  -> do
-                    modify (\s -> s { windowset = W.sink w ws })
+                    modifyWindowset $ W.sink w
                     return . Just $ Minimize (w : minimized) (M.insert w r unfloated)
 
         | Just MinimizeFloating <- fromMessage m = do
             floats <- gets $ W.floating . windowset
             mapM_ (setMinimized True) $ M.keys floats
-            let f k v xs = if k `elem` M.keys floats then W.sink k xs else xs
-            modify (\s -> s { windowset = M.foldrWithKey f (windowset s) floats })
+            modifyWindowset $ \s -> s { W.floating = M.empty }
             return . Just $ Minimize (M.keys floats `mappend` minimized) (unfloated `M.union` floats)
 
+        | Just RestoreAll <- fromMessage m = do
+            mapM_ (setMinimized False) minimized
+            -- modifyWindowset $ W.focusWindow (head minimized)
+            modifyWindowset $ \s -> s { W.floating = W.floating s `M.union` unfloated }
+            return . Just $ Minimize [] M.empty
+
         | Just (RestoreMinimizedWin w) <- fromMessage m = restore w minimized unfloated
-
-        | Just RestoreAll              <- fromMessage m = restoreAll minimized unfloated
-
-        | Just RestoreNextMinimized <- fromMessage m =
+        | Just RestoreNextMinimized    <- fromMessage m =
             if null minimized
                 then return Nothing
                 else restore (head minimized) minimized unfloated
@@ -108,20 +110,17 @@ instance LayoutModifier Minimize Window where
 
         | otherwise = return Nothing
 
+restore :: Window -> [Window] -> M.Map Window W.RationalRect -> X (Maybe (Minimize a))
 restore w minimized unfloated = do
     setMinimized False w
     case M.lookup w unfloated of
         Nothing -> do
-            modify (\s -> s { windowset = W.focusWindow w (windowset s) })
+            -- modifyWindowset $ W.focusWindow w
             return . Just $ Minimize (w `delete` minimized) unfloated
         Just r  -> do
-            modify (\s -> s { windowset = W.focusWindow w $ W.float w r (windowset s) })
+            -- modifyWindowset $ W.focusWindow w . W.float w r
+            modifyWindowset $ W.float w r
             return . Just $ Minimize (w `delete` minimized) (M.delete w unfloated)
 
-restoreAll minimized unfloated = do
-    mapM_ (setMinimized False) minimized
-    modify (\s -> s { windowset = M.foldrWithKey f (windowset s) unfloated })
-    modify (\s -> s { windowset = W.focusWindow (head minimized) (windowset s) })
-    return . Just $ Minimize [] (M.filterWithKey (\k v -> k `elem` minimized) unfloated)
-  where
-    f k v xs = if k `elem` minimized then W.float k v xs else xs
+modifyWindowset :: (WindowSet -> WindowSet) -> X ()
+modifyWindowset f = modify $ \s -> s { windowset = f (windowset s) }
