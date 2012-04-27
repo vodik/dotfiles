@@ -25,6 +25,7 @@ set nolist
 set nowrap
 set textwidth=70
 set formatoptions=qn1
+set commentstring=#\ %s
 
 " searching
 set hlsearch
