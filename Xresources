@@ -3,33 +3,31 @@
 ! vim:      ft=xdefaults
 ! ----------------------------------------------------------------------------
 
-!Xft*dpi:       82
+Xft*dpi:       88
 Xft*antialias: true
 Xft*rgba:      vrgb
 
-URxvt*font:         xft:Envy Code R:size=9
-URxvt*buffered:     true
-URxvt*scrollBar:    false
-URxvt*loginShell:   true
-URxvt*saveLines:    262144
-URxvt*boldMode:     true
-URxvt*jumpScroll:   true
-URxvt*scrollTtyKeypress:true
-URxvt*scrollWithBuffer: false
-URxvt*scrollTtyOutput:  false
-URxvt*urgentOnBell: true
-!URxvt*visualBell:   true
+URxvt*font:              xft:Envy Code R:size=9
+URxvt*buffered:          true
+URxvt*scrollBar:         false
+URxvt*loginShell:        true
+URxvt*saveLines:         262144
+URxvt*boldMode:          true
+URxvt*jumpScroll:        true
+URxvt*scrollTtyKeypress: true
+URxvt*scrollWithBuffer:  false
+URxvt*scrollTtyOutput:   false
+URxvt*urgentOnBell:      true
+URxvt*secondaryWheel:    true
+URxvt*cursorBlink:       false
+URxvt*cursorColor:       #ff9900
+URxvt*cursorColor2:      #000000
+URxvt*depth:             32
+URxvt*background:        rgba:1111/1111/1111/bbbb
 
-URxvt*cursorBlink:  false
-URxvt*cursorColor:  #ff9900
-URxvt*cursorColor2: #000000
-
-URxvt.depth: 32
-URxvt.background: rgba:1111/1111/1111/bbbb
-
-URxvt*perl-ext-common:  default,matcher
-URxvt*urlLauncher:      /usr/bin/firefox
-URxvt*matcher.button:   1
+URxvt*perl-ext-common:   default,matcher
+URxvt*urlLauncher:       /usr/bin/firefox
+URxvt*matcher.button:    1
 
 *foreground: #ddccbb
 *background: #151515
@@ -54,35 +52,7 @@ URxvt*matcher.button:   1
 *color13:    #9e6ffe
 !cyan
 *color6:     #6664a7
-kcolor14:    #888cb1
+*color14:    #888cb1
 !white
 *color7:     #ccccc6
 *color15:    #f8f8f2
-
-/* *foreground:#a0a0a0 */
-/* *background:#1B1D1E */
-
-/* !black */
-/* *color0:    #1B1D1E */
-/* *color8:    #505354 */
-/* !red */
-/* *color1:    #F92672 */
-/* *color9:    #FF669D */
-/* !green */
-/* *color2:    #A6E22E */
-/* *color10:   #BEED5F */
-/* !yellow */
-/* *color3:    #FD971F */
-/* *color11:   #E6DB74 */
-/* !blue */
-/* *color4:    #66D9EF */
-/* *color12:   #66D9EF */
-/* !magenta */
-/* *color5:    #9E6FFE */
-/* *color13:   #9E6FFE */
-/* !cyan */
-/* *color6:    #5E7175 */
-/* *color14:   #A3BABF */
-/* !white */
-/* *color7:    #CCCCC6 */
-/* *color15:   #F8F8F2 */

@@ -209,8 +209,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("<XF86AudioNext>", withMPD MPD.next)
 
       -- screenshot
-      , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "-e", "'mv $f ~/pictures/screenshots/'" ])
-      , ("<Print>",   spawn "scrot" [ "-e", "'mv $f ~/pictures/screenshots/'" ])
+      , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
+      , ("<Print>",   spawn "scrot" [ "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ XMonad.workspaces conf
                       , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)

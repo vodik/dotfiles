@@ -25,6 +25,8 @@ export ABSROOT="$HOME/.build/abs"
 
 eval $(keychain start) >/dev/null
 
+[[ $TERM == xterm ]] && export TERM=xterm-256color
+
 function precmd {
   _title "%15<..<%~%<<" "%n@%m: %~"
 }
