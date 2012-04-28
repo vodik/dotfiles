@@ -3,6 +3,8 @@ alias ll="ls -l"
 alias la="ls -a"
 alias lp="ls -a --color=always | $PAGER -R"
 
+alias vir="vim --servername vim --remote-tab-silent"
+
 alias history="fc -l 1"
 
 # stderred support (https://github.com/albinoloverats/stderred)
