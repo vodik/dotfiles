@@ -1,7 +1,6 @@
 #!/bin/bash
 
 dotfiles=$PWD
-cd ~
 
 die() {
   echo >&2 "$1" && exit 1
@@ -19,8 +18,8 @@ link() {
 
 deploy() {
   while (( $# )); do
-    dotfiles_$1 >& /dev/null
-    (( $? != 0 )) && die "Error: don't know how to deploy \"$1\""
+    cd && dotfiles_$1
+    (( $? == 127 )) && die "Error: don't know how to deploy \"$1\""
     shift
   done
 }
@@ -60,6 +59,10 @@ dotfiles_vim() {
   link vim/gvimrc
 }
 
+dotfiles_weechat() {
+  link weechat
+}
+
 dotfiles_X() {
   link X/Xresources
   link X/xinitrc
@@ -78,7 +81,7 @@ dotfiles_zsh() {
 
 if [[ $# -eq 0 ]]; then
   deploy zsh vim dircolors ncmpcpp xmonad X tmux \
-         git htop cower nethack
+         git htop cower nethack weechat
 else
   deploy $*
 fi
