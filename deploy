@@ -27,7 +27,7 @@ deploy() {
 
 # Deploy scriptlets {{{1
 dotfiles_cower() {
-  link cower/cower .config/cower
+  link cower .config/cower
 }
 
 dotfiles_dircolors() {
