@@ -3,50 +3,70 @@
 dotfiles=$PWD
 cd ~
 
-while (($#)); do
-  case "$1" in
-    "vim")
-      ln -fs $dotfiles/vim .vim
-      ln -fs .vim/vimrc .vimrc
-      ln -fs .vim/gvimrc .gvimrc
-      ;;
-    "zsh")
-      ln -fs $dotfiles/zshrc .zshrc
-      ln -fs $dotfiles/zprofile .zprofile
-      ;;
-    "dircolors")
-      ln -fs $dotfiles/dircolors .dircolors
-      ;;
-    "ncmpcpp")
-      ln -fs $dotfiles/ncmpcpp .ncmpcpp
-      ;;
-    "xmonad")
-      ln -fs $dotfiles/xmonad .xmonad
-      ln -fs $dotfiles/xmobarrc .xmobarrc
-      ;;
-    "x"|"xorg")
-      ln -fs $dotfiles/Xresources .Xresources
-      ln -fs $dotfiles/xinitrc .xinitrc
-      ln -fs $dotfiles/gtkrc-2.0 .gtkrc-2.0.mine
-      ;;
-    "tmux")
-      ln -fs $dotfiles/tmux.conf .tmux.conf
-      ;;
-    "git")
-      ln -fs $dotfiles/gitconfig .gitconfig
-      ;;
-    "htop")
-      ln -fs $dotfiles/htoprc .htoprc
-      ;;
-    "cower")
-      ln -fs $dotfiles/cower .config/cower
-      ;;
-    "nethack")
-      ln -fs $dotfiles/nethackrc .nethackrc
-      ;;
-    *)
-      echo "$0: deploy command $1 not understood"
-      ;;
-  esac
-  shift
-done
+deploy() {
+  t=".${1##*/}"
+  ln -fs "$dotfiles/$1" "${2:-$t}"
+}
+
+dotfiles_cower() {
+  deploy cower/cower .config/cower
+}
+
+dotfiles_dircolors() {
+  deploy dircolors/dircolors
+}
+
+dotfiles_git() {
+  deploy git/gitconfig
+}
+
+dotfiles_htop() {
+  deploy htop/htoprc
+}
+
+dotfiles_ncmpcpp() {
+  deploy ncmpcpp
+}
+
+dotfiles_nethack() {
+  deploy nethack/nethackrc
+}
+
+dotfiles_tmux() {
+  deploy tmux/tmux.conf
+}
+
+dotfiles_vim() {
+  deploy vim
+  deploy vim/vimrc
+  deploy vim/gvimrc
+}
+
+dotfiles_X() {
+  deploy X/Xresources
+  deploy X/xinitrc
+  deploy X/gtkrc-2.0
+}
+
+dotfiles_xmonad() {
+  deploy xmonad
+}
+
+dotfiles_zsh() {
+  deploy zsh/zshrc
+  deploy zsh/zprofile
+}
+
+installer() {
+  while (( $# )); do
+    "dotfiles_$1"
+    shift
+  done
+}
+
+if [[ $# -eq 0 ]]; then
+  deploy zsh vim dircolors ncmpcpp xmonad X tmux \
+         git htop cower nethack
+else
+  deploy $*
+fi
