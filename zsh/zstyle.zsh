@@ -1,12 +1,5 @@
 # fixme - the load process here seems a bit bizarre
 
-unsetopt menu_complete   # do not autoselect the first completion entry
-unsetopt flowcontrol
-
-setopt auto_menu         # show completion menu on succesive tab press
-setopt complete_in_word
-setopt always_to_end
-
 _force_rehash() {
   (( CURRENT = 1 )) && rehash
   return 1
