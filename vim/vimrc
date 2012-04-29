@@ -93,6 +93,9 @@ command! Wq wq
 command! Wa wa
 command! Wqa wqa
 
+map <S-Insert> <MiddleMouse>
+  map! <S-Insert> <MiddleMouse>
+
 " sane j k actions
 nnoremap j gj
 nnoremap k gk

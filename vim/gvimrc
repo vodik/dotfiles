@@ -5,8 +5,9 @@
 colorscheme molokai
 
 set guifont=Envy\ Code\ R\ 9
-set guioptions=fgp
+set guioptions=agpi
 set guicursor=a:blinkon0
+set mousef
 
 colorscheme molokai
 
