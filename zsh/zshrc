@@ -47,6 +47,7 @@ setopt short_loops
 setopt bg_nice
 
 # zle
+unsetopt beep
 setopt vi
 
 for snippets ($HOME/etc/zsh/*.zsh(N))
