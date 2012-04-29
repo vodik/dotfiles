@@ -3,66 +3,78 @@
 dotfiles=$PWD
 cd ~
 
+die() {
+  echo >&2 "$1" && exit 1
+}
+
+link() {
+  target=".${1##*/}"
+  target="${2:-$target}"
+
+  [[ -e "$target" && ! -h "$target" ]] && die "$target exists in filesystem"
+  [[ -d "$target" ]] && rm "$target"
+
+  ln -fs "$dotfiles/$1" "$target"
+}
+
 deploy() {
-  t=".${1##*/}"
-  ln -fs "$dotfiles/$1" "${2:-$t}"
-}
-
-dotfiles_cower() {
-  deploy cower/cower .config/cower
-}
-
-dotfiles_dircolors() {
-  deploy dircolors/dircolors
-}
-
-dotfiles_git() {
-  deploy git/gitconfig
-}
-
-dotfiles_htop() {
-  deploy htop/htoprc
-}
-
-dotfiles_ncmpcpp() {
-  deploy ncmpcpp
-}
-
-dotfiles_nethack() {
-  deploy nethack/nethackrc
-}
-
-dotfiles_tmux() {
-  deploy tmux/tmux.conf
-}
-
-dotfiles_vim() {
-  deploy vim
-  deploy vim/vimrc
-  deploy vim/gvimrc
-}
-
-dotfiles_X() {
-  deploy X/Xresources
-  deploy X/xinitrc
-  deploy X/gtkrc-2.0
-}
-
-dotfiles_xmonad() {
-  deploy xmonad
-}
-
-dotfiles_zsh() {
-  deploy zsh/zshrc
-  deploy zsh/zprofile
-}
-
-installer() {
   while (( $# )); do
-    "dotfiles_$1"
+    dotfiles_$1 >& /dev/null
+    (( $? != 0 )) && die "Error: don't know how to deploy \"$1\""
     shift
   done
 }
+
+# Deploy scriptlets {{{1
+dotfiles_cower() {
+  link cower/cower .config/cower
+}
+
+dotfiles_dircolors() {
+  link dircolors/dircolors
+}
+
+dotfiles_git() {
+  link git/gitconfig
+}
+
+dotfiles_htop() {
+  link htop/htoprc
+}
+
+dotfiles_ncmpcpp() {
+  link ncmpcpp
+}
+
+dotfiles_nethack() {
+  link nethack/nethackrc
+}
+
+dotfiles_tmux() {
+  link tmux/tmux.conf
+}
+
+dotfiles_vim() {
+  link vim
+  link vim/vimrc
+  link vim/gvimrc
+}
+
+dotfiles_X() {
+  link X/Xresources
+  link X/xinitrc
+  link X/gtkrc-2.0
+}
+
+dotfiles_xmonad() {
+  link xmonad
+}
+
+dotfiles_zsh() {
+  link zsh/zshrc
+  link zsh/zprofile
+}
+# }}}
 
 if [[ $# -eq 0 ]]; then
   deploy zsh vim dircolors ncmpcpp xmonad X tmux \
