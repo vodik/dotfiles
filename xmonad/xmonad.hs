@@ -181,7 +181,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-S-<R>", shiftToEmpty Next skipWS)
       , ("M-S-<L>", shiftToEmpty Prev skipWS)
       , ("M-<Tab>", toggleWS skipWS)
-      , ("M-C-0",   toggleCopy skipWS)
+      , ("M-=",     toggleCopy skipWS)
 
       -- minimizing
       , ("M-z",   sendMessage MinimizeFloating)
