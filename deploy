@@ -66,7 +66,7 @@ dotfiles_weechat() {
 dotfiles_X() {
   link X/Xresources
   link X/xinitrc
-  link X/gtkrc-2.0
+  link X/gtkrc-2.0 .gtkrc-2.0.mine
 }
 
 dotfiles_xmonad() {
