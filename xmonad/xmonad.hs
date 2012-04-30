@@ -47,6 +47,7 @@ import qualified XMonad.Actions.Search as S
 import DynamicTopic
 import CycleWS
 import Dzen2
+import MPD
 import Run
 import Utils
 import Workspaces
@@ -62,7 +63,7 @@ imClients = composeAs Any
 myFloats :: Query Bool
 myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress" ]
+                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
 
 -- myTerminal    = "urxvtc"
 myTerminal    = "urxvt"
@@ -206,6 +207,10 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("<XF86AudioStop>", withMPD MPD.stop)
       , ("<XF86AudioPrev>", withMPD MPD.previous)
       , ("<XF86AudioNext>", withMPD MPD.next)
+
+      -- change MPD_HOST
+      , ("M-<XF86AudioPlay>", changeHost myXPConfig)
+      , ("M1-C-S-1", changeHost myXPConfig)
 
       -- screenshot
       , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])

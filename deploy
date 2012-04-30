@@ -10,18 +10,10 @@ link() {
   target=".${1##*/}"
   target="${2:-$target}"
 
-  [[ -e "$target" && ! -h "$target" ]] && die "$target exists in filesystem"
+  [[ -e "$target" && ! -h "$target" ]] && die "$0: $target exists in filesystem"
   [[ -d "$target" ]] && rm "$target"
 
   ln -fs "$dotfiles/$1" "$target"
-}
-
-deploy() {
-  while (( $# )); do
-    cd && dotfiles_$1
-    (( $? == 127 )) && die "Error: don't know how to deploy \"$1\""
-    shift
-  done
 }
 
 # Deploy scriptlets {{{1
@@ -79,9 +71,35 @@ dotfiles_zsh() {
 }
 # }}}
 
+usage() {
+  cat << HERE
+Automated deploy function for dotfile syncronization.
+
+SUPPORTED:
+HERE
+
+  for fun in $(compgen -A function dotfiles_); do
+    echo "  ${fun#*_}"
+  done
+  exit "${1:-0}"
+}
+
+deploy() {
+  while (( $# )); do
+    cd && dotfiles_$1
+    if [[ $? == 127 ]]; then
+      echo >&2 "Error: don't know how to deploy \"$1\""
+      usage >&2 1
+    fi
+    shift
+  done
+}
+
 if [[ $# -eq 0 ]]; then
   deploy zsh vim dircolors ncmpcpp xmonad X tmux \
          git htop cower nethack weechat
+elif [[ "$1" == "--help" ]]; then
+  usage 0
 else
   deploy $*
 fi
