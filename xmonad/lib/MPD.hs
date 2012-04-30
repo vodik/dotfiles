@@ -17,8 +17,8 @@ data MPDConf = MPDConf
     } deriving (Read, Show, Typeable)
 
 instance ExtensionClass MPDConf where
-   initialValue  = MPDConf Nothing Nothing
-   extensionType = PersistentExtension
+    initialValue  = MPDConf Nothing Nothing
+    extensionType = PersistentExtension
 
 changeHost :: XPConfig -> X ()
 changeHost conf = inputPromptWithCompl conf "MPD_HOST" (historyCompletionP (== "MPD_HOST: "))
@@ -28,4 +28,7 @@ setHost :: Maybe String -> X ()
 setHost h = XS.modify $ \conf -> conf { host = h }
 
 withMPD :: MPD.MPD a -> X ()
-withMPD cmd = XS.get >>= io . void . flip (liftM2 MPD.withMPD_ host port) cmd
+withMPD cmd = XS.get >>= flip (liftM2 runMPD host port) cmd
+
+runMPD :: Maybe String -> Maybe String -> MPD.MPD a -> X ()
+runMPD host port cmd = io . void $ MPD.withMPD_ host port cmd
