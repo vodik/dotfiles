@@ -27,6 +27,9 @@ changeHost conf = inputPromptWithCompl conf "MPD_HOST" (historyCompletionP (== "
 setHost :: Maybe String -> X ()
 setHost h = XS.modify $ \conf -> conf { host = h }
 
+getHost :: X (Maybe String)
+getHost = XS.gets host
+
 withMPD :: MPD.MPD a -> X ()
 withMPD cmd = XS.get >>= flip (liftM2 runMPD host port) cmd
 

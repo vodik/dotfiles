@@ -209,8 +209,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("<XF86AudioNext>", withMPD MPD.next)
 
       -- change MPD_HOST
-      , ("M-<XF86AudioPlay>", changeHost myXPConfig)
-      , ("M1-C-S-1", changeHost myXPConfig)
+      , ("M-<XF86AudioPlay>", changeHost myXPConfig >> logHook conf)
+      , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
 
       -- screenshot
       , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
@@ -276,8 +276,15 @@ myPP res = defaultPP
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = getSortByIndexWithoutNSP
-    , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
+    , ppOrder           = \(ws:l:t:e:_) -> [ ws, e, l, dzenColor colorBlue colorBlackAlt "» ", t ]
+    , ppExtras          = [ checkMPD ]
     }
+
+checkMPD = do
+    host <- getHost
+    return $ case host of
+        Just _  -> Just $ dzenColor colorBlack colorBlue " ^i(etc/icons/chain.xbm) "
+        Nothing -> Just ""
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
