@@ -134,6 +134,10 @@ nnoremap <S-F6>  :! ./%<CR>
 " PLUGINS {{{1
 " ----------------------------
 
+" set vim to download files with curl
+let g:netrw_http_cmd = "curl"
+let g:netrw_http_xcmd = "-so"
+
 " snippets config
 let snips_author = 'Simon Gomizelj'
 let snips_email  = 'simongmzlj@gmail.com'
