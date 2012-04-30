@@ -7,6 +7,7 @@
 au BufNewFile,BufRead *.nfo setf nfo
 au BufNewFile,BufRead *.txt setf txt
 au BufNewFile,BufRead *.hsc setf haskell
+au BufNewFile,BufRead *.chs setf haskell
 au BufNewFile,BufRead *.bf  setf brainfuck
 au BufNewFile,BufRead /etc/nginx/conf/* setf nginx
 
