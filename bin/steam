@@ -1,0 +1,31 @@
+#!/bin/bash
+
+export WINEDEBUG="-all"
+export WINEPREFIX="$HOME/steam"
+
+steam() {
+  STEAM="$WINEPREFIX/drive_c/Program Files (x86)/Steam/Steam.exe"
+  [[ ! -f "$STEAM" ]] && STEAM="$WINEPREFIX/drive_c/Program Files/Steam/Steam.exe"
+
+  exec wine "$STEAM" "$*"
+}
+
+if [[ $# -eq 0 ]]; then
+  steam
+else
+  case $1 in
+    install)
+      cd /tmp
+      [[ ! -f SteamInstall.msi ]] && wget http://cdn.steampowered.com/download/SteamInstall.msi
+      exec wine msiexec /i SteamInstall.msi ;;
+    config)
+      exec winecfg ;;
+    tf2)
+      APP=440 ;;
+    portal)
+      APP=400 ;;
+  esac
+
+  steam -applaunch $APP -novid -dxlevel 9
+fi
+
