@@ -135,7 +135,7 @@ nnoremap <S-F6>  :! ./%<CR>
 " ----------------------------
 
 " set vim to download files with curl
-let g:netrw_http_cmd = "curl"
+let g:netrw_http_cmd  = "curl"
 let g:netrw_http_xcmd = "-so"
 
 " snippets config
@@ -146,12 +146,11 @@ let snips_email  = 'simongmzlj@gmail.com'
 nnoremap <silent> <leader>a :A<CR>
 
 " NERDTree config
-let NERDTreeChDirMode            = 2
-let NERDTreeIgnore               = ['\~$', '\.swp$']
-let NERDTreeSortOrder            = ['^__\.py$', '\/$', '*', '\.swp$', '\~$']
-let NERDTreeShowBookmarks        = 1
-let NERDTreeHightlightCursorline = 1
-let NERDTreeMinimalUI            = 1
+let g:NERDTreeChDirMode     = 2
+let g:NERDTreeIgnore        = ['\~$', '\.swp$', '\.o$', '\.hi$']
+let g:NERDTreeSortOrder     = ['^__\.py$', '\/$', '*', '\~$']
+let g:NERDTreeShowBookmarks = 1
+let g:NERDTreeMinimalUI     = 1
 nnoremap <silent> <F9> :NERDTreeToggle<CR>
 
 " SuperTab config
