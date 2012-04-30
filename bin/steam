@@ -3,6 +3,14 @@
 export WINEDEBUG="-all"
 export WINEPREFIX="$HOME/steam"
 
+declare -A APP
+APP=([tf2]=440
+     [portal]=400)
+
+die() {
+  echo >&2 "$1" && exit 1
+}
+
 steam() {
   STEAM="$WINEPREFIX/drive_c/Program Files (x86)/Steam/Steam.exe"
   [[ ! -f "$STEAM" ]] && STEAM="$WINEPREFIX/drive_c/Program Files/Steam/Steam.exe"
@@ -20,12 +28,10 @@ else
       exec wine msiexec /i SteamInstall.msi ;;
     config)
       exec winecfg ;;
-    tf2)
-      APP=440 ;;
-    portal)
-      APP=400 ;;
+    *)
+      ID="${APP[$1]}"
+
+      [[ -z "$ID" ]] && die "$0: can't launch $1"
+      steam -applaunch "$ID" -novid -dxlevel 9 ;;
   esac
-
-  steam -applaunch $APP -novid -dxlevel 9
 fi
-

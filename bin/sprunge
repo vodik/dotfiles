@@ -18,7 +18,7 @@ HERE
   exit "${1:-0}"
 }
 
-options=$(getopt -o hl: -l help,lang: -- "$@") || usage 1
+options=$(getopt -o hl: -l help,lang: -- "$@") || usage >&2 1
 
 eval set -- $options
 while [[ $# -gt 0 ]]; do
@@ -27,7 +27,7 @@ while [[ $# -gt 0 ]]; do
     -l|--lang) L="$2" ;;
 
     --) shift; break  ;;
-    -*) echo >&2 "$0: error - unrecognized option $1"; usage 1 ;;
+    -*) echo >&2 "$0: error - unrecognized option $1"; usage >&2 1 ;;
   esac
   shift
 done

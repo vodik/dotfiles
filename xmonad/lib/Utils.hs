@@ -15,7 +15,6 @@ import System.Posix.Process (createSession, executeFile, forkProcess)
 import System.Posix.Types (ProcessGroupID(..))
 import Text.Regex.Posix ((=~))
 import qualified Data.Set as S
-import qualified Network.MPD as MPD
 
 import XMonad hiding (spawn)
 import XMonad.Hooks.ManageHelpers
@@ -102,6 +101,3 @@ startCompositor prog args = XS.get >>= \(CompositorPID p) ->
     case p of
         Just pid -> return ()
         Nothing  -> CompositorPID . Just <$> run prog args >>= XS.put
-
-withMPD :: MPD.MPD a -> X ()
-withMPD = io . void . MPD.withMPD
