@@ -114,7 +114,7 @@ restore :: Window -> [Window] -> M.Map Window W.RationalRect -> X (Maybe (Minimi
 restore w minimized unfloated = do
     setMinimized False w
     case M.lookup w unfloated of
-        Nothing -> do
+        Nothing ->
             -- modifyWindowset $ W.focusWindow w
             return . Just $ Minimize (w `delete` minimized) unfloated
         Just r  -> do

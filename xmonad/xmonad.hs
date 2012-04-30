@@ -280,11 +280,8 @@ myPP res = defaultPP
     , ppExtras          = [ checkMPD ]
     }
 
-checkMPD = do
-    host <- getHost
-    return $ case host of
-        Just _  -> Just $ dzenColor colorBlack colorBlue " ^i(etc/icons/chain.xbm) "
-        Nothing -> Just ""
+checkMPD = Just . maybe "" (const icon) <$> getHost
+  where icon = dzenColor colorBlack colorBlue " ^i(etc/icons/chain.xbm) "
 
 myTabTheme = defaultTheme
     { decoHeight          = 18
