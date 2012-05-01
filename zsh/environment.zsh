@@ -8,7 +8,7 @@ export DISPLAY=${DISPLAY:-:0}
 export GREP_OPTIONS="--color=auto"
 export GREP_COLOR="4;1;31"
 
-[[ -f ~/etc/dircolors ]] && eval $(dircolors ~/etc/dircolors)
+[[ -f ~/etc/dircolors/dircolors ]] && eval $(dircolors ~/etc/dircolors/dircolors)
 
 export LESS_TERMCAP_mb=$'\E[01;31m'  # begin blinking
 export LESS_TERMCAP_md=$'\E[01;31m'  # begin bold
