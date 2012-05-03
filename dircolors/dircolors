@@ -169,7 +169,9 @@ EXEC    01;32
 .chs  00;36
 
 # documents
-.md   00;32
+.latex 00;32
+.tex   00;32
+.md    00;32
 
 # objects
 .a    00;33
