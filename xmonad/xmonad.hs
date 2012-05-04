@@ -227,16 +227,14 @@ myKeys ws browser conf = mkKeymap conf $ concat
   where
     skipWS = [ "NSP" ]
 
-myMouseBindings (XConfig {XMonad.modMask = modm}) = M.fromList
-    [ ((modm, button1), \w -> focus w >> mouseMoveWindow w >> windows W.shiftMaster)
-    , ((modm, button2), killWindow)
-    , ((modm, button3), \w -> focus w >> mouseResizeWindow w >> windows W.shiftMaster)
-
-    , ((modm,               button4), const $ moveTo Prev skipWS)
-    , ((modm,               button5), const $ moveTo Next skipWS)
-    , ((modm .|. shiftMask, button4), const $ shiftTo Prev skipWS)
-    , ((modm .|. shiftMask, button5), const $ shiftTo Next skipWS)
-    ]
+myMouseBindings conf@(XConfig {modMask = modm}) =
+    (`M.union` (mouseBindings defaultConfig) conf) $ M.fromList
+        [ ((modm, button2), killWindow)
+        , ((modm,               button4), const $ moveTo Prev skipWS)
+        , ((modm,               button5), const $ moveTo Next skipWS)
+        , ((modm .|. shiftMask, button4), const $ shiftTo Prev skipWS)
+        , ((modm .|. shiftMask, button5), const $ shiftTo Next skipWS)
+        ]
   where
     skipWS = [ "NSP" ]
 
