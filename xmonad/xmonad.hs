@@ -152,10 +152,10 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-a",         sendMessage ToggleLayout)
 
       -- resizing
-      , ("M-h",   sendMessage Shrink)
-      , ("M-l",   sendMessage Expand)
-      , ("M-S-h", sendMessage MirrorExpand)
-      , ("M-S-l", sendMessage MirrorShrink)
+      , ("M-[",   sendMessage Shrink)
+      , ("M-]",   sendMessage Expand)
+      , ("M-S-[", sendMessage MirrorExpand)
+      , ("M-S-]", sendMessage MirrorShrink)
       , ("M-,",   sendMessage $ IncMasterN (-1))
       , ("M-.",   sendMessage $ IncMasterN 1)
 
@@ -215,7 +215,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
       , ("<Print>",   spawn "scrot" [ "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
       ]
-    , [ (m ++ i, f w) | (i, w) <- zip (map show [1..]) $ XMonad.workspaces conf
+    , [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf
                       , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
@@ -229,9 +229,9 @@ myKeys ws browser conf = mkKeymap conf $ concat
 
 myMouseBindings conf@(XConfig {modMask = modm}) =
     (`M.union` (mouseBindings defaultConfig) conf) $ M.fromList
-        [ ((modm, button2), killWindow)
-        , ((modm,               button4), const $ moveTo Prev skipWS)
-        , ((modm,               button5), const $ moveTo Next skipWS)
+        [ ((modm,               button2), killWindow)
+        , ((modm,               button4), const $ moveTo  Prev skipWS)
+        , ((modm,               button5), const $ moveTo  Next skipWS)
         , ((modm .|. shiftMask, button4), const $ shiftTo Prev skipWS)
         , ((modm .|. shiftMask, button5), const $ shiftTo Next skipWS)
         ]
