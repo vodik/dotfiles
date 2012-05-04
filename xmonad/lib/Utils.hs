@@ -90,3 +90,6 @@ startCompositor prog args = XS.get >>= \(CompositorPID p) ->
     case p of
         Just pid -> return ()
         Nothing  -> CompositorPID . Just <$> run prog args >>= XS.put
+
+quote :: String -> String -> String
+quote = (.) <$> (++) <*> flip (++)

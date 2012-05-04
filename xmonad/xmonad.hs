@@ -364,16 +364,13 @@ startDzen = spawnPipe myDzen
 
 myDzen :: String
 myDzen = "dzen2 " ++ unwords
-    [ "-x"   , "0"
-    , "-y"   , "-16"
-    , "-h"   , "16"
-    , "-fn"  , quote dzenFont
-    , "-fg"  , quote colorWhite
-    , "-bg"  , quote colorBlackAlt
+    [ "-y"   , "-16"
+    , "-h"   ,  "16"
+    , "-fn"  , wrap "'" "'" dzenFont
+    , "-fg"  , wrap "'" "'" colorWhite
+    , "-bg"  , wrap "'" "'" colorBlackAlt
     , "-ta l"
     , "-e 'onstart=lower'" ]
-  where
-    quote = wrap "'" "'"
 
 positionRationalRect :: Rectangle -> W.RationalRect
 positionRationalRect (Rectangle sx sy sw sh) =
