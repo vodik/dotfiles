@@ -4,7 +4,6 @@ module Utils where
 
 import Codec.Binary.UTF8.String
 import Control.Applicative
-import Control.Concurrent (threadDelay)
 import Control.Monad
 import Data.List
 import Data.Maybe
@@ -71,9 +70,6 @@ hasResource ign w = withDisplay $ \d -> io $ (`elem` ign) . resName <$> getClass
 
 getSortByIndexWithoutNSP :: X WorkspaceSort
 getSortByIndexWithoutNSP = (. filter ((/= "NSP") . W.tag)) <$> getSortByIndex
-
-delayedSpawn :: Int -> String -> [String] -> X ()
-delayedSpawn d cmd args = io (threadDelay d) >> spawn cmd args
 
 env :: String -> IO (Maybe String)
 env = (<$> getEnvironment) . lookup

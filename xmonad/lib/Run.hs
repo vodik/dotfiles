@@ -1,10 +1,12 @@
 module Run
     ( fork, run
     , spawn, spawnIn
+    , delayedSpawn
     ) where
 
 import Codec.Binary.UTF8.String
 import Control.Applicative
+import Control.Concurrent (threadDelay)
 import Control.Monad
 import System.Directory (setCurrentDirectory)
 import System.Posix.Process (createSession, executeFile, forkProcess)
@@ -23,6 +25,9 @@ run = fork .: execute
 
 spawn :: (Functor f, MonadIO f) => FilePath -> [String] -> f ()
 spawn = void .: run
+
+delayedSpawn :: (Functor f, MonadIO f) => Int -> FilePath -> [String] -> f ()
+delayedSpawn d cmd args = io (threadDelay d) >> spawn cmd args
 
 spawnIn :: (Functor f, MonadIO f) => FilePath -> FilePath -> [String] -> f ()
 spawnIn dir cmd args = void . fork $ do
