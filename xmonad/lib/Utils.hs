@@ -19,7 +19,6 @@ import qualified Data.Set as S
 import XMonad hiding (spawn)
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
-import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
@@ -28,12 +27,6 @@ import qualified XMonad.Util.ExtensibleState as XS
 
 import Proc
 import Run
-
-data TNBFULL = TNBFULL deriving (Read, Show, Eq, Typeable)
-
-instance Transformer TNBFULL Window where
-    transform TNBFULL x k = k (tag "Triggered" $ noBorders Full) (const x)
-      where tag t = renamed [ PrependWords t ]
 
 data BorderUrgencyHook = BorderUrgencyHook !String
     deriving (Show, Read)

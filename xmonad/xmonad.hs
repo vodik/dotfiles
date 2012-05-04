@@ -26,12 +26,12 @@ import XMonad.Layout.GuardLayout
 import XMonad.Layout.GuardLayout.Instances
 import XMonad.Layout.Master
 import XMonad.Layout.MinimizePlus
-import XMonad.Layout.MultiToggle
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
 import XMonad.Layout.SortWindows
 import XMonad.Layout.Tabbed
+import XMonad.Layout.ToggleLayouts
 import XMonad.Layout.TrackFloating
 import XMonad.Layout.WindowGaps
 import XMonad.Prompt
@@ -85,7 +85,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . minimize . mkToggle (single TNBFULL)
+myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . minimize . tfull
     . onWorkspace "work"  (mstr tabs ||| tiled)
     . onWorkspace "term"  (mtiled ||| tiled)
     . onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
@@ -93,6 +93,7 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . minimize . mkToggl
     . onWorkspace "games" full
     $ tiled ||| Mirror tiled
   where
+    tfull  = toggleLayouts . tag "Triggered" $ noBorders Full
     mstr l = smartBorders $ ifWider 1200 (work ||| l) l
     work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) sort tabs tabs
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
@@ -148,7 +149,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
       -- layout
       , ("M-<Space>",   sendMessage NextLayout)
       , ("M-S-<Space>", sendMessage FirstLayout)
-      , ("M-a",         sendMessage $ Toggle TNBFULL)
+      , ("M-a",         sendMessage ToggleLayout)
 
       -- resizing
       , ("M-h",   sendMessage Shrink)
@@ -308,7 +309,7 @@ applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
     where conf = urgencyConfig { suppressWhen = Focused }
 
 getScreen :: IO Rectangle
-getScreen = head <$> (openDisplay "" >>= getScreenInfo)
+getScreen = openDisplay "" >>= fmap head . getScreenInfo
 
 getMachine = buildTags $ do
     host <- nodeName <$> liftIO getSystemID
@@ -365,9 +366,9 @@ startDzen = spawnPipe myDzen
 
 myDzen :: String
 myDzen = "dzen2 " ++ unwords
-    [ "-x"   , show 0
-    , "-y"   , show (- 16)
-    , "-h"   , show 16
+    [ "-x"   , "0"
+    , "-y"   , "-16"
+    , "-h"   , "16"
     , "-fn"  , quote dzenFont
     , "-fg"  , quote colorWhite
     , "-bg"  , quote colorBlackAlt
