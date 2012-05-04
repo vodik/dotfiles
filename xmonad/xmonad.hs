@@ -14,7 +14,6 @@ import qualified Network.MPD.Commands.Extensions as MPD
 
 import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
-import XMonad.Actions.GridSelect
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
@@ -190,7 +189,6 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-S-z", sendMessage RestoreAll)
 
       -- misc keybinds against alt
-      , ("M1-`",   goToSelected myGSConfig)
       , ("M1-C-l", spawn "slock" [])
 
       -- multimedia keys
@@ -304,13 +302,6 @@ myXPConfig = defaultXPConfig
     , fgHLight          = "#f92672"
     , promptBorderWidth = 0
     , position          = Bottom
-    }
-
-myGSConfig = defaultGSConfig
-    { gs_font        = xftFont
-    , gs_cellheight  = 55
-    , gs_cellwidth   = 164
-    , gs_cellpadding = 10
     }
 
 applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
