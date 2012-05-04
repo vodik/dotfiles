@@ -337,7 +337,7 @@ main = do
     res     <- mkResources machine
     screen  <- getScreen
     browser <- getBrowser "firefox"
-    dzenbar <- startDzen screen
+    dzenbar <- startDzen
 
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
@@ -360,14 +360,13 @@ main = do
         , focusFollowsMouse  = True
         }
 
-startDzen :: MonadIO m => Rectangle -> m Handle
-startDzen = spawnPipe . myDzen
+startDzen :: MonadIO m => m Handle
+startDzen = spawnPipe myDzen
 
-myDzen :: Rectangle -> String
-myDzen (Rectangle x y sw sh) = "dzen2 " ++ unwords
-    [ "-x"   , show x
-    , "-w"   , show sw
-    , "-y"   , show (sh - 16)
+myDzen :: String
+myDzen = "dzen2 " ++ unwords
+    [ "-x"   , show 0
+    , "-y"   , show (- 16)
     , "-h"   , show 16
     , "-fn"  , quote dzenFont
     , "-fg"  , quote colorWhite

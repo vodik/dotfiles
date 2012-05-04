@@ -1,3 +1,4 @@
 *.log
-irc.conf
 logs
+irc.conf
+weechat.conf
