@@ -9,3 +9,7 @@ ncmpcpp/error.log
 xmonad/xmonad-*-linux
 xmonad/xmonad.errors
 xmonad/history
+weechat/logs
+weechat/irc.conf
+weechat/weechat.conf
+weechat/weeget
