@@ -37,8 +37,10 @@ startService prog args = XS.gets (Map.lookup prog . services) >>= \pid ->
         XS.modify (Services . Map.insert prog pid . services)
 
     running pid = io . handle (\(SomeException _) -> return False) $ do
-        void $ getProcessStatus False False pid
-        return True
+        status <- getProcessStatus False False pid
+        case status of
+            Just _  -> return False
+            Nothing -> return True
 
 stopService :: String -> X ()
 stopService prog = XS.gets (Map.lookup prog . services) >>= flip whenJust (io . signalProcess sigTERM)
