@@ -138,7 +138,9 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-p", shellPrompt myXPConfig)
 
       , ("M-C-<Return>", spawnShell)
-      , ("M-C-<Space>",  changeDir myXPConfig)
+      -- , ("M-C-<Space>",  changeDir myXPConfig)
+
+      , ("M-C-<Space>",  stopCompositor)
 
       -- quit, or restart
       , ("M-S-q",   io exitSuccess)

@@ -8,6 +8,7 @@ import Control.Exception
 import Control.Monad
 import System.Posix.Types (ProcessGroupID(..))
 import System.Posix.Process (getProcessStatus)
+import System.Posix.Signals
 
 import XMonad hiding (spawn)
 import qualified XMonad.Util.ExtensibleState as XS
@@ -22,14 +23,15 @@ instance ExtensionClass CompositorPID where
    extensionType = PersistentExtension
 
 startCompositor :: String -> [String] -> X ()
-startCompositor prog args = XS.get >>= \p ->
-    case pid p of
+startCompositor prog args = XS.gets pid >>= \pid ->
+    case pid of
         Just pid -> running pid >>= flip unless start
         Nothing  -> start
   where
     start       = CompositorPID . Just <$> run prog args >>= XS.put
     running pid = io . handle (\(SomeException _) -> return False) $ do
-        void (getProcessStatus False False pid) >> return True
+        void $ getProcessStatus False False pid
+        return True
 
 stopCompositor :: X ()
-stopCompositor = undefined
+stopCompositor = XS.gets pid >>= flip whenJust (io . signalProcess sigTERM)

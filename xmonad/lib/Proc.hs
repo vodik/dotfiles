@@ -14,6 +14,9 @@ import qualified Data.Set as S
 findCmd :: String -> Set (String, Int) -> Set (String, Int)
 findCmd cmd = S.filter (cmdFilter cmd)
 
+findPid :: String -> Set (String, Int) -> Set (String, Int)
+findPid cmd = S.filter (cmdFilter cmd)
+
 cmdFilter :: String -> (String, Int) -> Bool
 cmdFilter cmd = fst >>> (cmd `isInfixOf`)
 
