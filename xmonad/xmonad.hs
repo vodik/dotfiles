@@ -12,6 +12,7 @@ import qualified Data.Map as M
 import qualified Network.MPD as MPD
 import qualified Network.MPD.Commands.Extensions as MPD
 
+
 import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
 import XMonad.Hooks.DynamicLog
@@ -230,7 +231,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
     skipWS = [ "NSP" ]
 
 myMouseBindings conf@(XConfig {modMask = modm}) =
-    (`M.union` (mouseBindings defaultConfig) conf) $ M.fromList
+    (`M.union` mouseBindings defaultConfig conf) $ M.fromList
         [ ((modm,               button2), killWindow)
         , ((modm,               button4), const $ moveTo  Prev skipWS)
         , ((modm,               button5), const $ moveTo  Next skipWS)
