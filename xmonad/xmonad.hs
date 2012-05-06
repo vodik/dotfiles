@@ -39,6 +39,7 @@ import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
+import XMonad.Util.MPD
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.Services
@@ -48,7 +49,6 @@ import qualified XMonad.Actions.Search as S
 import DynamicTopic
 import CycleWS
 import Dzen2
-import MPD
 import Run
 import Utils
 import Workspaces

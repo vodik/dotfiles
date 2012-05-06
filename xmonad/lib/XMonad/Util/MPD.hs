@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses #-}
 
-module MPD where
+module XMonad.Util.MPD where
 
 import Control.Applicative
 import Control.Monad
