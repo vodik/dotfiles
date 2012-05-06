@@ -23,8 +23,8 @@ data Services = Services { services :: Map String ProcessGroupID }
     deriving (Read, Show, Typeable)
 
 instance ExtensionClass Services where
-   initialValue  = Services Map.empty
-   extensionType = PersistentExtension
+    initialValue  = Services Map.empty
+    extensionType = PersistentExtension
 
 startService :: String -> [String] -> X ()
 startService prog args = XS.gets (Map.lookup prog . services) >>= \pid ->
@@ -43,4 +43,9 @@ startService prog args = XS.gets (Map.lookup prog . services) >>= \pid ->
             Nothing -> return True
 
 stopService :: String -> X ()
-stopService prog = XS.gets (Map.lookup prog . services) >>= flip whenJust (io . signalProcess sigTERM)
+stopService prog = XS.gets (Map.lookup prog . services) >>= \pid ->
+    case pid of
+        Nothing  -> return ()
+        Just pid -> do
+            io $ signalProcess sigTERM pid
+            XS.modify (Services . Map.delete prog . services)
