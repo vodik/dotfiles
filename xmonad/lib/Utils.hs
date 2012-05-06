@@ -21,7 +21,6 @@ import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
-import Proc
 import Run
 
 data BorderUrgencyHook = BorderUrgencyHook !String
@@ -70,11 +69,6 @@ getBrowser = (<$> env "BROWSER") . fromMaybe
 
 getHome :: IO String
 getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
-
-startServices :: [String] -> X ()
-startServices cmds = io (service <$> pidSet) >>= forM_ cmds
-  where
-    service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd []
 
 quote :: String -> String -> String
 quote = (.) <$> (++) <*> flip (++)

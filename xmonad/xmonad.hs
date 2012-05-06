@@ -36,11 +36,11 @@ import XMonad.Layout.TrackFloating
 import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
-import XMonad.Util.Composition
 import XMonad.Util.Cursor
 import XMonad.Util.EZConfig
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.Scratchpad
+import XMonad.Util.Services
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
@@ -65,8 +65,7 @@ myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
                          , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
 
--- myTerminal    = "urxvtc"
-myTerminal    = "urxvt"
+myTerminal    = "urxvtc"
 myBorderWidth = 2
 myModMask     = mod4Mask
 
@@ -126,9 +125,9 @@ myRules ws rect = manageDocks
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
-    <+> startCompositor "compton" [ "-cGfI", "0.20", "-O", "0.20" ]
-    -- <+> startServices [ "urxvtd", "udiskie", "mpd" ]
-    <+> startServices [ "udiskie", "mpd" ]
+    <+> startService "compton" [ "-cGfI", "0.20", "-O", "0.20" ]
+    <+> startService "urxvtd"  [ "-q", "-o" ]
+    <+> startService "udiskie" []
 
 myKeys ws browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn (terminal conf) [])
@@ -140,7 +139,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-C-<Return>", spawnShell)
       -- , ("M-C-<Space>",  changeDir myXPConfig)
 
-      , ("M-C-<Space>",  stopCompositor)
+      , ("M-C-<Space>",  stopService "compton")
 
       -- quit, or restart
       , ("M-S-q",   io exitSuccess)
