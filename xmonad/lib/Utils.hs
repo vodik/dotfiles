@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeSynonymInstances, DeriveDataTypeable, MultiParamTypeClasses #-}
-
 module Utils where
 
 import Codec.Binary.UTF8.String
@@ -22,7 +20,6 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
-import qualified XMonad.Util.ExtensibleState as XS
 
 import Proc
 import Run
@@ -33,12 +30,6 @@ data BorderUrgencyHook = BorderUrgencyHook !String
 instance UrgencyHook BorderUrgencyHook where
     urgencyHook (BorderUrgencyHook cs) w = withDisplay $ \dpy -> io $
         initColor dpy cs >>= maybe (return ()) (setWindowBorder dpy w)
-
-data CompositorPID = CompositorPID (Maybe ProcessGroupID) deriving (Read, Show, Typeable)
-
-instance ExtensionClass CompositorPID where
-   initialValue  = CompositorPID Nothing
-   extensionType = PersistentExtension
 
 to9 :: [String] -> [String]
 to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
@@ -84,12 +75,6 @@ startServices :: [String] -> X ()
 startServices cmds = io (service <$> pidSet) >>= forM_ cmds
   where
     service pm cmd = when (S.null $ findCmd cmd pm) $ spawn cmd []
-
-startCompositor :: String -> [String] -> X ()
-startCompositor prog args = XS.get >>= \(CompositorPID p) ->
-    case p of
-        Just pid -> return ()
-        Nothing  -> CompositorPID . Just <$> run prog args >>= XS.put
 
 quote :: String -> String -> String
 quote = (.) <$> (++) <*> flip (++)
