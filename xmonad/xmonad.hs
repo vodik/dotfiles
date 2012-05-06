@@ -15,6 +15,7 @@ import qualified Network.MPD.Commands.Extensions as MPD
 
 import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
+import XMonad.Actions.Cycle
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
@@ -47,7 +48,6 @@ import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
 import DynamicTopic
-import CycleWS
 import Dzen2
 import Run
 import Utils
@@ -176,16 +176,16 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-0",   sendMessage SwapWindow)
 
       -- cycle workspaces
-      , ("M-<D>",   moveTo Next skipWS)
-      , ("M-<U>",   moveTo Prev skipWS)
-      , ("M-<R>",   moveToNonEmpty Next skipWS)
-      , ("M-<L>",   moveToNonEmpty Prev skipWS)
-      , ("M-S-<D>", shiftTo Next skipWS)
-      , ("M-S-<U>", shiftTo Prev skipWS)
-      , ("M-S-<R>", shiftToEmpty Next skipWS)
-      , ("M-S-<L>", shiftToEmpty Prev skipWS)
-      , ("M-<Tab>", toggleWS skipWS)
-      , ("M-=",     toggleCopy skipWS)
+      , ("M-<D>",   moveTo Next skip)
+      , ("M-<U>",   moveTo Prev skip)
+      , ("M-<R>",   moveToNonEmpty Next skip)
+      , ("M-<L>",   moveToNonEmpty Prev skip)
+      , ("M-S-<D>", shiftTo Next skip)
+      , ("M-S-<U>", shiftTo Prev skip)
+      , ("M-S-<R>", shiftToEmpty Next skip)
+      , ("M-S-<L>", shiftToEmpty Prev skip)
+      , ("M-<Tab>", toggleWS [ "NSP" ])
+      , ("M-=",     toggleCopy [ "NSP" ])
 
       -- minimizing
       , ("M-z",   sendMessage MinimizeFloating)
@@ -219,7 +219,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("<Print>",   spawn "scrot" [ "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip skipWS W.greedyView)
+                      , (m, f) <- [ ("M-",   toggleOrDoSkip [ "NSP" ] W.greedyView)
                                   , ("M-S-", windows . W.shift)
                                   , ("M-C-", windows . copy)
                                   ]
@@ -228,18 +228,19 @@ myKeys ws browser conf = mkKeymap conf $ concat
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
     ]
   where
-    skipWS = [ "NSP" ]
+    -- skip = [ "NSP" ]
+    skip = [ skipWS [ "NSP" ] ]
 
 myMouseBindings conf@(XConfig {modMask = modm}) =
     (`M.union` mouseBindings defaultConfig conf) $ M.fromList
         [ ((modm,               button2), killWindow)
-        , ((modm,               button4), const $ moveTo  Prev skipWS)
-        , ((modm,               button5), const $ moveTo  Next skipWS)
-        , ((modm .|. shiftMask, button4), const $ shiftTo Prev skipWS)
-        , ((modm .|. shiftMask, button5), const $ shiftTo Next skipWS)
+        , ((modm,               button4), const $ moveTo  Prev skip)
+        , ((modm,               button5), const $ moveTo  Next skip)
+        , ((modm .|. shiftMask, button4), const $ shiftTo Prev skip)
+        , ((modm .|. shiftMask, button5), const $ shiftTo Next skip)
         ]
   where
-    skipWS = [ "NSP" ]
+    skip = [ skipWS [ "NSP" ] ]
 
 searchList :: [(String, S.SearchEngine)]
 searchList =

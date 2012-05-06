@@ -89,7 +89,7 @@ buildTags = execWriterT
 
 mkResources :: MonadIO m => [(WorkspaceId, Tag)] -> m Resources
 mkResources info = do
-    root <- liftM (</> ".xmonad/") $ liftIO getHome
+    root <- getXMonadDir
     return Resources
         { layoutIcon    = (root </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
         , workspaceData = (`M.lookup` wsData root info)
