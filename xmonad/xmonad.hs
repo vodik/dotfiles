@@ -118,8 +118,8 @@ myRules ws rect = manageDocks
     <+> composeOneCaught (insertPosition Below Newer)
         [ className =? "Wine"  -?> doFloat
         , myFloats             -?> doCenterFloat
-        , isFirefoxPreferences -?> doCenterFloat
         , isDialog             -?> doCenterFloat
+        , isFirefoxPreferences -?> doCenterFloat
         , isFullscreen         -?> doFullFloat
         ]
 
