@@ -3,10 +3,12 @@ import Control.Monad
 import Data.Maybe
 import Data.Monoid
 import Data.Ratio
+import Graphics.X11.Xlib.Display
 import Graphics.X11.Xinerama (getScreenInfo)
 import System.Environment
 import System.Exit
 import System.IO
+import System.Posix.Env (setEnv)
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
@@ -340,6 +342,9 @@ main = do
     screen  <- getScreen
     browser <- getBrowser "firefox"
     dzenbar <- startDzen
+
+    d <- displayString <$> openDisplay ""
+    setEnv "RXVT_SOCKET" ("/home/simongmzlj/.urxvt/urxvtd-" ++ d) True
 
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
