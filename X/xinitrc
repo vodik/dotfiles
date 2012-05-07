@@ -1,11 +1,14 @@
-if [ -d /etc/X11/xinit/xinitrc.d ]; then
+#!/bin/bash
+
+cd
+
+if [[ -d /etc/X11/xinit/xinitrc.d ]]; then
   for f in /etc/X11/xinit/xinitrc.d/*; do
-    [ -x "$f" ] && . "$f"
+    [[ -x "$f" ]] && . "$f"
   done
   unset f
 fi
 
-cd
 case $2 in
   xbmc)
     exec xbmc-standalone ;;
@@ -16,5 +19,3 @@ case $2 in
     nitrogen --restore &
     exec ck-launch-session "${2-xmonad}" ;;
 esac
-
-# vi: ft=sh

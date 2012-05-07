@@ -15,7 +15,7 @@ import qualified Network.MPD.Commands.Extensions as MPD
 
 import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
-import XMonad.Actions.Cycle
+import XMonad.Actions.CycleWS hiding (shiftTo, moveTo, toggleWS)
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
@@ -39,6 +39,7 @@ import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Cursor
+import XMonad.Util.CycleWS
 import XMonad.Util.EZConfig
 import XMonad.Util.MPD
 import XMonad.Util.Run (spawnPipe)
