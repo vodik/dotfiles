@@ -22,7 +22,7 @@ instance ExtensionClass MPDConf where
 
 changeHost :: XPConfig -> X ()
 changeHost conf = inputPromptWithCompl conf "MPD_HOST" (historyCompletionP (== "MPD_HOST: "))
-    ?+ setHost . ap ((>>) . guard . not . null) return
+    ?+ setHost . \x -> guard (not $ null x) >> return x
 
 setHost :: Maybe String -> X ()
 setHost h = XS.modify $ \conf -> conf { host = h }
