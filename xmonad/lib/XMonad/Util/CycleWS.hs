@@ -1,5 +1,6 @@
-module CycleWS
-    ( moveTo, moveToNonEmpty
+module XMonad.Util.CycleWS
+    ( skipWS
+    , moveTo, moveToNonEmpty
     , shiftTo, shiftToEmpty
     , toggleWS, CW.toggleOrDoSkip
     , toggleCopy, doCopy
@@ -16,36 +17,38 @@ import XMonad.Util.WorkspaceCompare
 import qualified XMonad.Actions.CycleWS as CW
 import qualified XMonad.StackSet as W
 
-skipWS :: [String] -> WindowSpace -> Bool
+type WSFilter = WindowSpace -> Bool
+
+skipWS :: [String] -> WSFilter
 skipWS ws = not . (`elem` ws) . W.tag
 
-isEmpty :: WindowSpace -> Bool
+isEmpty :: WSFilter
 isEmpty = isNothing . W.stack
 
-isNonEmpty :: WindowSpace -> Bool
+isNonEmpty :: WSFilter
 isNonEmpty = isJust . W.stack
 
-filterWSI :: [WindowSpace -> Bool] -> [WindowSpace] -> [WindowSpace]
+filterWSI :: [WSFilter] -> [WindowSpace] -> [WindowSpace]
 filterWSI = map filter >>> foldr1 (.)
 
-mkWSI :: [WindowSpace -> Bool] -> CW.WSType
+mkWSI :: [WSFilter] -> CW.WSType
 mkWSI = foldr1 (liftA2 (&&)) >>> return >>> CW.WSIs
 
-moveTo :: CW.Direction1D -> [WorkspaceId] -> X ()
-moveTo dir ws = CW.moveTo dir $ mkWSI [ skipWS ws ]
+moveTo :: CW.Direction1D -> [WSFilter] -> X ()
+moveTo dir = CW.moveTo dir . mkWSI
 
-moveToNonEmpty :: CW.Direction1D -> [WorkspaceId] -> X ()
-moveToNonEmpty dir ws = CW.moveTo dir $ mkWSI [ isNonEmpty, skipWS ws ]
+moveToNonEmpty :: CW.Direction1D -> [WSFilter] -> X ()
+moveToNonEmpty dir = CW.moveTo dir . mkWSI . (isNonEmpty :)
 
-shiftTo :: CW.Direction1D -> [WorkspaceId] -> X ()
-shiftTo dir ws = do
-    ws <- CW.findWorkspace getSortByIndex dir (mkWSI [ skipWS ws ]) 1
+shiftTo :: CW.Direction1D -> [WSFilter] -> X ()
+shiftTo dir f = do
+    ws <- CW.findWorkspace getSortByIndex dir (mkWSI f) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
-shiftToEmpty :: CW.Direction1D -> [WorkspaceId] -> X ()
-shiftToEmpty dir ws = do
-    ws <- CW.findWorkspace getSortByIndex dir (mkWSI [ isEmpty, skipWS ws ]) 1
+shiftToEmpty :: CW.Direction1D -> [WSFilter] -> X ()
+shiftToEmpty dir f = do
+    ws <- CW.findWorkspace getSortByIndex dir (mkWSI $ isEmpty : f) 1
     windows $ W.shift ws
     windows $ W.greedyView ws
 
