@@ -10,6 +10,7 @@ import Control.Applicative
 import Control.Exception
 import Control.Monad
 import Data.Map as Map
+import Data.Maybe
 import System.Posix.Types (ProcessGroupID(..))
 import System.Posix.Process (getProcessStatus)
 import System.Posix.Signals
@@ -36,11 +37,8 @@ startService prog args = XS.gets (Map.lookup prog . services) >>= \pid ->
         pid <- run prog args
         XS.modify (Services . Map.insert prog pid . services)
 
-    running pid = io . handle (\(SomeException _) -> return False) $ do
-        status <- getProcessStatus False False pid
-        case status of
-            Just _  -> return False
-            Nothing -> return True
+    running pid = io . handle (\(SomeException _) -> return False) $
+        isNothing <$> getProcessStatus False False pid
 
 stopService :: String -> X ()
 stopService prog = XS.gets (Map.lookup prog . services) >>= \pid ->
