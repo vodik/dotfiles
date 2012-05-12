@@ -47,6 +47,7 @@ import XMonad.Util.MPD
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.Services
+import XMonad.Util.Tmux
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.Search as S
 
@@ -136,6 +137,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
 myKeys ws browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn (terminal conf) [])
       , ("M-S-<Return>", currentAction (spawn (terminal conf) []) ws)
+      , ("M-\\", promptTmux myXPConfig)
       , ("M-w", spawn browser [])
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
