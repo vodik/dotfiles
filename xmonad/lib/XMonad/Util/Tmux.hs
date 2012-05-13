@@ -43,6 +43,4 @@ attach :: Action
 attach term t = safeSpawn term [ "-e", "tmux", "attach", "-t", t ]
 
 create :: Maybe String -> Action
-create cmd term t = do
-    safeSpawn "tmux" $ [ "new", "-ds", t ] ++ maybe [] return cmd
-    attach term t
+create cmd term t = safeSpawn term $ [ "-e", "tmux", "new", "-s", t ] ++ maybe [] return cmd
