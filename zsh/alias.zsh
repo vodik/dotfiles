@@ -13,4 +13,4 @@ alias wifi-select='sudo wifi-select'
 alias x='exec startx'
 
 # stderred support (https://github.com/albinoloverats/stderred)
-alias _='LD_PRELOAD=/usr/lib/stderred.so'
+alias _='LD_PRELOAD=/usr/lib/libstderred.so'
