@@ -1,0 +1,13 @@
+bitlbee.andrej
+bitlbee.anna
+bitlbee.david
+bitlbee.denniscwik
+bitlbee.pawi59
+bitlbee.tgoodlet
+freenode.MrElendig
+freenode.falconindy
+freenode.geekosaur
+freenode.gtmanfred
+freenode.sudokode
+freenode.tigrmesh
+freenode.zendeavor
