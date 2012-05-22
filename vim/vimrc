@@ -93,6 +93,8 @@ command! Wq wq
 command! Wa wa
 command! Wqa wqa
 
+command! Wc w !wc -c
+
 map <S-Insert> <MiddleMouse>
   map! <S-Insert> <MiddleMouse>
 
