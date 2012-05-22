@@ -5,9 +5,12 @@ bitlbee.denniscwik
 bitlbee.pawi59
 bitlbee.tgoodlet
 freenode.MrElendig
+freenode.allanbrokeit
 freenode.falconindy
 freenode.geekosaur
 freenode.gtmanfred
+freenode.ioni
+freenode.meskarune
 freenode.sudokode
 freenode.tigrmesh
 freenode.zendeavor
