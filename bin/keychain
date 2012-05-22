@@ -16,7 +16,7 @@ HERE
   exit "${1:-0}"
 }
 
-env="$HOME/.ssh/environment-$HOST"
+env="$HOME/.ssh/environment-$HOSTNAME"
 options=$(getopt -o he: -l help,env: -- "$@") || usage >&2 1
 
 eval set -- $options
@@ -51,7 +51,7 @@ case "$1" in
     cat "$env"
     ;;
   stop)
-    [[ -f "$env" ]] && rm "$env"
+    [[ -f "$env"         ]] && rm "$env"
     [[ -n $SSH_AGENT_PID ]] && ssh-agent -k
     ;;
   status)
@@ -62,6 +62,7 @@ case "$1" in
     fi
     ;;
   *)
-    echo >&2 "$0: error - invalid command $1"; usage >&2 1
+    echo  >&2 "$0: error - invalid command $1"
+    usage >&2 1
     ;;
 esac
