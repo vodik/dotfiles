@@ -21,8 +21,6 @@ import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
-import Run
-
 data BorderUrgencyHook = BorderUrgencyHook !String
     deriving (Show, Read)
 

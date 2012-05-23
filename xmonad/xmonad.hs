@@ -39,6 +39,7 @@ import XMonad.Layout.TrackFloating
 import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
+import XMonad.Util.Commands
 import XMonad.Util.Cursor
 import XMonad.Util.CycleWS
 import XMonad.Util.EZConfig
@@ -52,7 +53,6 @@ import qualified XMonad.Actions.Search as S
 
 import DynamicTopic
 import Dzen2
-import Run
 import Utils
 import Workspaces
 import Workspaces.Instances
@@ -129,15 +129,15 @@ myRules ws rect = manageDocks
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
-    <+> startService "compton" [ "-cGfI", "0.20", "-O", "0.20" ]
-    <+> startService "urxvtd"  [ "-q", "-o" ]
-    <+> startService "udiskie" []
+    <+> startService "compton" (Cmd "compton" [ "-cGfI", "0.20", "-O", "0.20" ])
+    <+> startService "urxvtd"  (Cmd "urxvtd"  [ "-q", "-o" ])
+    <+> startService "udiskie" (Cmd "udiskie" [])
 
 myKeys ws browser conf = mkKeymap conf $ concat
-    [ [ ("M-<Return>", spawn (terminal conf) [])
-      , ("M-S-<Return>", currentAction (spawn (terminal conf) []) ws)
+    [ [ ("M-<Return>",   spawn $ Cmd (terminal conf) [])
+      -- , ("M-S-<Return>", currentAction (spawn (terminal conf, []) ws))
       , ("M-\\", promptTmux myXPConfig)
-      , ("M-w", spawn browser [])
+      , ("M-w", spawn $ Cmd browser [])
       , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p", shellPrompt myXPConfig)
 
@@ -150,7 +150,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-S-q",   io exitSuccess)
       , ("M-S-c",   kill1)
       , ("M-C-c",   kill)
-      , ("M-S-C-c", spawn "xkill" [])
+      , ("M-S-C-c", spawn $ Cmd "xkill" [])
       , ("M-q",     restart "xmonad" True)
 
       -- layout
@@ -197,12 +197,12 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-S-z", sendMessage RestoreAll)
 
       -- misc keybinds against alt
-      , ("M1-C-l", spawn "slock" [])
+      , ("M1-C-l", spawn $ Cmd "slock" [])
 
       -- multimedia keys
-      , ("<XF86AudioLowerVolume>", spawn "amixer" [ "-q", "set", "Master", "3%-" ])
-      , ("<XF86AudioRaiseVolume>", spawn "amixer" [ "-q", "set", "Master", "on", "3%+" ])
-      , ("<XF86AudioMute>",        spawn "amixer" [ "-q", "set", "Master", "toggle" ])
+      , ("<XF86AudioLowerVolume>", spawn $ Cmd "amixer" [ "-q", "set", "Master", "3%-" ])
+      , ("<XF86AudioRaiseVolume>", spawn $ Cmd "amixer" [ "-q", "set", "Master", "on", "3%+" ])
+      , ("<XF86AudioMute>",        spawn $ Cmd "amixer" [ "-q", "set", "Master", "toggle" ])
 
       -- mpd controls
       , ("M1-C-1", withMPD MPD.toggle)
@@ -219,8 +219,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
 
       -- screenshot
-      , ("C-<Print>", delayedSpawn 100 "scrot" [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
-      , ("<Print>",   spawn "scrot" [ "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
+      , ("C-<Print>", delayedSpawn 100 $ Cmd "scrot" [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
+      , ("<Print>",   spawn $ Cmd "scrot" [ "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
       ]
     , [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf
                       , (m, f) <- [ ("M-",   toggleOrDoSkip [ "NSP" ] W.greedyView)
@@ -228,7 +228,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
                                   , ("M-C-", windows . copy)
                                   ]
       ]
-    , [ ("M-C-w " ++ k, spawn browser [ f ])         | (k, f) <- favouritesList ]
+    , [ ("M-C-w " ++ k, spawn $ Cmd browser [ f ])   | (k, f) <- favouritesList ]
     , [ ("M-s "   ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
     ]
   where

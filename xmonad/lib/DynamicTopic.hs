@@ -14,8 +14,6 @@ import XMonad.Prompt.Directory (directoryPrompt)
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.ExtensibleState as XS
 
-import Run
-
 topics :: Map String FilePath
 topics = M.fromList
     [ ("7", "~/projects")
@@ -33,6 +31,8 @@ spawnShell = currentTopicDir >>= spawnShellIn
 
 spawnShellIn :: FilePath -> X ()
 spawnShellIn dir = asks (terminal . config) >>= \t -> spawnIn dir t []
+
+spawnIn = undefined
 
 cleanPath :: FilePath -> FilePath
 cleanPath ('~':xs) = dropWhile (== '/') xs
