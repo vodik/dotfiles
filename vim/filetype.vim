@@ -47,6 +47,7 @@ au FileType c,cpp           setl tags+=~/.vim/tags/pango
 
 " TEXT {{{1
 " ----------------------------
+au FileType mail            setl spell tw=72 fo+=cqt wm=0
 au FileType plaintex        setl spell tw=72 fo+=cqt wm=0
 au FileType gitcommit       setl spell tw=72 fo+=cqt wm=0
 au FileType pandoc,markdown setl spell tw=72 fo+=cqt wm=0
