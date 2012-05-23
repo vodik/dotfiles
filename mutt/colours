@@ -1,48 +1,48 @@
 # vim: ft=muttrc
 
-color indicator  yellow      default # actual message
-color tree       magenta     default # thread arrows
-color status     green       black   # status line
-color error      red         default # errors
-color message    green       default # info messages
-color signature  magenta     default # signature
-color attachment yellow      default # MIME attachments
-color search     cyan        default # search matches
-color tilde      magenta     default # ~ at bottom of msg
-color markers    red         default # + at beginning of wrapped lines
-color hdrdefault cyan        default # default header lines
-color bold       cyan        default # hiliting bold patterns in body
-color underline  green       default # hiliting underlined patterns in body
-color quoted     cyan        default # quoted text
+color indicator  yellow        default # actual message
+color tree       magenta       default # thread arrows
+color status     brightmagenta black   # status line
+color error      red           default # errors
+color message    green         default # info messages
+color signature  magenta       default # signature
+color attachment yellow        default # MIME attachments
+color search     cyan          default # search matches
+color tilde      magenta       default # ~ at bottom of msg
+color markers    red           default # + at beginning of wrapped lines
+color hdrdefault cyan          default # default header lines
+color bold       cyan          default # hiliting bold patterns in body
+color underline  green         default # hiliting underlined patterns in body
+color quoted     cyan          default # quoted text
 
-color quoted0    magenta     default
-color quoted1    red         default
-color quoted2    green       default
-color quoted3    yellow      default
-color quoted4    magenta     default
-color quoted5    red         default
-color quoted6    green       default
-color quoted7    yellow      default
-color quoted8    magenta     default
-color quoted9    red         default
+color quoted0    magenta       default
+color quoted1    red           default
+color quoted2    green         default
+color quoted3    yellow        default
+color quoted4    magenta       default
+color quoted5    red           default
+color quoted6    green         default
+color quoted7    yellow        default
+color quoted8    magenta       default
+color quoted9    red           default
 
-color index      red         default ~F # Flagged
-color index      blue        default ~N # New
-color index      green       default ~T # Tagged
-color index      brightred   default ~D # Deleted
+color index      red           default ~F # Flagged
+color index      blue          default ~N # New
+color index      green         default ~T # Tagged
+color index      brightred     default ~D # Deleted
 
-color header     brightcyan  default  "^date: "
-color header     brightcyan  default  "^from: "
-color header     brightcyan  default  "^to: "
-color header     brightwhite default  "^subject: "
-color header     brightcyan  default  "^x-spamprobe: "
+color header     brightcyan    default "^date: "
+color header     brightcyan    default "^from: "
+color header     brightcyan    default "^to: "
+color header     brightwhite   default "^subject: "
+color header     brightcyan    default "^x-spamprobe: "
 
-color body       cyan        default "((ftp|http|https)://|news:)[^ >)\"\t]+"
-color body       cyan        default "[-a-z_0-9.+]+@[-a-z_0-9.]+"
-color body       red         default "(^| )\\*[-a-z0-9*]+\\*[,.?]?[ \n]"
-color body       green       default "(^| )_[-a-z0-9_]+_[,.?]?[\n]"
-color body       red         default "(^| )\\*[-a-z0-9*]+\\*[,.?]?[ \n]"
-color body       green       default "(^| )_[-a-z0-9_]+_[,.?]?[ \n]"
+color body       cyan          default "((ftp|http|https)://|news:)[^ >)\"\t]+"
+color body       cyan          default "[-a-z_0-9.+]+@[-a-z_0-9.]+"
+color body       red           default "(^| )\\*[-a-z0-9*]+\\*[,.?]?[ \n]"
+color body       green         default "(^| )_[-a-z0-9_]+_[,.?]?[\n]"
+color body       red           default "(^| )\\*[-a-z0-9*]+\\*[,.?]?[ \n]"
+color body       green         default "(^| )_[-a-z0-9_]+_[,.?]?[ \n]"
 
 color body       yellow      default "^diff \-.*"
 color body       yellow      default "^index [a-f0-9].*"
