@@ -11,7 +11,7 @@ link() {
   target="${2:-$target}"
 
   [[ -e "$target" && ! -h "$target" ]] && die "$0: $target exists in filesystem"
-  [[ -d "$target" ]] && rm "$target"
+  [[ -d "$target"                   ]] && rm "$target"
 
   ln -fs "$dotfiles/$1" "$target"
 }
@@ -85,21 +85,21 @@ HERE
   for fun in $(compgen -A function dotfiles_); do
     echo "  ${fun#dotfiles_}"
   done
-  exit "${1:-0}"
+  exit ${1:-0}
 }
 
 deploy() {
   while (( $# )); do
     cd && dotfiles_${1#dotfiles_}
     if [[ $? == 127 ]]; then
-      echo >&2 "Error: don't know how to deploy \"$1\""
+      echo  >&2 "Error: don't know how to deploy \"$1\""
       usage >&2 1
     fi
     shift
   done
 }
 
-if [[ $# -eq 0 ]]; then
+if (( $# == 0 )); then
   deploy $(compgen -A function dotfiles_)
 elif [[ "$1" == "--help" ]]; then
   usage 0
