@@ -164,10 +164,6 @@ nnoremap <silent> <leader>u :GundoToggle<CR>
 " fugative config
 nnoremap <silent> <leader>gd :Gdiff<CR>
 
-" pandoc config
-let g:pandoc_use_hard_wraps = 1
-let g:pandoc_auto_format    = 1
-
 " tagbar config
 nnoremap <silent> <leader>t :TagbarToggle<CR>
 
