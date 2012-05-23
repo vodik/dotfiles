@@ -3,35 +3,35 @@
 export WINEDEBUG="-all"
 export WINEPREFIX="$HOME/steam"
 
-declare -A APP
-APP=([tf2]=440
-     [portal]=400)
+declare -A apps
+apps=([tf2]=440
+      [portal]=400)
 
 die() {
   echo >&2 "$1" && exit 1
 }
 
 steam() {
-  STEAM="$WINEPREFIX/drive_c/Program Files (x86)/Steam/Steam.exe"
-  [[ ! -f "$STEAM" ]] && STEAM="$WINEPREFIX/drive_c/Program Files/Steam/Steam.exe"
-
-  exec wine "$STEAM" "$*"
+  steam=("$WINEPREFIX/drive_c/Program Files"*/Steam/Steam.exe)
+  (( ${#steam[@]} == 0 )) && die "$0: steam not found"
+  exec wine "${steam[0]}" $*
 }
 
-if [[ $# -eq 0 ]]; then
+if (( $# == 0 )); then
   steam
 else
   case $1 in
     install)
       cd /tmp
       [[ ! -f SteamInstall.msi ]] && wget http://cdn.steampowered.com/download/SteamInstall.msi
-      exec wine msiexec /i SteamInstall.msi ;;
+      exec wine msiexec /i SteamInstall.msi
+      ;;
     config)
       exec winecfg ;;
     *)
-      ID="${APP[$1]}"
-
-      [[ -z "$ID" ]] && die "$0: can't launch $1"
-      steam -applaunch "$ID" -novid -dxlevel 9 ;;
+      id="${apps[$1]}"
+      [[ -z "$id" ]] && die "$0: can't launch $1"
+      steam -applaunch "$id" -novid -dxlevel 9
+      ;;
   esac
 fi
