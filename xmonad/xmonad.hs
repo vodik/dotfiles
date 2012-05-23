@@ -65,7 +65,7 @@ imClients = composeAs Any
     , className =? "Skype"   <&&> title `prefixed` "Skype"
     ]
 
-scratchpads :: [NamedScratchpad]
+scratchpads :: NamedScratchpads
 scratchpads =
     [ NS "volume" "pavucontrol" (className =? "Pavucontrol") defaultFloating
     ]
