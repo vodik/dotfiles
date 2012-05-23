@@ -10,6 +10,7 @@ import System.Posix.Types (ProcessID(..))
 
 import XMonad hiding (spawn)
 
+infixr 4 :+
 data Commands = Shell String
               | String :+ [String]
 
