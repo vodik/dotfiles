@@ -44,6 +44,7 @@ import XMonad.Util.Cursor
 import XMonad.Util.CycleWS
 import XMonad.Util.EZConfig
 import XMonad.Util.MPD
+import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.Services
@@ -62,6 +63,11 @@ imClients = composeAs Any
     [ className =? "Empathy" <&&> role =? "contact_list"
     , className =? "Pidgin"  <&&> role =? "buddy_list"
     , className =? "Skype"   <&&> title `prefixed` "Skype"
+    ]
+
+scratchpads :: [NamedScratchpad]
+scratchpads =
+    [ NS "volume" "pavucontrol" (className =? "Pavucontrol") defaultFloating
     ]
 
 myFloats :: Query Bool
@@ -140,6 +146,8 @@ myKeys ws browser conf = mkKeymap conf $ concat
       , ("M-w",  spawn browser)
       , ("M-`",  scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p",  shellPrompt myXPConfig)
+
+      , ("M-v", namedScratchpadAction scratchpads "volume")
 
       , ("M-C-<Return>", spawnShell)
       , ("M-C-<Space>",  stopService "compton")
