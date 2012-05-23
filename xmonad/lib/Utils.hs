@@ -1,23 +1,15 @@
 module Utils where
 
-import Codec.Binary.UTF8.String
 import Control.Applicative
 import Control.Monad
 import Data.List
 import Data.Maybe
-import Data.Monoid
-import Data.Set (Set)
 import System.Environment (getEnvironment)
-import System.Posix.Process (createSession, executeFile, forkProcess)
-import System.Posix.Types (ProcessGroupID(..))
 import Text.Regex.Posix ((=~))
-import qualified Data.Set as S
 
 import XMonad hiding (spawn)
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
-import XMonad.Layout.NoBorders
-import XMonad.Layout.Renamed
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 

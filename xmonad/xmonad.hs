@@ -135,15 +135,13 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
 
 myKeys ws browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
-      -- , ("M-S-<Return>", currentAction (spawn (terminal conf, []) ws))
+
       , ("M-\\", promptTmux myXPConfig)
-      , ("M-w", spawn browser)
-      , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
-      , ("M-p", shellPrompt myXPConfig)
+      , ("M-w",  spawn browser)
+      , ("M-`",  scratchpadSpawnActionTerminal $ terminal conf)
+      , ("M-p",  shellPrompt myXPConfig)
 
       , ("M-C-<Return>", spawnShell)
-      -- , ("M-C-<Space>",  changeDir myXPConfig)
-
       , ("M-C-<Space>",  stopService "compton")
 
       -- quit, or restart
