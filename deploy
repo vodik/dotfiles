@@ -41,6 +41,10 @@ dotfiles_nethack() {
   link nethack/nethackrc
 }
 
+dotfiles_pentadactyl() {
+  link pentadactyl/pentadactylrc
+}
+
 dotfiles_tmux() {
   link tmux/tmux.conf
 }
