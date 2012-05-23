@@ -14,7 +14,7 @@ die() {
 steam() {
   steam=("$WINEPREFIX/drive_c/Program Files"*/Steam/Steam.exe)
   (( ${#steam[@]} == 0 )) && die "$0: steam not found"
-  exec wine "${steam[0]}" "$*"
+  exec wine "${steam[0]}" $*
 }
 
 if (( $# == 0 )); then
