@@ -10,16 +10,18 @@ import System.Posix.Types (ProcessID(..))
 
 import XMonad hiding (spawn)
 
-data Cmd = Cmd String [String]
+data Commands = Shell String
+              | String :+ [String]
 
 class Command a where
     run :: MonadIO m => a -> m ProcessID
 
 instance Command String where
-    run = spawnPID
+    run cmd = safeSpawn cmd []
 
-instance Command Cmd where
-    run (Cmd cmd args) = safeSpawn cmd args
+instance Command Commands where
+    run (Shell cmd)   = spawnPID cmd
+    run (cmd :+ args) = safeSpawn cmd args
 
 spawn :: (MonadIO m, Command c) => c -> m ()
 spawn cmd = run cmd >>= const (return ())
