@@ -9,5 +9,8 @@ noremap k 7k
 
 " Passkey settings
 set passkeys=mail.google.com:jkroae<CR>,gi
+set passkeys=google.com:sjk
+set passkeys=duckduckgo.com:jklo
+set passkeys=github.com:sjkc
 
 " vim: set ft=pentadactyl:
