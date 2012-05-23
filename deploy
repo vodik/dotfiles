@@ -37,6 +37,10 @@ dotfiles_ncmpcpp() {
   link ncmpcpp
 }
 
+dotfiles_mutt() {
+  link mutt
+}
+
 dotfiles_nethack() {
   link nethack/nethackrc
 }

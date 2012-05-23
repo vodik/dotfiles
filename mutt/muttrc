@@ -1,0 +1,50 @@
+set realname = "Simon Gomizelj"
+set from     = "simongmzlj@gmail.com"
+
+set imap_check_subscribed
+set sort     = threads
+set sort_aux = last-date-received
+
+unset imap_passive
+set imap_keepalive = 300
+set mail_check     = 120
+
+set header_cache     = ~/.mutt/cache/headers
+set message_cachedir = ~/.mutt/cache/bodies
+set certificate_file = ~/.mutt/certificates
+set alias_file       = ~/.mutt/aliases
+set mailcap_path     = ~/.mutt/mailcap
+
+source ~/.mutt/gmail
+source ~/.mutt/colours
+source $alias_file
+
+set quote_regexp = "^([ \t]*[>])+"
+
+set smart_wrap
+set pager_index_lines = 8
+
+set abort_nosubject  = no
+set abort_unmodified = yes
+set quit             = yes
+set postpone         = ask-no
+set delete           = yes
+set move             = no
+
+bind pager j  next-line
+bind pager k  previous-line
+bind pager gg top
+bind pager G  bottom
+bind pager J  next-undeleted
+bind pager K  previous-undeleted
+bind pager R  group-reply
+
+bind index gg first-entry
+bind index G  last-entry
+bind index R  group-reply
+
+set allow_ansi
+auto_view text/x-diff
+auto_view text/x-patch
+auto_view text/html
+alternative_order text/plain text/html text/enriched

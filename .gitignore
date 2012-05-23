@@ -6,10 +6,13 @@ bin/*
 conky/*
 icons/*
 ncmpcpp/error.log
-xmonad/xmonad-*-linux
-xmonad/xmonad.errors
-xmonad/history
+mutt/aliases
+mutt/gmail
+mutt/cache
 weechat/irc.conf
 weechat/weechat.conf
 weechat/weeget
 weechat/*log*
+xmonad/xmonad-*-linux
+xmonad/xmonad.errors
+xmonad/history
