@@ -19,6 +19,7 @@ source ~/.mutt/gmail
 source ~/.mutt/colours
 source $alias_file
 
+set index_format = "%3N %4C %Z %{%b %d} %-15.15F (%4c) %?M?%M> ?%s"
 set quote_regexp = "^([ \t]*[>])+"
 
 set smart_wrap
@@ -30,6 +31,7 @@ set quit             = yes
 set postpone         = ask-no
 set delete           = yes
 set move             = no
+unset collapse_unread
 
 bind pager j  next-line
 bind pager k  previous-line
@@ -42,6 +44,9 @@ bind pager R  group-reply
 bind index gg first-entry
 bind index G  last-entry
 bind index R  group-reply
+bind index -  collapse-thread
+bind index _  collapse-all
+
 
 set allow_ansi
 auto_view text/x-diff
