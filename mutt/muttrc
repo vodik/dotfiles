@@ -47,11 +47,18 @@ bind index R  group-reply
 bind index -  collapse-thread
 bind index _  collapse-all
 
-macro index gi "<change-folder>=INBOX<enter>" "Go to inbox"
-macro index ga "<change-folder>=Arch<enter>" "Go to all archlinux mail"
+macro index,pager y "<enter-command>unset trash\n <delete-message>" "Gmail archive message"
+macro index,pager d "<enter-command>set trash=\"imaps://imap.googlemail.com/[GMail]/Bin\"\n <delete-message>" "Gmail delete message"
+
+bind editor <space> noop
+macro index,pager gi "<change-folder>=INBOX<enter>" "Go to inbox"
+macro index,pager ga "<change-folder>=Arch<enter>" "Go to archlinux mail"
+macro index,pager gA "<change-folder>=[Gmail]/All Mail<enter>" "Go to all mail"
+macro index,pager gs "<change-folder>=[Gmail]/Starred<enter>" "Go to starred messages"
+macro index,pager gd "<change-folder>=[Gmail]/Drafts<enter>" "Go to drafts"
 
 set allow_ansi
 auto_view text/x-diff
 auto_view text/x-patch
 auto_view text/html
-alternative_order text/plain text/html text/enriched
+alternative_order text/plain text/html *
