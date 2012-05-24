@@ -7,7 +7,7 @@ set sort_aux = last-date-received
 
 unset imap_passive
 set imap_keepalive = 300
-set mail_check     = 120
+set mail_check     = 30
 
 set header_cache     = ~/.mutt/cache/headers
 set message_cachedir = ~/.mutt/cache/bodies
@@ -47,6 +47,8 @@ bind index R  group-reply
 bind index -  collapse-thread
 bind index _  collapse-all
 
+macro index gi "<change-folder>=INBOX<enter>" "Go to inbox"
+macro index ga "<change-folder>=Arch<enter>" "Go to all archlinux mail"
 
 set allow_ansi
 auto_view text/x-diff
