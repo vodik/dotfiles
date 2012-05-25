@@ -48,7 +48,7 @@ bind index -  collapse-thread
 bind index _  collapse-all
 
 macro index,pager y "<enter-command>unset trash\n <delete-message>" "Gmail archive message"
-macro index,pager d "<enter-command>set trash=\"imaps://imap.googlemail.com/[GMail]/Bin\"\n <delete-message>" "Gmail delete message"
+macro index,pager d "<enter-command>set trash=\"imaps://imap.googlemail.com/[Gmail]/Trash\"\n <delete-message>" "Gmail delete message"
 
 bind editor <space> noop
 macro index,pager gi "<change-folder>=INBOX<enter>" "Go to inbox"
