@@ -1,6 +1,6 @@
 # vim: ft=muttrc
 
-color indicator  yellow        default # actual message
+color indicator  brightwhite   default # actual message
 color tree       magenta       default # thread arrows
 color status     brightmagenta black   # status line
 color error      red           default # errors
