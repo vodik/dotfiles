@@ -95,7 +95,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . minimize . tfull
+myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
     . onWorkspace "work"  (mstr tabs ||| tiled)
     . onWorkspace "term"  (mtiled ||| tiled)
     . onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
