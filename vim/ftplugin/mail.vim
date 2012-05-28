@@ -1,1 +1,1 @@
-silent :%s/^>\( >\)\+/>>/eg
+silent :%s/^> >/>>/eg
