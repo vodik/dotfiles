@@ -234,8 +234,7 @@ myKeys ws browser conf = mkKeymap conf $ concat
                                   , ("M-C-", windows . copy)
                                   ]
       ]
-    , [ ("M-C-w " ++ k, spawn $ browser :+ [ f ])    | (k, f) <- favouritesList ]
-    , [ ("M-s "   ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
+    , [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
     ]
   where
     -- skip = [ "NSP" ]
@@ -261,13 +260,6 @@ searchList =
     , ("a", S.alpha)
     , ("d", S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
     , ("t", S.searchEngine "piratebay" "http://thepiratebay.org/search/")
-    ]
-
-favouritesList :: [(String, String)]
-favouritesList =
-    [ ("w", "http://www.gmail.com")
-    , ("r", "http://www.reddit.com")
-    , ("a", "http://www.arstechnica.com")
     ]
 
 myLogHook res output =
