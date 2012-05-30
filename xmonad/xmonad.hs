@@ -254,16 +254,13 @@ myMouseBindings conf@(XConfig {modMask = modm}) =
 
 searchList :: [(String, S.SearchEngine)]
 searchList =
-    [ ("g",   S.google)
-    , ("w",   S.wikipedia)
-    , ("y",   S.youtube)
-    , ("h",   S.hoogle)
-    , ("C-w", S.alpha)
-    , ("C-a", S.amazon)
-    , ("a",   S.searchEngine "archwiki" "http://wiki.archlinux.org/index.php/Special:Search?search=")
-    , ("r",   S.searchEngine "reddit" "http://www.reddit.com/search?q=")
-    , ("d",   S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
-    , ("t",   S.searchEngine "piratebay" "http://thepiratebay.org/search/")
+    [ ("g", S.google)
+    , ("w", S.wikipedia)
+    , ("y", S.youtube)
+    , ("h", S.hoogle)
+    , ("a", S.alpha)
+    , ("d", S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
+    , ("t", S.searchEngine "piratebay" "http://thepiratebay.org/search/")
     ]
 
 favouritesList :: [(String, String)]
