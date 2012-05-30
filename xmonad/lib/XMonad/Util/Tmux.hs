@@ -1,4 +1,4 @@
-module XMonad.Util.Tmux ( promptTmux ) where
+module XMonad.Util.Tmux ( tmuxPrompt ) where
 
 import Control.Applicative
 import Control.Exception
@@ -29,8 +29,8 @@ tmuxSessions = handle (\(SomeException _) -> return M.empty) $ do
         cmd  <- fmap (create . Just) . io . readFile $ dir </> file
         return (file, cmd)
 
-promptTmux :: XPConfig -> X ()
-promptTmux conf = do
+tmuxPrompt :: XPConfig -> X ()
+tmuxPrompt conf = do
     commands <- io $ liftA2 M.union runningSessions tmuxSessions
     inputPromptWithCompl conf "Tmux" (mkComplFunFromList' $ M.keys commands) ?+ attachTmux commands
 

@@ -142,7 +142,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
 myKeys ws browser conf = mkKeymap conf $ concat
     [ [ ("M-<Return>", spawn $ terminal conf)
 
-      , ("M-\\", promptTmux myXPConfig)
+      , ("M-\\", tmuxPrompt myXPConfig)
       , ("M-w",  spawn browser)
       , ("M-`",  scratchpadSpawnActionTerminal $ terminal conf)
       , ("M-p",  shellPrompt myXPConfig)
