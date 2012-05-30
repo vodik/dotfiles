@@ -28,7 +28,6 @@ import XMonad.Layout.Grid
 import XMonad.Layout.GuardLayout
 import XMonad.Layout.GuardLayout.Instances
 import XMonad.Layout.Master
-import XMonad.Layout.MinimizePlus
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
@@ -50,6 +49,7 @@ import XMonad.Util.Scratchpad
 import XMonad.Util.Services
 import XMonad.Util.Tmux
 import qualified XMonad.StackSet as W
+import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
 import DynamicTopic
@@ -95,6 +95,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
+-- Layouts {{{1
 myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
     . onWorkspace "work"  (mstr tabs ||| tiled)
     . onWorkspace "term"  (mtiled ||| tiled)
@@ -116,6 +117,7 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
     tag t  = renamed [ PrependWords t ]
     step   = 1 % 50
 
+-- Rules {{{1
 myRules ws rect = manageDocks
     <+> scratchpadManageHook rect
     <+> workspaceShift ws
@@ -132,6 +134,7 @@ myRules ws rect = manageDocks
         , isFullscreen         -?> doFullFloat
         ]
 
+-- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
@@ -139,110 +142,121 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> startService "urxvtd"  ("urxvtd"  :+ [ "-q", "-o" ])
     <+> startService "udiskie" "udiskie"
 
-myKeys ws browser conf = mkKeymap conf $ concat
-    [ [ ("M-<Return>", spawn $ terminal conf)
+-- Keymap {{{1
+myKeys ws browser conf = mkKeymap conf $
+    [ ("M-<Return>", spawn $ terminal conf)
 
-      , ("M-\\", tmuxPrompt myXPConfig)
-      , ("M-w",  spawn browser)
-      , ("M-`",  scratchpadSpawnActionTerminal $ terminal conf)
-      , ("M-p",  shellPrompt myXPConfig)
+    , ("M-\\", tmuxPrompt myXPConfig)
+    , ("M-w",  spawn browser)
+    , ("M-`",  scratchpadSpawnActionTerminal $ terminal conf)
+    , ("M-p",  shellPrompt myXPConfig)
 
-      , ("M-v", namedScratchpadAction scratchpads "volume")
+    , ("M-v", namedScratchpadAction scratchpads "volume")
 
-      , ("M-C-<Return>", spawnShell)
-      , ("M-C-<Space>",  stopService "compton")
+    , ("M-C-<Return>", spawnShell)
+    , ("M-C-<Space>",  stopService "compton")
 
-      -- quit, or restart
-      , ("M-S-q",   io exitSuccess)
-      , ("M-S-c",   kill1)
-      , ("M-C-c",   kill)
-      , ("M-S-C-c", spawn "xkill")
-      , ("M-q",     restart "xmonad" True)
+    -- quit, or restart
+    , ("M-S-q",   io exitSuccess)
+    , ("M-S-c",   kill1)
+    , ("M-C-c",   kill)
+    , ("M-S-C-c", spawn "xkill")
+    , ("M-q",     restart "xmonad" True)
 
-      -- layout
-      , ("M-<Space>",   sendMessage NextLayout)
-      , ("M-S-<Space>", sendMessage FirstLayout)
-      , ("M-a",         sendMessage ToggleLayout)
+    -- layout
+    , ("M-<Space>",   sendMessage NextLayout)
+    , ("M-S-<Space>", sendMessage FirstLayout)
+    , ("M-a",         sendMessage ToggleLayout)
 
-      -- resizing
-      , ("M-[",   sendMessage Shrink)
-      , ("M-]",   sendMessage Expand)
-      , ("M-S-[", sendMessage MirrorExpand)
-      , ("M-S-]", sendMessage MirrorShrink)
-      , ("M-,",   sendMessage $ IncMasterN (-1))
-      , ("M-.",   sendMessage $ IncMasterN 1)
+    -- resizing
+    , ("M-[",   sendMessage Shrink)
+    , ("M-]",   sendMessage Expand)
+    , ("M-S-[", sendMessage MirrorExpand)
+    , ("M-S-]", sendMessage MirrorShrink)
+    , ("M-,",   sendMessage $ IncMasterN (-1))
+    , ("M-.",   sendMessage $ IncMasterN 1)
 
-      -- focus
-      , ("M-j", windows W.focusDown)
-      , ("M-k", windows W.focusUp)
-      , ("M-m", windows W.focusMaster)
-      , ("M-f", withFocused' $ windows . W.sink)
-      , ("M-d", focusUrgent)
+    -- focus
+    , ("M-j", windows W.focusDown)
+    , ("M-k", windows W.focusUp)
+    , ("M-m", windows W.focusMaster)
+    , ("M-f", withFocused' $ windows . W.sink)
+    , ("M-d", focusUrgent)
 
-      -- swapping
-      , ("M-S-m", windows W.shiftMaster)
-      , ("M-S-j", windows W.swapDown)
-      , ("M-S-k", windows W.swapUp)
-      , ("M-0",   sendMessage SwapWindow)
+    -- swapping
+    , ("M-S-m", windows W.shiftMaster)
+    , ("M-S-j", windows W.swapDown)
+    , ("M-S-k", windows W.swapUp)
+    , ("M-0",   sendMessage SwapWindow)
 
-      -- cycle workspaces
-      , ("M-<D>",   moveTo Next skip)
-      , ("M-<U>",   moveTo Prev skip)
-      , ("M-<R>",   moveToNonEmpty Next skip)
-      , ("M-<L>",   moveToNonEmpty Prev skip)
-      , ("M-S-<D>", shiftTo Next skip)
-      , ("M-S-<U>", shiftTo Prev skip)
-      , ("M-S-<R>", shiftToEmpty Next skip)
-      , ("M-S-<L>", shiftToEmpty Prev skip)
-      , ("M-<Tab>", toggleWS [ "NSP" ])
-      , ("M-=",     toggleCopy [ "NSP" ])
+    -- cycle workspaces
+    , ("M-<D>",   moveTo Next skip)
+    , ("M-<U>",   moveTo Prev skip)
+    , ("M-<R>",   moveToNonEmpty Next skip)
+    , ("M-<L>",   moveToNonEmpty Prev skip)
+    , ("M-S-<D>", shiftTo Next skip)
+    , ("M-S-<U>", shiftTo Prev skip)
+    , ("M-S-<R>", shiftToEmpty Next skip)
+    , ("M-S-<L>", shiftToEmpty Prev skip)
+    , ("M-<Tab>", toggleWS [ "NSP" ])
+    , ("M-=",     toggleCopy [ "NSP" ])
 
-      -- minimizing
-      , ("M-z",   sendMessage MinimizeFloating)
-      , ("M-x",   withFocused' minimizeWindow)
-      , ("M-S-z", sendMessage RestoreAll)
+    -- misc keybinds against alt
+    , ("M1-C-l", spawn "slock")
 
-      -- misc keybinds against alt
-      , ("M1-C-l", spawn "slock")
+    -- multimedia keys
+    , ("<XF86AudioLowerVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
+    , ("<XF86AudioRaiseVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
+    , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
 
-      -- multimedia keys
-      , ("<XF86AudioLowerVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
-      , ("<XF86AudioRaiseVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
-      , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
+    -- mpd controls
+    , ("M1-C-1", withMPD MPD.toggle)
+    , ("M1-C-2", withMPD MPD.stop)
+    , ("M1-C-3", withMPD MPD.previous)
+    , ("M1-C-4", withMPD MPD.next)
+    , ("<XF86AudioPlay>", withMPD MPD.toggle)
+    , ("<XF86AudioStop>", withMPD MPD.stop)
+    , ("<XF86AudioPrev>", withMPD MPD.previous)
+    , ("<XF86AudioNext>", withMPD MPD.next)
 
-      -- mpd controls
-      , ("M1-C-1", withMPD MPD.toggle)
-      , ("M1-C-2", withMPD MPD.stop)
-      , ("M1-C-3", withMPD MPD.previous)
-      , ("M1-C-4", withMPD MPD.next)
-      , ("<XF86AudioPlay>", withMPD MPD.toggle)
-      , ("<XF86AudioStop>", withMPD MPD.stop)
-      , ("<XF86AudioPrev>", withMPD MPD.previous)
-      , ("<XF86AudioNext>", withMPD MPD.next)
+    -- change MPD_HOST
+    , ("M-<XF86AudioPlay>", changeHost myXPConfig >> logHook conf)
+    , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
 
-      -- change MPD_HOST
-      , ("M-<XF86AudioPlay>", changeHost myXPConfig >> logHook conf)
-      , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
-
-      -- screenshot
-      , ("C-<Print>", delayedSpawn 100 $ "scrot" :+ [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
-      , ("<Print>",   spawn            $ "scrot" :+ [       "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
-      ]
-    , [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf
-                      , (m, f) <- [ ("M-",   toggleOrDoSkip [ "NSP" ] W.greedyView)
-                                  , ("M-S-", windows . W.shift)
-                                  , ("M-C-", windows . copy)
-                                  ]
-      ]
-    , [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
+    -- screenshot
+    , ("C-<Print>", delayedSpawn 100 $ "scrot" :+ [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
+    , ("<Print>",   spawn            $ "scrot" :+ [       "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
     ]
+    <+> wsSwitchKeys conf
+    <+> searchKeys conf
   where
-    -- skip = [ "NSP" ]
     skip = [ skipWS [ "NSP" ] ]
 
+wsSwitchKeys conf =
+    [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf
+                    , (m, f) <- [ ("M-",   toggleOrDoSkip [ "NSP" ] W.greedyView)
+                                , ("M-S-", windows . W.shift)
+                                , ("M-C-", windows . copy)
+                                ]
+    ]
+
+searchKeys conf = [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
+  where
+    searchList =
+        [ ("g", S.google)
+        , ("w", S.wikipedia)
+        , ("y", S.youtube)
+        , ("h", S.hoogle)
+        , ("a", S.alpha)
+        , ("d", S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
+        , ("t", S.searchEngine "piratebay" "http://thepiratebay.org/search/")
+        ]
+
+-- Mouse {{{1
 myMouseBindings conf@(XConfig {modMask = modm}) =
     (`M.union` mouseBindings defaultConfig conf) $ M.fromList
         [ ((modm,               button2), killWindow)
+        , ((modm,               button3), \w -> focus w >> Flex.mouseResizeWindow w)
         , ((modm,               button4), const $ moveTo  Prev skip)
         , ((modm,               button5), const $ moveTo  Next skip)
         , ((modm .|. shiftMask, button4), const $ shiftTo Prev skip)
@@ -251,17 +265,7 @@ myMouseBindings conf@(XConfig {modMask = modm}) =
   where
     skip = [ skipWS [ "NSP" ] ]
 
-searchList :: [(String, S.SearchEngine)]
-searchList =
-    [ ("g", S.google)
-    , ("w", S.wikipedia)
-    , ("y", S.youtube)
-    , ("h", S.hoogle)
-    , ("a", S.alpha)
-    , ("d", S.searchEngine "wiktionary" "http://en.wiktionary.org/w/index.php/Special:Search?search=")
-    , ("t", S.searchEngine "piratebay" "http://thepiratebay.org/search/")
-    ]
-
+-- Log Hook {{{1
 myLogHook res output =
     dynamicLogWithPP $ (myPP res) { ppOutput = hPutStrLn output }
 
@@ -283,6 +287,7 @@ myPP res = defaultPP
 checkMPD = Just . maybe "" (const icon) <$> getHost
   where icon = dzenColor colorBlack colorBlue " ^i(etc/icons/chain.xbm) "
 
+-- Themes {{{1
 myTabTheme = defaultTheme
     { decoHeight          = 18
     , inactiveBorderColor = colorBlack
@@ -305,6 +310,7 @@ myXPConfig = defaultXPConfig
     , promptBorderWidth = 0
     , position          = Bottom
     }
+-- }}}
 
 applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
     where conf = urgencyConfig { suppressWhen = Focused }
@@ -373,9 +379,9 @@ myDzen :: String
 myDzen = "dzen2 " ++ unwords
     [ "-y"   , "-16"
     , "-h"   ,  "16"
-    , "-fn"  , wrap "'" "'" dzenFont
-    , "-fg"  , wrap "'" "'" colorWhite
-    , "-bg"  , wrap "'" "'" colorBlackAlt
+    , "-fn"  , quote "'" dzenFont
+    , "-fg"  , quote "'" colorWhite
+    , "-bg"  , quote "'" colorBlackAlt
     , "-ta l"
     , "-e 'onstart=lower'" ]
 
