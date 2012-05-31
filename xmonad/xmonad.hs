@@ -146,22 +146,22 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
 myKeys ws browser conf = mkKeymap conf $
     [ ("M-<Return>", spawn $ terminal conf)
 
-    , ("M-\\", tmuxPrompt myXPConfig)
     , ("M-w",  spawn browser)
-    , ("M-`",  scratchpadSpawnActionTerminal $ terminal conf)
+    , ("M-\\", tmuxPrompt myXPConfig)
     , ("M-p",  shellPrompt myXPConfig)
 
+    -- scratchpads
+    , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
     , ("M-v", namedScratchpadAction scratchpads "volume")
 
-    , ("M-C-<Return>", spawnShell)
-    , ("M-C-<Space>",  stopService "compton")
-
-    -- quit, or restart
+    -- quit, close or restart
     , ("M-S-q",   io exitSuccess)
     , ("M-S-c",   kill1)
     , ("M-C-c",   kill)
     , ("M-S-C-c", spawn "xkill")
     , ("M-q",     restart "xmonad" True)
+
+    , ("M-C-<Space>", stopService "compton")
 
     -- layout
     , ("M-<Space>",   sendMessage NextLayout)
@@ -224,13 +224,14 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
 
     -- screenshot
-    , ("C-<Print>", delayedSpawn 100 $ "scrot" :+ [ "-s", "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
-    , ("<Print>",   spawn            $ "scrot" :+ [       "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png" ])
+    , ("C-<Print>", delayedSpawn 100 $ myScrot True)
+    , ("<Print>",   spawn            $ myScrot False)
     ]
     <+> wsSwitchKeys conf
     <+> searchKeys conf
   where
-    skip = [ skipWS [ "NSP" ] ]
+    myScrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
+    skip    = [ skipWS [ "NSP" ] ]
 
 wsSwitchKeys conf =
     [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf

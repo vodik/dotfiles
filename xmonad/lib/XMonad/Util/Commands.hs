@@ -40,3 +40,14 @@ safeSpawn cmd args = xfork $ execute cmd args
 -- spawnIn dir cmd args = xfork $ do
 --     catchIO . setCurrentDirectory $ cleanPath dir
 --     execute cmd args
+
+data Scrot = Scrot FilePath Bool
+
+iff :: Bool -> a -> a -> a
+iff b a c = if b then a else c
+
+instance Command Scrot where
+    run (Scrot path s) = run $ "scrot" :+ iff s ["-s"] [] ++ [path]
+
+data Action = On | Off | Toggle
+data Amixer = Amixer String Action Int
