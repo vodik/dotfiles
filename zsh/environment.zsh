@@ -41,7 +41,7 @@ function _title {
     screen*)
       print -Pn "\ek$1:q\e\\"
       ;;
-    xterm*|rxvt*)
+    vte*|xterm*|rxvt*)
       print -Pn "\e]2;$2:q\a"
       print -Pn "\e]1;$1:q\a"
       ;;
