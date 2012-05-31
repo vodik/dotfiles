@@ -75,7 +75,7 @@ myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
                          , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
 
-myTerminal    = "urxvtc"
+myTerminal    = "termite"
 myBorderWidth = 2
 myModMask     = mod4Mask
 
@@ -139,7 +139,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
     <+> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
-    <+> startService "urxvtd"  ("urxvtd"  :+ [ "-q", "-o" ])
+    -- <+> startService "urxvtd"  ("urxvtd"  :+ [ "-q", "-o" ])
     <+> startService "udiskie" "udiskie"
 
 -- Keymap {{{1
