@@ -12,5 +12,6 @@ freenode.gtmanfred
 freenode.ioni
 freenode.meskarune
 freenode.sudokode
+freenode.thestinger
 freenode.tigrmesh
 freenode.zendeavor

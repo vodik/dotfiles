@@ -65,10 +65,11 @@ imClients = composeAs Any
     , className =? "Skype"   <&&> title `prefixed` "Skype"
     ]
 
-scratchpads :: NamedScratchpads
-scratchpads =
-    [ NS "volume" "pavucontrol" (className =? "Pavucontrol") defaultFloating
-    ]
+scratchpads :: W.RationalRect -> NamedScratchpads
+scratchpads pos =
+    [ NS "scratchpad" "termite -r scratchpad" (role      =? "scratchpad")  (customFloating pos)
+    , NS "volume"     "pavucontrol"           (className =? "Pavucontrol") defaultFloating
+    ] where role = stringProperty "WM_WINDOW_ROLE"
 
 myFloats :: Query Bool
 myFloats =
@@ -118,8 +119,7 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
     step   = 1 % 50
 
 -- Rules {{{1
-myRules ws rect = manageDocks
-    <+> scratchpadManageHook rect
+myRules ws = manageDocks
     <+> workspaceShift ws
     <+> composeAll
         [ className =? "Transmission-gtk" --> doShift "work"
@@ -127,6 +127,7 @@ myRules ws rect = manageDocks
         , resource  =? "desktop_window"   --> doIgnore
         ]
     <+> composeOneCaught (insertPosition Below Newer)
+        -- [ role =? "scratchpad" -?> doFloat
         [ className =? "Wine"  -?> doFloat
         , myFloats             -?> doCenterFloat
         , isDialog             -?> doCenterFloat
@@ -143,7 +144,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> startService "udiskie" "udiskie"
 
 -- Keymap {{{1
-myKeys ws browser conf = mkKeymap conf $
+myKeys ws sp browser conf = mkKeymap conf $
     [ ("M-<Return>", spawn $ terminal conf)
 
     , ("M-w",  spawn browser)
@@ -151,8 +152,8 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-p",  shellPrompt myXPConfig)
 
     -- scratchpads
-    , ("M-`", scratchpadSpawnActionTerminal $ terminal conf)
-    , ("M-v", namedScratchpadAction scratchpads "volume")
+    , ("M-`", namedScratchpadAction sp "scratchpad")
+    , ("M-v", namedScratchpadAction sp "volume")
 
     -- quit, close or restart
     , ("M-S-q",   io exitSuccess)
@@ -355,15 +356,16 @@ main = do
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
         sort   = workspaceSort "work" machine
+        pos    = positionRationalRect screen
 
     xmonad . applyUrgency colorRed $ defaultConfig
-        { manageHook         = myRules machine (positionRationalRect screen)
+        { manageHook         = myRules machine
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules sort tweaks
         , logHook            = myLogHook res dzenbar
         , startupHook        = myStartupHook sort
         , modMask            = myModMask
-        , keys               = myKeys machine browser
+        , keys               = myKeys machine (scratchpads pos) browser
         , mouseBindings      = myMouseBindings
         , workspaces         = to9 $ tagSet machine
         , terminal           = myTerminal
