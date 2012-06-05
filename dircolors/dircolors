@@ -4,7 +4,7 @@ TERM rxvt-unicode-256color
 TERM screen-256color
 TERM vte-256color
 
-# defaults
+# defaults {{{1
 NORMAL  00
 FILE    00
 DIR     01;34
@@ -22,7 +22,7 @@ EXEC    01;32
 #OTHER_WRITABLE 34;42
 #STICKY 37;44
 
-# archives or compressed
+# archives or compressed {{{1
 .7z   01;31
 .Z    01;31
 .ace  01;31
@@ -50,7 +50,7 @@ EXEC    01;32
 .zip  01;31
 .zoo  01;31
 
-# images
+# images {{{1
 .asf  01;35
 .avi  01;35
 .bmp  01;35
@@ -71,6 +71,7 @@ EXEC    01;32
 .mpeg 01;35
 .mpg  01;35
 .nuv  01;35
+.ogv  01;35
 .ogm  01;35
 .pbm  01;35
 .pcx  01;35
@@ -92,7 +93,7 @@ EXEC    01;32
 .xwd  01;35
 .yuv  01;35
 
-# audio
+# audio {{{1
 .aac  00;36
 .au   00;36
 .flac 00;36
@@ -105,7 +106,7 @@ EXEC    01;32
 .ra   00;36
 .wav  00;36
 
-# source code
+# source code {{{1
 .c    00;36
 .cpp  00;36
 .cxx  00;36
@@ -120,12 +121,16 @@ EXEC    01;32
 .lhs  00;36
 .chs  00;36
 
-# documents
+# documents {{{1
 .latex 00;32
 .tex   00;32
 .md    00;32
+.pdf   00;35
+.doc   00;35
+.docx  00;35
+.odf   00;35
 
-# objects
+# objects {{{1
 .a    00;33
 .ko   00;33
 .o    00;33
