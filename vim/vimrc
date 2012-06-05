@@ -25,7 +25,6 @@ set nolist
 set nowrap
 set textwidth=70
 set formatoptions=qn1
-set commentstring=#\ %s
 
 " searching
 set hlsearch
@@ -50,6 +49,7 @@ set spellfile=~/.vim/dict.add
 
 " vim ui
 set autoread
+set autowrite
 set showcmd
 set title
 set ruler
@@ -69,10 +69,9 @@ set equalalways
 set wildignore+=.hg,.git,.svn                  " version control
 set wildignore+=*.aux,*.out,*.toc              " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg " images files
-set wildignore+=*.o,*.obj,*.so,*.hi            " compiled object files
+set wildignore+=*.a*.o,*.obj,*.so,*.hi         " compiled object files
 set wildignore+=*.pyc                          " python byte code
 set wildignore+=*.spl                          " compiled spell lists
-set wildignore+=*.DS_Store?                    " OSX bullshit
 
 " AUTOCMDS {{{1
 " ----------------------------
@@ -80,7 +79,6 @@ au FocusLost    * :wa
 au VimResized   * exe "normal! \<c-w>="
 au BufWritePre  * if ! &bin | silent! :call spaces#StripTrailing()<CR>
 au BufWritePost * if getline(1) =~ "^#!" | silent :!chmod +x <afile>
-
 
 " MAPPINGS {{{1
 " ----------------------------
@@ -94,9 +92,6 @@ command! Wa wa
 command! Wqa wqa
 
 command! Wc w !wc -c
-
-map <S-Insert> <MiddleMouse>
-  map! <S-Insert> <MiddleMouse>
 
 " sane j k actions
 nnoremap j gj
@@ -112,6 +107,7 @@ nnoremap <silent> <leader>h :nohl<CR>
 nnoremap <silent> <leader>l :ls<CR>:b<space>
 nnoremap <silent> <leader>s :setl spell!<CR>
 nnoremap <silent> <leader>w :call spaces#StripTrailing()<CR>
+nnoremap <silent> <leader>p :!sprunge "%"<CR>
 
 " window movements
 nmap <silent> <C-H> :winc h<CR>
@@ -129,9 +125,8 @@ command! En setl spelllang=en_ca
 command! Sl setl spelllang=sl
 
 " bindings for building code
-nnoremap <F5>    :make<CR>
-nnoremap <S-F5>  :make %<<CR>
-nnoremap <S-F6>  :! ./%<CR>
+nnoremap <F5>   :make<CR>
+nnoremap <S-F6> :!./"%"<CR>
 
 " PLUGINS {{{1
 " ----------------------------
@@ -143,9 +138,6 @@ let g:netrw_http_xcmd = "-so"
 " snippets config
 let snips_author = 'Simon Gomizelj'
 let snips_email  = 'simongmzlj@gmail.com'
-
-" a config
-nnoremap <silent> <leader>a :A<CR>
 
 " NERDTree config
 let g:NERDTreeChDirMode     = 2
@@ -163,6 +155,7 @@ nnoremap <silent> <leader>u :GundoToggle<CR>
 
 " fugative config
 nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>gb :Gbrowse<CR>
 
 " tagbar config
 nnoremap <silent> <leader>t :TagbarToggle<CR>
