@@ -26,6 +26,8 @@ else
       [[ ! -f SteamInstall.msi ]] && wget http://cdn.steampowered.com/download/SteamInstall.msi
       exec wine msiexec /i SteamInstall.msi
       ;;
+    kill)
+      exec wineserver -k ;;
     config)
       exec winecfg ;;
     *)
