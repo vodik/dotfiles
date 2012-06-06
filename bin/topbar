@@ -23,7 +23,7 @@ FONT="-*-envy code r-medium-r-normal-*-11-*-*-*-*-*-*-*"
 #Options
 IFS='|' #internal field separator (conky)
 CONKYFILE="$HOME/.config/conky/conkyrc"
-ICONPATH="$HOME/etc/xmonad/icons/"
+ICONPATH="$HOME/etc/icons/"
 INTERVAL=1
 CPUTemp=0
 GPUTemp=0
