@@ -47,8 +47,10 @@ bind index R  group-reply
 bind index -  collapse-thread
 bind index _  collapse-all
 
-macro index,pager y "<enter-command>unset trash\n <delete-message>" "Gmail archive message"
-macro index,pager d "<enter-command>set trash=\"imaps://imap.googlemail.com/[Gmail]/Trash\"\n <delete-message>" "Gmail delete message"
+macro index,pager y  "<enter-command>unset trash\n <delete-message>" "Gmail archive message"
+macro index,pager ^Y "<enter-command>unset trash\n <delete-thread>"  "Gmail archive thread"
+macro index,pager d  "<enter-command>set trash=\"imaps://imap.googlemail.com/[Gmail]/Trash\"\n <delete-message>" "Gmail delete message"
+macro index,pager ^D "<enter-command>set trash=\"imaps://imap.googlemail.com/[Gmail]/Trash\"\n <delete-thread>"  "Gmail delete thread"
 
 bind editor <space> noop
 macro index,pager gi "<change-folder>=INBOX<enter>" "Go to inbox"
