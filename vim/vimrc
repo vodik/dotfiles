@@ -75,7 +75,6 @@ set wildignore+=*.spl                          " compiled spell lists
 
 " AUTOCMDS {{{1
 " ----------------------------
-au FocusLost    * :wa
 au VimResized   * exe "normal! \<c-w>="
 au BufWritePre  * if ! &bin | silent! :call spaces#StripTrailing()<CR>
 au BufWritePost * if getline(1) =~ "^#!" | silent :!chmod +x <afile>
@@ -91,7 +90,7 @@ command! Wq wq
 command! Wa wa
 command! Wqa wqa
 
-command! Wc w !wc -c
+command! Ww w !wc -w
 
 " sane j k actions
 nnoremap j gj
