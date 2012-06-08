@@ -9,13 +9,19 @@ if [[ -d /etc/X11/xinit/xinitrc.d ]]; then
   unset f
 fi
 
+launch() {
+  type ck-launch-sesion && exec ck-launch-session $*
+  exec "${2-xmonad}"
+}
+
 case $2 in
   xbmc)
     exec xbmc-standalone ;;
   gnome)
-    exec ck-launch-session dbus-launch --exit-with-session gnome-session ;;
+    # exec ck-launch-session dbus-launch --exit-with-session gnome-session ;;
+    launch gnome-session ;;
   *)
     xrdb -merge ~/.Xresources &
     nitrogen --restore &
-    exec ck-launch-session "${2-xmonad}" ;;
+    launch "${2-xmonad}" ;;
 esac
