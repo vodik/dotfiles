@@ -4,7 +4,6 @@
 *.swo
 bin/*
 conky/*
-icons/*
 ncmpcpp/error.log
 mutt/aliases
 mutt/gmail
