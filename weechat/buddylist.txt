@@ -4,12 +4,14 @@ bitlbee.david
 bitlbee.denniscwik
 bitlbee.pawi59
 bitlbee.tgoodlet
+freenode.Caleb
 freenode.MrElendig
 freenode.allanbrokeit
 freenode.falconindy
 freenode.geekosaur
 freenode.gtmanfred
 freenode.ioni
+freenode.jelly1
 freenode.meskarune
 freenode.sudokode
 freenode.thestinger
