@@ -73,6 +73,13 @@ set wildignore+=*.a*.o,*.obj,*.so,*.hi         " compiled object files
 set wildignore+=*.pyc                          " python byte code
 set wildignore+=*.spl                          " compiled spell lists
 
+" backup
+set backup
+set backupdir=~/.vim/backups
+set dir=~/.vim/tmp
+set undofile
+set undodir=~/.vim/undo
+
 " AUTOCMDS {{{1
 " ----------------------------
 au VimResized   * exe "normal! \<c-w>="
