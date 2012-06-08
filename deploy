@@ -49,6 +49,10 @@ dotfiles_pentadactyl() {
   link pentadactyl/pentadactylrc
 }
 
+dotfiles_termite() {
+  link termite/termite.cfg .config/termite.cfg
+}
+
 dotfiles_tmux() {
   link tmux/tmux.conf
 }
