@@ -40,7 +40,9 @@ attachTmux commands t = do
     fromMaybe (create Nothing) (M.lookup t commands) term t
 
 attach :: Action
-attach term t = safeSpawn term [ "-e", "tmux", "attach", "-t", t ]
+attach term t = safeSpawn term [ "-e", tmux ]
+  where tmux = "tmux attach -t " ++ t
 
 create :: Maybe String -> Action
-create cmd term t = safeSpawn term $ [ "-e", "tmux", "new", "-s", t ] ++ maybe [] return cmd
+create cmd term t = safeSpawn term $ [ "-e", tmux ]
+  where tmux = unwords $ [ "tmux new -s", t ] ++ maybe [] return cmd
