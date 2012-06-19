@@ -14,14 +14,13 @@ launch() {
   exec "${1-xmonad}"
 }
 
-case $2 in
+case ${2:-xmonad} in
   xbmc)
     exec xbmc-standalone ;;
   gnome)
-    # exec ck-launch-session dbus-launch --exit-with-session gnome-session ;;
     launch gnome-session ;;
-  *)
+  xmonad)
     xrdb -merge ~/.Xresources &
     nitrogen --restore &
-    launch "${2-xmonad}" ;;
+    launch "$2" ;;
 esac
