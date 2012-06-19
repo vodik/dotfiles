@@ -10,13 +10,13 @@ au BufNewFile,BufRead *.md  setf pandoc
 au BufNewFile,BufRead *.hsc setf haskell
 au BufNewFile,BufRead *.chs setf haskell
 au BufNewFile,BufRead *.bf  setf brainfuck
-au BufNewFile,BufRead /etc/nginx/conf/* setf nginx
+au BufNewFile,BufRead /etc/nginx/*conf setf nginx
 
 au BufReadPost *.doc silent %!catdoc "%"
 au BufWriteCmd *.doc setl readonly
 au BufReadPost *.odt,*.odp silent %!odt2txt "%"
 au BufWriteCmd *.odt setl readonly
-au BufReadPost *.pdf silent %!pdftotext -nopgbrk -layout -q -eol unix "%" - | fmt -w78
+au BufReadPost *.pdf silent %!pdftotext -nopgbrk -layout -q -eol unix "%" - | fmt -w72
 au BufWriteCmd *.pdf setl readonly
 au BufReadPost *.rtf silent %!unrtf --text "%"
 au BufWriteCmd *.rtf setl readonly
