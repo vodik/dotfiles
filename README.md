@@ -1,41 +1,44 @@
 # Vodik's Dotfiles
 
+My comprehensive repository of configured software. Some details on the
+more highly customized programs:
+
 <table>
   <tr>
     <th>X</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>mutt</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>ncmpcpp</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>pentadactyl</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>termite</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>tmux</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>vim</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>weechat</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
   <tr>
     <th>xmonad</th>
-    <tr>X settings</tr>
+    <td>X settings</td>
   </tr>
 </table>
 
