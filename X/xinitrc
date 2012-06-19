@@ -23,4 +23,7 @@ case ${2:-xmonad} in
     xrdb -merge ~/.Xresources &
     nitrogen --restore &
     launch "$2" ;;
+  *)
+    echo >&2 "Unrecognized command $2"
+    exit 1;
 esac
