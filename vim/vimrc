@@ -23,7 +23,8 @@ set smartindent
 set linebreak
 set nolist
 set nowrap
-set textwidth=70
+set textwidth=72
+set wrapmargin=0
 set formatoptions=qn1
 
 " searching
