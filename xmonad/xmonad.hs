@@ -167,7 +167,7 @@ myKeys ws sp browser conf = mkKeymap conf $
     -- layout
     , ("M-<Space>",   sendMessage NextLayout)
     , ("M-S-<Space>", sendMessage FirstLayout)
-    , ("M-a",         sendMessage ToggleLayout)
+    , ("M-f",         sendMessage ToggleLayout)
 
     -- resizing
     , ("M-[",   sendMessage Shrink)
@@ -181,8 +181,8 @@ myKeys ws sp browser conf = mkKeymap conf $
     , ("M-j", windows W.focusDown)
     , ("M-k", windows W.focusUp)
     , ("M-m", windows W.focusMaster)
-    , ("M-f", withFocused' $ windows . W.sink)
-    , ("M-d", focusUrgent)
+    , ("M-t", withFocused' $ windows . W.sink)
+    , ("M-a", focusUrgent)
 
     -- swapping
     , ("M-S-m", windows W.shiftMaster)
