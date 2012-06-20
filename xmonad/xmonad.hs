@@ -211,10 +211,6 @@ myKeys ws sp browser conf = mkKeymap conf $
     , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
 
     -- mpd controls
-    , ("M1-C-1", withMPD MPD.toggle)
-    , ("M1-C-2", withMPD MPD.stop)
-    , ("M1-C-3", withMPD MPD.previous)
-    , ("M1-C-4", withMPD MPD.next)
     , ("<XF86AudioPlay>", withMPD MPD.toggle)
     , ("<XF86AudioStop>", withMPD MPD.stop)
     , ("<XF86AudioPrev>", withMPD MPD.previous)
@@ -223,6 +219,14 @@ myKeys ws sp browser conf = mkKeymap conf $
     -- change MPD_HOST
     , ("M-<XF86AudioPlay>", changeHost myXPConfig >> logHook conf)
     , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
+
+    -- alternative media keys (happy hacker)
+    , ("M-<F1>",  withMPD MPD.previous)
+    , ("M-<F2>",  withMPD MPD.toggle)
+    , ("M-<F3>",  withMPD MPD.next)
+    , ("M-<F8>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
+    , ("M-<F9>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
+    , ("M-<F10>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
 
     -- screenshot
     , ("C-<Print>", delayedSpawn 100 $ myScrot True)
