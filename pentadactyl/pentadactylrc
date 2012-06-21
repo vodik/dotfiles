@@ -3,6 +3,9 @@
 loadplugins '\.(js|penta)$'
 group user
 
+" Search
+command! -nargs=* wp tabopen http://en.wikipedia.org/wiki/Special:Search?go=Go&search=<args>
+
 " Make j and k move 5 linse at a time.
 noremap j 7j
 noremap k 7k
