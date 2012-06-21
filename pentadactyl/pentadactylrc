@@ -7,8 +7,8 @@ group user
 command! -nargs=* wp tabopen http://en.wikipedia.org/wiki/Special:Search?go=Go&search=<args>
 
 " Make j and k move 5 linse at a time.
-noremap j 7j
-noremap k 7k
+map -builtin j 7j
+map -builtin k 7k
 
 " Passkey settings
 set passkeys=mail.google.com:jkroae<CR>,gi
