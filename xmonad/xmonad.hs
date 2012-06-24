@@ -68,7 +68,7 @@ imClients = composeAs Any
 scratchpads :: NamedScratchpads
 scratchpads =
     [ NS "scratchpad" "termite -r scratchpad" (role      =? "scratchpad")  nonFloating
-    , NS "volume"     "pavucontrol"           (className =? "Pavucontrol") defaultFloating
+    , NS "volume"     "pavucontrol"           (className =? "Pavucontrol") nonFloating
     ]
 
 myFloats :: Query Bool
@@ -120,7 +120,7 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
 
 -- Rules {{{1
 myRules ws rect = manageDocks
-    <+> myScratchpadManageHook rect
+    <+> namedScratchpadManageHook [ NS "" "" (role =? "scratchpad") (customFloating rect) ]
     <+> workspaceShift ws
     <+> composeAll
         [ className =? "Transmission-gtk" --> doShift "work"
@@ -134,10 +134,6 @@ myRules ws rect = manageDocks
         , isFirefoxPreferences -?> doCenterFloat
         , isFullscreen         -?> doFullFloat
         ]
-  where
-    myScratchpadManageHook rect =
-        namedScratchpadManageHook [NS "" "" (role =? "scratchpad") (customFloating rect)]
-
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
