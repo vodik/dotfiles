@@ -128,8 +128,7 @@ myRules ws rect = manageDocks
         , resource  =? "desktop_window"   --> doIgnore
         ]
     <+> composeOneCaught (insertPosition Below Newer)
-        [ role =? "scratchpad" -?> doFloat
-        , className =? "Wine"  -?> doFloat
+        [ className =? "Wine"  -?> doFloat
         , myFloats             -?> doCenterFloat
         , isDialog             -?> doCenterFloat
         , isFirefoxPreferences -?> doCenterFloat
