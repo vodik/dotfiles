@@ -140,7 +140,6 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
     <+> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
-    -- <+> startService "urxvtd"  ("urxvtd"  :+ [ "-q", "-o" ])
     <+> startService "udiskie" "udiskie"
 
 -- Keymap {{{1
@@ -357,10 +356,6 @@ main = do
     screen  <- getScreen
     browser <- getBrowser "firefox"
     dzenbar <- startDzen
-
-    dpy   <- displayString <$> openDisplay ""
-    urxvt <- getAppUserDataDirectory "urxvt"
-    setEnv "RXVT_SOCKET" (urxvt ++ "/urxvtd-" ++ dpy) True
 
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
