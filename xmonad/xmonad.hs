@@ -232,19 +232,24 @@ myKeys ws browser conf = mkKeymap conf $
     , ("C-<Print>", delayedSpawn 100 $ myScrot True)
     , ("<Print>",   spawn            $ myScrot False)
     ]
-    <+> wsSwitchKeys conf
+    <+> wsSwitchKeys (tagSet ws) conf
     <+> searchKeys conf
   where
     myScrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
     skip    = [ skipWS [ "NSP" ] ]
 
-wsSwitchKeys conf =
-    [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) $ XMonad.workspaces conf
-                    , (m, f) <- [ ("M-",   toggleOrDoSkip [ "NSP" ] W.greedyView)
-                                , ("M-S-", windows . W.shift)
-                                , ("M-C-", windows . copy)
-                                ]
-    ]
+wsSwitchKeys tags conf = namedTags <+> additionalTags
+  where
+    namedTags      = [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) tags
+                                     , (m, f) <- keymap "M-"
+                     ]
+    additionalTags = [ (m ++ i, f i) | i <- fmap show [1..9]
+                                     , (m, f) <- keymap "M-C-"
+                     ]
+    keymap p =
+        [ (p,         toggleOrDoSkip [ "NSP" ] W.greedyView)
+        , (p ++ "S-", windows . W.shift)
+        ]
 
 searchKeys conf = [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
   where
@@ -371,7 +376,7 @@ main = do
         , modMask            = myModMask
         , keys               = myKeys machine browser
         , mouseBindings      = myMouseBindings
-        , workspaces         = to9 $ tagSet machine
+        , workspaces         = tagSet machine ++ fmap show [1..9]
         , terminal           = myTerminal
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray
