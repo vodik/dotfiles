@@ -20,14 +20,16 @@ dzenWSIcon res showAll name =
     fromMaybe without $ do
         (index, i) <- workspaceData res name
         icon <- i
-        return . dzenAction 1 (xDoTool index)
+        return . dzenAction 1 (xDoTool True index)
                . pad . (++ ' ' : name) $ dzenIcon icon
   where
-    without | showAll   = dzenAction 1 (xDoTool $ read name) $ pad name
+    without | showAll   = dzenAction 1 (xDoTool False $ read name) $ pad name
             | otherwise = ""
 
-xDoTool n | n <= 9    = "xdotool key super+" ++ show n
-          | otherwise = ""
+xDoTool True  n | n <= 9    = "xdotool key super+" ++ show n
+                | otherwise = ""
+xDoTool False n | n <= 9    = "xdotool key super+ctrl+" ++ show n
+                | otherwise = ""
 
 dzenPPLayout :: Resources -> String -> String -> String -> [String] -> String
 dzenPPLayout res tc fc bg (x:xs) =
