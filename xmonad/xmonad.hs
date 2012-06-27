@@ -344,7 +344,7 @@ getMachine = buildTags $ do
     work  = [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
             , title     =? "MusicBrainz Picard"
             , className ~? "^[Ll]ibre[Oo]ffice" ]
-    chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ] ]
+    chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ], role =? "irc" ]
     virt  = [ className =? "VirtualBox" ]
     games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
 
