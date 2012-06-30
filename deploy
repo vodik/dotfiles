@@ -17,45 +17,18 @@ link() {
 }
 
 # Deploy scriptlets {{{1
-dotfiles_cower() {
-  link cower .config/cower
-}
-
-dotfiles_dircolors() {
-  link dircolors/dircolors
-}
-
-dotfiles_git() {
-  link git/gitconfig
-}
-
-dotfiles_htop() {
-  link htop/htoprc
-}
-
-dotfiles_ncmpcpp() {
-  link ncmpcpp
-}
-
-dotfiles_mutt() {
-  link mutt
-}
-
-dotfiles_nethack() {
-  link nethack/nethackrc
-}
-
-dotfiles_pentadactyl() {
-  link pentadactyl/pentadactylrc
-}
-
-dotfiles_termite() {
-  link termite/termite.cfg .config/termite.cfg
-}
-
-dotfiles_tmux() {
-  link tmux/tmux.conf
-}
+dotfiles_cower()       { link cower .config/cower                     }
+dotfiles_dircolors()   { link dircolors/dircolors                     }
+dotfiles_git()         { link git/gitconfig                           }
+dotfiles_htop()        { link htop/htoprc                             }
+dotfiles_ncmpcpp()     { link ncmpcpp                                 }
+dotfiles_mutt()        { link mutt                                    }
+dotfiles_nethack()     { link nethack/nethackrc                       }
+dotfiles_pentadactyl() { link pentadactyl/pentadactylrc               }
+dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg }
+dotfiles_tmux()        { link tmux/tmux.conf                          }
+dotfiles_weechat()     { link weechat                                 }
+dotfiles_xmonad()      { link xmonad                                  }
 
 dotfiles_vim() {
   link vim
@@ -63,18 +36,10 @@ dotfiles_vim() {
   link vim/gvimrc
 }
 
-dotfiles_weechat() {
-  link weechat
-}
-
 dotfiles_X() {
   link X/Xresources
   link X/xinitrc
   link X/gtkrc-2.0 .gtkrc-2.0.mine
-}
-
-dotfiles_xmonad() {
-  link xmonad
 }
 
 dotfiles_zsh() {
