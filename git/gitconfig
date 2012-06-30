@@ -1,33 +1,24 @@
 [user]
 	name = Simon Gomizelj
 	email = simongmzlj@gmail.com
-
 [code]
 	editor = vim
-
 [color]
 	ui = on
-
 [merge]
 	tool = vimdiff
 	log = true
-
 [push]
-	default = upstream
-
+	default = current
 [help]
 	autocorrect = 1
-
 [log]
 	decorate = full
-
 [diff]
 	rename = copies
-
 [branch "master"]
 	remote = origin
 	merge = master
-
 [branch "upstream"]
 	remote = upstream
 	merge = master
