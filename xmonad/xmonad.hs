@@ -71,6 +71,9 @@ scratchpads =
     , NS "volume"     "pavucontrol"           (className =? "Pavucontrol") nonFloating
     ]
 
+tmuxSessions :: [TS]
+tmuxSessions = [ ("irc", Just "weechat-curses") ]
+
 myFloats :: Query Bool
 myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
@@ -147,7 +150,7 @@ myKeys ws browser conf = mkKeymap conf $
     [ ("M-<Return>", spawn $ terminal conf)
 
     , ("M-w",  spawn browser)
-    , ("M-\\", tmuxPrompt myXPConfig)
+    , ("M-\\", tmuxPrompt tmuxSessions myXPConfig)
     , ("M-p",  shellPrompt myXPConfig)
 
     -- scratchpads

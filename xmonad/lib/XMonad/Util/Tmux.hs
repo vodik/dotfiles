@@ -1,6 +1,7 @@
-module XMonad.Util.Tmux ( tmuxPrompt ) where
+module XMonad.Util.Tmux ( TS(..), tmuxPrompt ) where
 
 import Control.Applicative
+import Control.Arrow
 import Control.Exception
 import Control.Monad
 import Control.Monad.List
@@ -14,6 +15,7 @@ import XMonad.Prompt.Input
 import XMonad.Util.Run (runProcessWithInput, safeSpawn)
 import qualified Data.Map as M
 
+type TS = (String, Maybe String)
 type Action = String -> String -> X ()
 
 runningSessions :: IO (M.Map String Action)
@@ -21,17 +23,12 @@ runningSessions = M.fromList <$> do
     sessions <- runProcessWithInput "tmux" [ "list-sessions", "-F", "#{session_name}" ] ""
     return . map (flip (,) attach) $ lines sessions
 
-tmuxSessions :: IO (M.Map String Action)
-tmuxSessions = handle (\(SomeException _) -> return M.empty) $ do
-    dir <- getAppUserDataDirectory "tmux-sessions"
-    fmap M.fromList . runListT $ do
-        file <- ListT $ filter (not . isPrefixOf ".") <$> getDirectoryContents dir
-        cmd  <- fmap (create . Just) . io . readFile $ dir </> file
-        return (file, cmd)
+tmuxSessions :: [TS] -> M.Map String Action
+tmuxSessions = M.fromList . map (second create)
 
-tmuxPrompt :: XPConfig -> X ()
-tmuxPrompt conf = do
-    commands <- io $ liftA2 M.union runningSessions tmuxSessions
+tmuxPrompt :: [TS] -> XPConfig -> X ()
+tmuxPrompt ts conf = do
+    commands <- io $ (`M.union` tmuxSessions ts) <$> runningSessions
     inputPromptWithCompl conf "Tmux" (mkComplFunFromList' $ M.keys commands) ?+ attachTmux commands
 
 attachTmux :: M.Map String Action -> String -> X ()
