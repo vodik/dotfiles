@@ -17,3 +17,5 @@ freenode.sudokode
 freenode.thestinger
 freenode.tigrmesh
 freenode.zendeavor
+mibbit.logiz
+mibbit.retroowl
