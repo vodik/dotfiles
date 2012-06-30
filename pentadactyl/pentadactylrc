@@ -6,7 +6,7 @@ group user
 " Search
 command! -nargs=* wp tabopen http://en.wikipedia.org/wiki/Special:Search?go=Go&search=<args>
 
-" Make j and k move 5 linse at a time.
+" Make j and k move 5 lines at a time.
 map -builtin j 7j
 map -builtin k 7k
 
