@@ -71,8 +71,8 @@ scratchpads =
     , NS "volume"     "pavucontrol"           (className =? "Pavucontrol") nonFloating
     ]
 
-tmuxSessions :: [TS]
-tmuxSessions = [ ("irc", Just "weechat-curses") ]
+tmuxSessions :: TmuxSessions
+tmuxSessions = [ TS "irc" "weechat-curses" ]
 
 myFloats :: Query Bool
 myFloats =
