@@ -123,10 +123,10 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
 
 -- Rules {{{1
 myRules ws rect = manageDocks
-    <+> namedScratchpadManageHook [ NS "" "" (role =? "scratchpad") (customFloating rect) ]
     <+> workspaceShift ws
     <+> composeAll
-        [ className =? "Transmission-gtk" --> doShift "work"
+        [ role      =? "scratchpad"       --> customFloating rect
+        , className =? "Transmission-gtk" --> doShift "work"
         , className =? "MPlayer"          --> doCopy [ "NSP" ]
         , resource  =? "desktop_window"   --> doIgnore
         ]
