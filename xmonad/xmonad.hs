@@ -3,8 +3,6 @@ import Control.Monad
 import Data.Maybe
 import Data.Monoid
 import Data.Ratio
-import Graphics.X11.Xlib.Display
-import Graphics.X11.Xinerama (getScreenInfo)
 import System.Directory
 import System.Exit
 import System.Posix.Env
@@ -290,12 +288,6 @@ myXPConfig = defaultXPConfig
     }
 -- }}}
 
-applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
-    where conf = urgencyConfig { suppressWhen = Focused }
-
-getScreen :: IO Rectangle
-getScreen = openDisplay "" >>= fmap head . getScreenInfo
-
 getMachine = buildTags $ do
     host <- nodeName <$> io getSystemID
 
@@ -324,7 +316,7 @@ main = do
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
         sort   = workspaceSort "work" machine
-        pos    = positionRationalRect screen
+        pos    = positionRationalRect 16 screen
 
     xmonad . applyUrgency colorRed =<< dzenVodik defaultConfig
         { manageHook         = myRules machine pos
@@ -341,16 +333,6 @@ main = do
         , focusedBorderColor = colorBlue
         , focusFollowsMouse  = True
         }
-
-positionRationalRect :: Rectangle -> W.RationalRect
-positionRationalRect (Rectangle sx sy sw sh) =
-    let bh = 16
-        h  = (2 * fi sh / 5) - bh
-        ry = (fi sh - h - bh) / fi sh
-        rh = h / fi sh
-    in W.RationalRect 0 ry 1 rh
-  where
-    fi = fromIntegral
 
 -- vodikTweaks = defaultTweaks
 --     { mainWidth  = 2/3
