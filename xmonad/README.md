@@ -12,6 +12,13 @@ cabal install xmonad xmonad-contrib regex-posix libmpd
   [compton]: https://aur.archlinux.org/packages.php?ID=55375
   [dzen2]: http://aur.archlinux.org/packages.php?ID=14470
 
+### Icons
+
+This XMonad config will automatically load workspace icons from
+``$HOME/.xmonad/icons`` and layout icons from
+``$HOME/.xmonad/icons/layouts``. Workspaces lacking icons are handled
+specially.
+
 ### Libraries
 
 I've written an extensive library of xmonad modules, here's a run down.
