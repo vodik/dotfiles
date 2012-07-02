@@ -9,6 +9,7 @@ import Data.Maybe
 import System.FilePath
 import System.IO
 import System.IO.Unsafe
+import Text.Printf
 
 import XMonad
 import XMonad.Hooks.DynamicLog
@@ -102,7 +103,7 @@ dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
 
 dzenAction :: Int -> String -> String -> String
-dzenAction m f = concat [ "^ca(", show m, ",", f, ")" ] `wrap` "^ca()"
+dzenAction = printf "^ca(%d,%s)%s^ca()"
 
 xDoTool :: Bool -> Int -> String
 xDoTool m n = "xdotool key " ++ modifier m ++ show n
