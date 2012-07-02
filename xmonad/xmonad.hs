@@ -297,14 +297,14 @@ getScreen :: IO Rectangle
 getScreen = openDisplay "" >>= fmap head . getScreenInfo
 
 getMachine = buildTags $ do
-    host <- nodeName <$> liftIO getSystemID
+    host <- nodeName <$> io getSystemID
 
     tag  "work" $ Workspace [ "firefox" ] :> work
     tag1 "term" $ Terminals Nothing
     tag1 "code" $ Terminals (Just "~/projects")
     tag  "chat" $ Workspace [ "pidgin", "skype" ] :> chat
 
-    unless (host == "gmzlj") $
+    unless (host == "gmzlj") .
         tag "virt" $ Workspace [ "VirtualBox --startvm 'Windows 8'" ] :> virt
 
     tag "games" $ Workspace [ "sol" ] :> games
@@ -315,8 +315,6 @@ getMachine = buildTags $ do
     chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ], role =? "irc" ]
     virt  = [ className =? "VirtualBox" ]
     games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
-
-ws = map fst
 
 main = do
     machine <- getMachine
