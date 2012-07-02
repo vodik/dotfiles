@@ -40,13 +40,10 @@ xmonadIcons = unsafePerformIO getXMonadDir </> "icons/"
 
 dzenVodik :: LayoutClass l Window => XConfig l -> IO (XConfig l)
 dzenVodik conf = do
-    dzenbar <- startDzen
+    dzenbar <- spawnPipe myDzen
     let wsMap    = zip (workspaces conf) [1..]
         logHook' = dynamicLogWithPP (vodikPP wsMap) { ppOutput = hPutStrLn dzenbar }
     return conf { logHook = logHook' }
-
-startDzen :: MonadIO m => m Handle
-startDzen = spawnPipe myDzen
 
 myDzen :: String
 myDzen = "dzen2 " ++ unwords
@@ -80,7 +77,7 @@ dzenWSIcon wsMap showAll name =
         index <- lookup name wsMap
         let icon   = xmonadIcons </> name <.> ".xbm"
             action = dzenAction 1 (toWorkspace True index)
-        return . action . pad $ dzenIcon icon ++ " " ++ name
+        return . action . pad $ unwords [ dzenIcon icon, name ]
   where
     without | showAll   = dzenAction 1 (toWorkspace False $ read name) $ pad name
             | otherwise = ""
@@ -89,10 +86,9 @@ dzenLayout :: String -> String -> String -> [String] -> String
 dzenLayout tc fc bg (x:xs) =
     let (fg, l) = if x == "Triggered" then (tc, head xs)
                                       else (fc, x)
+        icon    = xmonadIcons </> "layout/" </> l <.> ".xbm"
         actions = dzenAction 1 "xdotool key super+space" . dzenAction 3 "xdotool key super+f"
-     in actions . dzenColor fg bg . pad . dzenIcon $ layoutIcon l
-  where
-    layoutIcon i = xmonadIcons </> "layout/" </> i <.> ".xbm"
+    in actions . dzenColor fg bg . pad $ dzenIcon icon
 
 getSortByIndexWithout :: [String] -> X WorkspaceSort
 getSortByIndexWithout tags = do
