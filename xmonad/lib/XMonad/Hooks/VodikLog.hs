@@ -92,7 +92,7 @@ dzenLayout tc fc bg (x:xs) =
         actions = dzenAction 1 "xdotool key super+space" . dzenAction 3 "xdotool key super+f"
      in actions . dzenColor fg bg . pad . dzenIcon $ layoutIcon l
   where
-    layoutIcon i = xmonadIcons </> "layout-" ++ i <.> ".xbm"
+    layoutIcon i = xmonadIcons </> "layout/" </> i <.> ".xbm"
 
 getSortByIndexWithout :: [String] -> X WorkspaceSort
 getSortByIndexWithout tags = do
