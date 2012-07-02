@@ -297,7 +297,7 @@ getMachine = buildTags $ do
     tag  "chat" $ Workspace [ "pidgin", "skype" ] :> chat
 
     unless (host == "gmzlj") .
-        tag "virt" $ Workspace [ "VirtualBox --startvm 'Windows 8'" ] :> virt
+        tag "virt" $ Workspace [ "VirtualBox" ] :> virt
 
     tag "games" $ Workspace [ "sol" ] :> games
   where
