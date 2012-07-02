@@ -150,6 +150,10 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-\\", tmuxPrompt tmuxSessions myXPConfig)
     , ("M-p",  shellPrompt myXPConfig)
 
+    -- scratchpads
+    , ("M-`", namedScratchpadAction scratchpads "scratchpad")
+    , ("M-v", namedScratchpadAction scratchpads "volume")
+
     -- quit, close or restart
     , ("M-S-q",   io exitSuccess)
     , ("M-S-c",   kill1)
@@ -199,46 +203,33 @@ myKeys ws browser conf = mkKeymap conf $
 
     -- misc keybinds against alt
     , ("M1-C-l", spawn "slock")
-    ]
-    <+> scratchpadKeys
-    <+> wsSwitchKeys (tagSet ws)
-    <+> searchKeys
-    <+> scrotKeys
-    <+> mediaKeys
-    <+> happyHackerKeys
-  where
-    skip    = [ skipWS [ "NSP" ] ]
-
-scratchpadKeys =
-    [ ("M-`", namedScratchpadAction scratchpads "scratchpad")
-    , ("M-v", namedScratchpadAction scratchpads "volume")
-    ]
-
-scrotKeys =
-    [ ("C-<Print>", delayedSpawn 100 $ scrot True)
+    --
+    -- screenshots
+    , ("C-<Print>", delayedSpawn 100 $ scrot True)
     , ("<Print>",   spawn            $ scrot False)
-    ]
-  where
-    scrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
-mediaKeys =
-    [ ("<XF86AudioPlay>",        withMPD MPD.toggle)
+    -- media keys
+    , ("<XF86AudioPlay>",        withMPD MPD.toggle)
     , ("<XF86AudioStop>",        withMPD MPD.stop)
     , ("<XF86AudioPrev>",        withMPD MPD.previous)
     , ("<XF86AudioNext>",        withMPD MPD.next)
     , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
     , ("<XF86AudioLowerVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
     , ("<XF86AudioRaiseVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
-    ]
 
-happyHackerKeys =
-    [ ("M-<F1>",  withMPD MPD.previous)
+    -- for happy hacking keyboard
+    , ("M-<F1>",  withMPD MPD.previous)
     , ("M-<F2>",  withMPD MPD.toggle)
     , ("M-<F3>",  withMPD MPD.next)
     , ("M-<F8>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
     , ("M-<F9>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
     , ("M-<F10>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
     ]
+    <+> wsSwitchKeys (tagSet ws)
+    <+> searchKeys
+  where
+    skip  = [ skipWS [ "NSP" ] ]
+    scrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
 wsSwitchKeys tags = namedTags <+> additionalTags
   where
