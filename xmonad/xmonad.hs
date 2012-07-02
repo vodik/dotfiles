@@ -201,7 +201,7 @@ myKeys ws browser conf = mkKeymap conf $
 
     -- misc keybinds against alt
     , ("M1-C-l", spawn "slock")
-    --
+
     -- screenshots
     , ("C-<Print>", delayedSpawn 100 $ scrot True)
     , ("<Print>",   spawn            $ scrot False)
