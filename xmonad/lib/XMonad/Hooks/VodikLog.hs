@@ -1,25 +1,20 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module XMonad.Hooks.VodikLog ( vodik, vodikPP ) where
+module XMonad.Hooks.VodikLog ( vodik ) where
 
 import Control.Applicative
 import Control.Monad
 import Data.Char
 import Data.Maybe
-import Graphics.X11 (Rectangle (..))
-import Graphics.X11.Xinerama (getScreenInfo)
 import System.FilePath
 import System.IO
 import System.IO.Unsafe
 
-import XMonad hiding (trace)
+import XMonad
 import XMonad.Hooks.DynamicLog
 import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
-
-import Workspaces
-import Utils
 
 -- TODO: Move
 dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
@@ -70,7 +65,7 @@ vodikPP m = defaultPP
     , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon m True
     , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon m False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenPPLayout colorRed colorBlue colorBlack . words
+    , ppLayout          = dzenLayout colorRed colorBlue colorBlack . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = getSortByIndexWithout [ "NSP" ]
@@ -89,15 +84,13 @@ dzenWSIcon wsMap showAll name =
     without | showAll   = dzenAction 1 (xDoTool False $ read name) $ pad name
             | otherwise = ""
 
-dzenPPLayout :: String -> String -> String -> [String] -> String
-dzenPPLayout tc fc bg (x:xs) =
+dzenLayout :: String -> String -> String -> [String] -> String
+dzenLayout tc fc bg (x:xs) =
     let (fg, l) = if x == "Triggered"
                      then (tc, head xs)
                      else (fc, x)
-    in dzenAction 1 "xdotool key super+space"
-     . dzenAction 3 "xdotool key super+a"
-     . dzenColor fg bg . pad . dzenIcon
-     $ layoutIcon l
+        actions = dzenAction 1 "xdotool key super+space" . dzenAction 3 "xdotool key super+f"
+     in actions . dzenColor fg bg . pad . dzenIcon $ layoutIcon l
   where
     layoutIcon = (xmonadDir </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
 
@@ -117,4 +110,3 @@ xDoTool m n = "xdotool key " ++ modifier m ++ show n
   where
     modifier True  = "super+"
     modifier False = "super+ctrl+"
-
