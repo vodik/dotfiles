@@ -10,6 +10,7 @@ import System.FilePath
 import System.IO
 import System.IO.Unsafe
 import Text.Printf
+import qualified Data.Map as M
 
 import XMonad
 import XMonad.Hooks.DynamicLog
@@ -33,7 +34,7 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-type WSMap = [(String, Int)]
+type WSMap = M.Map String Int
 
 xmonadIcons :: String
 xmonadIcons = unsafePerformIO getXMonadDir </> "icons/"
@@ -41,7 +42,7 @@ xmonadIcons = unsafePerformIO getXMonadDir </> "icons/"
 dzenVodik :: LayoutClass l Window => XConfig l -> IO (XConfig l)
 dzenVodik conf = do
     dzenbar <- spawnPipe myDzen
-    let wsMap    = zip (workspaces conf) [1..]
+    let wsMap    = M.fromList $ zip (workspaces conf) [1..]
         logHook' = dynamicLogWithPP (vodikPP wsMap) { ppOutput = hPutStrLn dzenbar }
     return conf { logHook = logHook' }
 
@@ -74,7 +75,7 @@ dzenWSIcon :: WSMap -> Bool -> String -> String
 dzenWSIcon wsMap showAll name =
     fromMaybe without $ do
         guard . not $ all isDigit name
-        index <- lookup name wsMap
+        index <- M.lookup name wsMap
         let icon   = xmonadIcons </> name <.> ".xbm"
             action = dzenAction 1 (toWorkspace True index)
         return . action . pad $ unwords [ dzenIcon icon, name ]
