@@ -231,14 +231,10 @@ myKeys ws browser conf = mkKeymap conf $
     skip  = [ skipWS [ "NSP" ] ]
     scrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
-wsSwitchKeys tags = namedTags <+> additionalTags
+wsSwitchKeys tags = namedTags <+> moreTags
   where
-    namedTags      = [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) tags
-                                     , (m, f) <- keymap "M-"
-                     ]
-    additionalTags = [ (m ++ i, f i) | i <- fmap show [1..9]
-                                     , (m, f) <- keymap "M-C-"
-                     ]
+    namedTags = [ (m ++ i, f w) | (i, w) <- zip (show <$> [1..]) tags, (m, f) <- keymap "M-"   ]
+    moreTags  = [ (m ++ i, f i) | i      <- show <$> [1..9],           (m, f) <- keymap "M-C-" ]
     keymap p =
         [ (p,         toggleOrDoSkip [ "NSP" ] W.greedyView)
         , (p ++ "S-", windows . W.shift)
