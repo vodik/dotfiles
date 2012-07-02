@@ -86,9 +86,8 @@ dzenWSIcon wsMap showAll name =
 
 dzenLayout :: String -> String -> String -> [String] -> String
 dzenLayout tc fc bg (x:xs) =
-    let (fg, l) = if x == "Triggered"
-                     then (tc, head xs)
-                     else (fc, x)
+    let (fg, l) = if x == "Triggered" then (tc, head xs)
+                                      else (fc, x)
         actions = dzenAction 1 "xdotool key super+space" . dzenAction 3 "xdotool key super+f"
      in actions . dzenColor fg bg . pad . dzenIcon $ layoutIcon l
   where
