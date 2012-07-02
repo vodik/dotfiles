@@ -7,7 +7,6 @@ import Graphics.X11.Xlib.Display
 import Graphics.X11.Xinerama (getScreenInfo)
 import System.Directory
 import System.Exit
-import System.IO
 import System.Posix.Env
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
@@ -23,6 +22,7 @@ import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
+import XMonad.Hooks.VodikLog
 import XMonad.Layout.BalancedTile
 import XMonad.Layout.Grid
 import XMonad.Layout.GuardLayout
@@ -41,10 +41,10 @@ import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Commands
 import XMonad.Util.Cursor
 import XMonad.Util.CycleWS
+import XMonad.Util.Environment
 import XMonad.Util.EZConfig
 import XMonad.Util.MPD
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.Services
 import XMonad.Util.Tmux
@@ -53,7 +53,6 @@ import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
 
 import DynamicTopic
-import Dzen2
 import Utils
 import Workspaces
 import Workspaces.Instances
@@ -79,12 +78,10 @@ myFloats =
     className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
                          , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
 
-myTerminal    = "termite"
-myBorderWidth = 2
-myModMask     = mod4Mask
-
+myTerminal      = "termite"
+myBorderWidth   = 2
+myModMask       = mod4Mask
 xftFont         = "xft:Envy Code R:size=9"
-dzenFont        = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
 colorBlack      = "#000000"
 colorBlackAlt   = "#050505"
 colorGray       = "#484848"
@@ -153,10 +150,6 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-\\", tmuxPrompt tmuxSessions myXPConfig)
     , ("M-p",  shellPrompt myXPConfig)
 
-    -- scratchpads
-    , ("M-`", namedScratchpadAction scratchpads "scratchpad")
-    , ("M-v", namedScratchpadAction scratchpads "volume")
-
     -- quit, close or restart
     , ("M-S-q",   io exitSuccess)
     , ("M-S-c",   kill1)
@@ -206,41 +199,48 @@ myKeys ws browser conf = mkKeymap conf $
 
     -- misc keybinds against alt
     , ("M1-C-l", spawn "slock")
+    ]
+    <+> scratchpadKeys
+    <+> wsSwitchKeys (tagSet ws)
+    <+> searchKeys
+    <+> scrotKeys
+    <+> mediaKeys
+    <+> happyHackerKeys
+  where
+    skip    = [ skipWS [ "NSP" ] ]
 
-    -- multimedia keys
+scratchpadKeys =
+    [ ("M-`", namedScratchpadAction scratchpads "scratchpad")
+    , ("M-v", namedScratchpadAction scratchpads "volume")
+    ]
+
+scrotKeys =
+    [ ("C-<Print>", delayedSpawn 100 $ scrot True)
+    , ("<Print>",   spawn            $ scrot False)
+    ]
+  where
+    scrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
+
+mediaKeys =
+    [ ("<XF86AudioPlay>",        withMPD MPD.toggle)
+    , ("<XF86AudioStop>",        withMPD MPD.stop)
+    , ("<XF86AudioPrev>",        withMPD MPD.previous)
+    , ("<XF86AudioNext>",        withMPD MPD.next)
+    , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
     , ("<XF86AudioLowerVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
     , ("<XF86AudioRaiseVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
-    , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
+    ]
 
-    -- mpd controls
-    , ("<XF86AudioPlay>", withMPD MPD.toggle)
-    , ("<XF86AudioStop>", withMPD MPD.stop)
-    , ("<XF86AudioPrev>", withMPD MPD.previous)
-    , ("<XF86AudioNext>", withMPD MPD.next)
-
-    -- change MPD_HOST
-    , ("M-<XF86AudioPlay>", changeHost myXPConfig >> logHook conf)
-    , ("M1-C-S-1",          changeHost myXPConfig >> logHook conf)
-
-    -- alternative media keys (happy hacker)
-    , ("M-<F1>",  withMPD MPD.previous)
+happyHackerKeys =
+    [ ("M-<F1>",  withMPD MPD.previous)
     , ("M-<F2>",  withMPD MPD.toggle)
     , ("M-<F3>",  withMPD MPD.next)
     , ("M-<F8>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
     , ("M-<F9>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
     , ("M-<F10>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
-
-    -- screenshot
-    , ("C-<Print>", delayedSpawn 100 $ myScrot True)
-    , ("<Print>",   spawn            $ myScrot False)
     ]
-    <+> wsSwitchKeys (tagSet ws) conf
-    <+> searchKeys conf
-  where
-    myScrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
-    skip    = [ skipWS [ "NSP" ] ]
 
-wsSwitchKeys tags conf = namedTags <+> additionalTags
+wsSwitchKeys tags = namedTags <+> additionalTags
   where
     namedTags      = [ (m ++ i, f w) | (i, w) <- zip (fmap show [1..]) tags
                                      , (m, f) <- keymap "M-"
@@ -253,7 +253,7 @@ wsSwitchKeys tags conf = namedTags <+> additionalTags
         , (p ++ "S-", windows . W.shift)
         ]
 
-searchKeys conf = [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
+searchKeys = [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
   where
     searchList =
         [ ("g", S.google)
@@ -277,28 +277,6 @@ myMouseBindings conf@(XConfig {modMask = modm}) =
         ]
   where
     skip = [ skipWS [ "NSP" ] ]
-
--- Log Hook {{{1
-myLogHook res output =
-    dynamicLogWithPP $ (myPP res) { ppOutput = hPutStrLn output }
-
-myPP res = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon res True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon res True
-    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon res True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon res True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon res False
-    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenPPLayout res colorRed colorBlue colorBlack . words
-    , ppSep             = ""
-    , ppWsSep           = ""
-    , ppSort            = getSortByIndexWithoutNSP
-    , ppOrder           = \(ws:l:t:e:_) -> [ ws, e, l, dzenColor colorBlue colorBlackAlt "» ", t ]
-    , ppExtras          = [ checkMPD ]
-    }
-
-checkMPD = Just . maybe "" (const icon) <$> getHost
-  where icon = dzenColor colorBlack colorBlue " ^i(etc/icons/chain.xbm) "
 
 -- Themes {{{1
 myTabTheme = defaultTheme
@@ -358,18 +336,16 @@ main = do
     res     <- mkResources machine
     screen  <- getScreen
     browser <- getBrowser "firefox"
-    dzenbar <- startDzen
 
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
         sort   = workspaceSort "work" machine
         pos    = positionRationalRect screen
 
-    xmonad . applyUrgency colorRed $ defaultConfig
+    xmonad . applyUrgency colorRed =<< vodik res defaultConfig
         { manageHook         = myRules machine pos
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules sort tweaks
-        , logHook            = myLogHook res dzenbar
         , startupHook        = myStartupHook sort
         , modMask            = myModMask
         , keys               = myKeys machine browser
@@ -381,19 +357,6 @@ main = do
         , focusedBorderColor = colorBlue
         , focusFollowsMouse  = True
         }
-
-startDzen :: MonadIO m => m Handle
-startDzen = spawnPipe myDzen
-
-myDzen :: String
-myDzen = "dzen2 " ++ unwords
-    [ "-y"   , "-16"
-    , "-h"   ,  "16"
-    , "-fn"  , quote "'" dzenFont
-    , "-fg"  , quote "'" colorWhite
-    , "-bg"  , quote "'" colorBlackAlt
-    , "-ta l"
-    , "-e 'onstart=lower'" ]
 
 positionRationalRect :: Rectangle -> W.RationalRect
 positionRationalRect (Rectangle sx sy sw sh) =

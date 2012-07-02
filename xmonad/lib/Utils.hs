@@ -3,14 +3,11 @@ module Utils where
 import Control.Applicative
 import Control.Monad
 import Data.List
-import Data.Maybe
-import System.Environment (getEnvironment)
 import Text.Regex.Posix ((=~))
 
 import XMonad hiding (spawn)
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
-import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
 data BorderUrgencyHook = BorderUrgencyHook !String
@@ -19,9 +16,6 @@ data BorderUrgencyHook = BorderUrgencyHook !String
 instance UrgencyHook BorderUrgencyHook where
     urgencyHook (BorderUrgencyHook cs) w = withDisplay $ \dpy -> io $
         initColor dpy cs >>= maybe (return ()) (setWindowBorder dpy w)
-
-to9 :: [String] -> [String]
-to9 ws = (ws ++) . drop (length ws) $ map show [1..9]
 
 queryAny :: Eq a => Query a -> [a] -> Query Bool
 queryAny q xs = foldl1 (<||>) $ (q =?) <$> xs
@@ -47,18 +41,3 @@ withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
 
 hasResource :: [String] -> Window -> X Bool
 hasResource ign w = withDisplay $ \d -> io $ (`elem` ign) . resName <$> getClassHint d w
-
-getSortByIndexWithoutNSP :: X WorkspaceSort
-getSortByIndexWithoutNSP = (. filter ((/= "NSP") . W.tag)) <$> getSortByIndex
-
-env :: String -> IO (Maybe String)
-env = (<$> getEnvironment) . lookup
-
-getBrowser :: String -> IO String
-getBrowser = (<$> env "BROWSER") . fromMaybe
-
-getHome :: IO String
-getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
-
-quote :: String -> String -> String
-quote = (.) <$> (++) <*> flip (++)
