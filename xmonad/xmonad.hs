@@ -332,7 +332,7 @@ main = do
         sort   = workspaceSort "work" machine
         pos    = positionRationalRect screen
 
-    xmonad . applyUrgency colorRed =<< vodik defaultConfig
+    xmonad . applyUrgency colorRed =<< dzenVodik defaultConfig
         { manageHook         = myRules machine pos
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules sort tweaks

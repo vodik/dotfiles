@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module XMonad.Hooks.VodikLog ( vodik ) where
+module XMonad.Hooks.VodikLog ( dzenVodik ) where
 
 import Control.Applicative
 import Control.Monad
@@ -38,8 +38,8 @@ type WSMap = [(String, Int)]
 xmonadDir :: String
 xmonadDir = unsafePerformIO getXMonadDir
 
-vodik :: LayoutClass l Window => XConfig l -> IO (XConfig l)
-vodik conf = do
+dzenVodik :: LayoutClass l Window => XConfig l -> IO (XConfig l)
+dzenVodik conf = do
     dzenbar <- startDzen
     let wsMap    = zip (workspaces conf) [1..]
         logHook' = dynamicLogWithPP (vodikPP wsMap) { ppOutput = hPutStrLn dzenbar }
