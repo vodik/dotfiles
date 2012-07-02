@@ -333,7 +333,6 @@ ws = map fst
 
 main = do
     machine <- getMachine
-    res     <- mkResources machine
     screen  <- getScreen
     browser <- getBrowser "firefox"
 
@@ -342,7 +341,7 @@ main = do
         sort   = workspaceSort "work" machine
         pos    = positionRationalRect screen
 
-    xmonad . applyUrgency colorRed =<< vodik res defaultConfig
+    xmonad . applyUrgency colorRed =<< vodik defaultConfig
         { manageHook         = myRules machine pos
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules sort tweaks

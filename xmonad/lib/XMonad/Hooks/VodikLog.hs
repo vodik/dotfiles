@@ -3,10 +3,14 @@
 module XMonad.Hooks.VodikLog ( vodik, vodikPP ) where
 
 import Control.Applicative
+import Control.Monad
+import Data.Char
 import Data.Maybe
 import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
+import System.FilePath
 import System.IO
+import System.IO.Unsafe
 
 import XMonad hiding (trace)
 import XMonad.Hooks.DynamicLog
@@ -33,28 +37,17 @@ colorBlue       = "#60a0c0"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
-vodik :: Resources -> LayoutClass l Window => XConfig l -> IO (XConfig l)
-vodik res conf = do
-    dzenbar <- startDzen
-    return conf { logHook = myLogHook res dzenbar }
- where
-    myLogHook res output =
-        dynamicLogWithPP $ (vodikPP res) { ppOutput = hPutStrLn output }
+type WSMap = [(String, Int)]
 
-vodikPP :: Resources -> PP
-vodikPP res = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon res True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon res True
-    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon res True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon res True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon res False
-    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
-    , ppLayout          = dzenPPLayout res colorRed colorBlue colorBlack . words
-    , ppSep             = ""
-    , ppWsSep           = ""
-    , ppSort            = getSortByIndexWithoutNSP
-    , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
-    }
+xmonadDir :: String
+xmonadDir = unsafePerformIO getXMonadDir
+
+vodik :: LayoutClass l Window => XConfig l -> IO (XConfig l)
+vodik conf = do
+    dzenbar <- startDzen
+    let wsMap    = zip (workspaces conf) [1..]
+        logHook' = dynamicLogWithPP (vodikPP wsMap) { ppOutput = hPutStrLn dzenbar }
+    return conf { logHook = logHook' }
 
 startDzen :: MonadIO m => m Handle
 startDzen = spawnPipe myDzen
@@ -63,38 +56,55 @@ myDzen :: String
 myDzen = "dzen2 " ++ unwords
     [ "-y"   , "-16"
     , "-h"   ,  "16"
-    , "-fn"  , dzenFont
-    , "-fg"  , colorWhite
-    , "-bg"  , colorBlackAlt
+    , "-fn"  , "'" ++ dzenFont ++ "'"
+    , "-fg"  , "'" ++ colorWhite ++ "'"
+    , "-bg"  , "'" ++ colorBlackAlt ++ "'"
     , "-ta l"
     , "-e 'onstart=lower'" ]
 
--- TODO: Don't like how i'm handleing index
-dzenWSIcon :: Resources -> Bool -> String -> String
-dzenWSIcon res showAll name =
+vodikPP :: WSMap -> PP
+vodikPP m = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon m True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon m True
+    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon m True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon m True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon m False
+    , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
+    , ppLayout          = dzenPPLayout colorRed colorBlue colorBlack . words
+    , ppSep             = ""
+    , ppWsSep           = ""
+    , ppSort            = getSortByIndexWithout [ "NSP" ]
+    , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenColor colorBlue colorBlackAlt "» ", t ]
+    }
+
+dzenWSIcon :: WSMap -> Bool -> String -> String
+dzenWSIcon wsMap showAll name =
     fromMaybe without $ do
-        (index, i) <- workspaceData res name
-        icon <- i
-        return . dzenAction 1 (xDoTool True index)
-               . pad . (++ ' ' : name) $ dzenIcon icon
+        guard . not $ all isDigit name
+        index <- lookup name wsMap
+        let icon   = xmonadDir </> "icons/" </> name <.> ".xbm"
+            action = dzenAction 1 (xDoTool True index)
+        return . action . pad $ dzenIcon icon ++ " " ++ name
   where
     without | showAll   = dzenAction 1 (xDoTool False $ read name) $ pad name
             | otherwise = ""
 
-xDoTool True  n | n <= 9    = "xdotool key super+" ++ show n
-                | otherwise = ""
-xDoTool False n | n <= 9    = "xdotool key super+ctrl+" ++ show n
-                | otherwise = ""
-
-dzenPPLayout :: Resources -> String -> String -> String -> [String] -> String
-dzenPPLayout res tc fc bg (x:xs) =
+dzenPPLayout :: String -> String -> String -> [String] -> String
+dzenPPLayout tc fc bg (x:xs) =
     let (fg, l) = if x == "Triggered"
                      then (tc, head xs)
                      else (fc, x)
     in dzenAction 1 "xdotool key super+space"
      . dzenAction 3 "xdotool key super+a"
      . dzenColor fg bg . pad . dzenIcon
-     $ layoutIcon res l
+     $ layoutIcon l
+  where
+    layoutIcon = (xmonadDir </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
+
+getSortByIndexWithout :: [String] -> X WorkspaceSort
+getSortByIndexWithout tags = do
+    sort <- getSortByIndex
+    return $ sort . filter ((`notElem` tags) . W.tag)
 
 dzenIcon :: String -> String
 dzenIcon = wrap "^i(" ")"
@@ -102,6 +112,9 @@ dzenIcon = wrap "^i(" ")"
 dzenAction :: Int -> String -> String -> String
 dzenAction m f = concat [ "^ca(", show m, ",", f, ")" ] `wrap` "^ca()"
 
-getSortByIndexWithoutNSP :: X WorkspaceSort
-getSortByIndexWithoutNSP = (. filter ((/= "NSP") . W.tag)) <$> getSortByIndex
+xDoTool :: Bool -> Int -> String
+xDoTool m n = "xdotool key " ++ modifier m ++ show n
+  where
+    modifier True  = "super+"
+    modifier False = "super+ctrl+"
 

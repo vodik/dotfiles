@@ -76,27 +76,11 @@ tag1 n t = tell [(n, Tag t)]
 tag :: MonadWriter [(WorkspaceId, Tag)] m => String -> Tag -> m ()
 tag  n t = tell [(n, t)]
 
-data Resources = Resources
-    { layoutIcon    :: String -> FilePath
-    , workspaceData :: String -> Maybe (Int, Maybe FilePath)
-    }
-
 tagSet :: [(WorkspaceId, Tag)] -> [WorkspaceId]
 tagSet = map fst
 
 buildTags :: MonadIO m => WSGenT m () -> m [(WorkspaceId, Tag)]
 buildTags = execWriterT
-
-mkResources :: MonadIO m => [(WorkspaceId, Tag)] -> m Resources
-mkResources info = do
-    root <- getXMonadDir
-    return Resources
-        { layoutIcon    = (root </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
-        , workspaceData = (`M.lookup` wsData root info)
-        }
-  where
-    wsData r info = M.fromList [ (x, (i, f r x)) | (i, x) <- zip [1..] $ map fst info ]
-    f root = Just . (root </>) . ("icons/" </>) . (<.> ".xbm")
 
 workspaceShift :: [(WorkspaceId, Tag)] -> ManageHook
 workspaceShift = foldr (\(w, t) -> (composeAll [ r --> doShift w | r <- rules t ] <+>)) idHook
