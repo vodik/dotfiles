@@ -106,7 +106,7 @@ dzenAction :: Int -> String -> String -> String
 dzenAction = printf "^ca(%d,%s)%s^ca()"
 
 toWorkspace :: Bool -> Int -> String
-toWorkspace m n = "xdotool key " ++ modifier m ++ show n
+toWorkspace = printf "xdotool key %s+%d" . modifier
   where
-    modifier True  = "super+"
-    modifier False = "super+ctrl+"
+    modifier True  = "super"
+    modifier False = "super+ctrl"
