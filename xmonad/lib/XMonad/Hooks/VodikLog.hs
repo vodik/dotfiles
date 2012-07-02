@@ -35,8 +35,8 @@ colorRed        = "#d74b73"
 
 type WSMap = [(String, Int)]
 
-xmonadDir :: String
-xmonadDir = unsafePerformIO getXMonadDir
+xmonadIcons :: String
+xmonadIcons = unsafePerformIO getXMonadDir </> "icons/"
 
 dzenVodik :: LayoutClass l Window => XConfig l -> IO (XConfig l)
 dzenVodik conf = do
@@ -78,11 +78,11 @@ dzenWSIcon wsMap showAll name =
     fromMaybe without $ do
         guard . not $ all isDigit name
         index <- lookup name wsMap
-        let icon   = xmonadDir </> "icons/" </> name <.> ".xbm"
-            action = dzenAction 1 (xDoTool True index)
+        let icon   = xmonadIcons </> name <.> ".xbm"
+            action = dzenAction 1 (toWorkspace True index)
         return . action . pad $ dzenIcon icon ++ " " ++ name
   where
-    without | showAll   = dzenAction 1 (xDoTool False $ read name) $ pad name
+    without | showAll   = dzenAction 1 (toWorkspace False $ read name) $ pad name
             | otherwise = ""
 
 dzenLayout :: String -> String -> String -> [String] -> String
@@ -92,7 +92,7 @@ dzenLayout tc fc bg (x:xs) =
         actions = dzenAction 1 "xdotool key super+space" . dzenAction 3 "xdotool key super+f"
      in actions . dzenColor fg bg . pad . dzenIcon $ layoutIcon l
   where
-    layoutIcon = (xmonadDir </>) . ("icons/" </>) . ("layout-" ++) . (<.> ".xbm")
+    layoutIcon i = xmonadIcons </> "layout-" ++ i <.> ".xbm"
 
 getSortByIndexWithout :: [String] -> X WorkspaceSort
 getSortByIndexWithout tags = do
@@ -105,8 +105,8 @@ dzenIcon = wrap "^i(" ")"
 dzenAction :: Int -> String -> String -> String
 dzenAction = printf "^ca(%d,%s)%s^ca()"
 
-xDoTool :: Bool -> Int -> String
-xDoTool m n = "xdotool key " ++ modifier m ++ show n
+toWorkspace :: Bool -> Int -> String
+toWorkspace m n = "xdotool key " ++ modifier m ++ show n
   where
     modifier True  = "super+"
     modifier False = "super+ctrl+"
