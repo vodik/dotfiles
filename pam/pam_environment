@@ -1,0 +1,10 @@
+# locale
+LANG=en_CA.utf8
+
+# default applications
+BROWSER=firefox
+EDITOR=vim
+VISUAL=gvim
+PAGER=less
+
+# vim: ft=conf

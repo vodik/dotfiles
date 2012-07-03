@@ -24,6 +24,7 @@ dotfiles_htop()        { link htop/htoprc;                             }
 dotfiles_ncmpcpp()     { link ncmpcpp;                                 }
 dotfiles_mutt()        { link mutt;                                    }
 dotfiles_nethack()     { link nethack/nethackrc;                       }
+dotfiles_pam()         { link pam/pam_environment;                     }
 dotfiles_pentadactyl() { link pentadactyl/pentadactylrc;               }
 dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg; }
 dotfiles_tmux()        { link tmux/tmux.conf;                          }

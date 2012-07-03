@@ -1,8 +1,3 @@
-export BROWSER="firefox"
-export EDITOR="vim"
-export VISUAL="vim"
-export PAGER="less"
-
 export DISPLAY=${DISPLAY:-:0}
 
 export GREP_OPTIONS="--color=auto"
@@ -18,8 +13,7 @@ export LESS_TERMCAP_se=$'\E[0m'      # end standout-mode
 export LESS_TERMCAP_us=$'\E[00;34m'  # begin underline
 export LESS_TERMCAP_ue=$'\E[0m'      # end underline
 
-export ABSROOT="$HOME/build/abs"
-
+ABSROOT="$HOME/build/abs"
 [[ -d /srv/http/archlinux/vodik/os ]] && \
   hash -d repo=/srv/http/archlinux/vodik/os
 
