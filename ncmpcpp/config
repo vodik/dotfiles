@@ -4,7 +4,7 @@ mpd_crossfade_time = "5"
 # Playlist {{{1
 song_columns_list_format = "$L(9)[white]{l} (20)[red]{a} (30)[green]{b}$R(20)[cyan]{t}"
 now_playing_prefix = "$b"
-playlist_display_mode = "classic" (classic/columns)
+playlist_display_mode = "classic"
 autocenter_mode = "no"
 centered_cursor = "no"
 cyclic_scrolling = "yes"
@@ -17,13 +17,11 @@ user_interface = "alternative"
 # Bars {{{1
 song_status_format = "{%a - }{%t - }{%b}"
 progressbar_look = "─╼ "
-titles_visibility = "no"
 header_visibility = "no"
-statusbar_visibility = "no"
 
 # Browser {{{1
 browser_playlist_prefix = "$2plist »$9 "
-browser_display_mode = "classic" (classic/columns)
+browser_display_mode = "classic"
 
 # Colors {{{1
 discard_colors_if_item_is_selected = "yes"
@@ -37,8 +35,7 @@ color2 = "black"
 main_window_highlight_color = "red"
 progressbar_color = "black"
 statusbar_color = "black"
-active_column_color = "red"
-visualizer_color = "cyan"
+active_column_color = "white"
 
 # Others {{{1
 song_window_title_format = "MPD: {%a > }{%t}{ [%b]}|{%f}"
@@ -52,3 +49,4 @@ visualizer_output_name = "my_fifo"
 visualizer_sync_interval = "1"
 visualizer_type = "spectrum" (spectrum/wave)
 visualizer_type = "wave" (spectrum/wave)
+visualizer_color = "yellow"
