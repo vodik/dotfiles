@@ -219,9 +219,9 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-<F1>",  withMPD MPD.previous)
     , ("M-<F2>",  withMPD MPD.toggle)
     , ("M-<F3>",  withMPD MPD.next)
-    , ("M-<F8>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
-    , ("M-<F9>",  spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
-    , ("M-<F10>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
+    , ("M-<F10>", spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
+    , ("M-<F11>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
+    , ("M-<F12>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
     ]
     <+> wsSwitchKeys (tagSet ws)
     <+> searchKeys
