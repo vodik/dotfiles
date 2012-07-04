@@ -1,7 +1,6 @@
 module XMonad.Util.Environment
     ( env
     , getBrowser
-    , getHome
     ) where
 
 import Control.Applicative
@@ -13,6 +12,3 @@ env = (<$> getEnvironment) . lookup
 
 getBrowser :: String -> IO String
 getBrowser = (<$> env "BROWSER") . fromMaybe
-
-getHome :: IO String
-getHome = fromMaybe "/home/simongmzlj" <$> env "HOME"
