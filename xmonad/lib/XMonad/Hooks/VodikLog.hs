@@ -50,11 +50,14 @@ myDzen :: String
 myDzen = "dzen2 " ++ unwords
     [ "-y"   , "-16"
     , "-h"   ,  "16"
-    , "-fn"  , "'" ++ dzenFont ++ "'"
-    , "-fg"  , "'" ++ colorWhite ++ "'"
-    , "-bg"  , "'" ++ colorBlackAlt ++ "'"
+    , "-fn"  , quote dzenFont
+    , "-fg"  , quote colorWhite
+    , "-bg"  , quote colorBlackAlt
     , "-ta l"
     , "-e 'onstart=lower'" ]
+
+quote :: String -> String
+quote = printf "'%s'"
 
 vodikPP :: WSMap -> PP
 vodikPP ws = defaultPP
