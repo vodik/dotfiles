@@ -4,7 +4,7 @@ LANG=en_CA.utf8
 # default applications
 BROWSER=firefox
 EDITOR=vim
-VISUAL=gvim
+VISUAL=vim
 PAGER=less
 
 # vim: ft=conf
