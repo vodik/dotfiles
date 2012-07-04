@@ -50,5 +50,7 @@ setopt bg_nice
 unsetopt beep
 setopt vi
 
+[[ $TASK == show ]] && task long
+
 for snippets ($HOME/etc/zsh/*.zsh(N))
   source $snippets

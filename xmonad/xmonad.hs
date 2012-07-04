@@ -65,9 +65,11 @@ imClients = composeAs Any
 
 scratchpads :: NamedScratchpads
 scratchpads =
-    [ NS "scratchpad" "termite -r scratchpad" (role      =? "scratchpad")  nonFloating
-    , NS "volume"     "pavucontrol"           (className =? "Pavucontrol") nonFloating
+    [ NS "scratchpad" scratchpad    (role      =? "scratchpad")  nonFloating
+    , NS "volume"     "pavucontrol" (className =? "Pavucontrol") nonFloating
     ]
+  where
+    scratchpad = "TASK=show termite -r scratchpad"
 
 tmuxSessions :: TmuxSessions
 tmuxSessions = [ TS "irc" "weechat-curses" ]
