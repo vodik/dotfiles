@@ -32,6 +32,11 @@ dotfiles_tmux()        { link tmux/tmux.conf;                          }
 dotfiles_weechat()     { link weechat;                                 }
 dotfiles_xmonad()      { link xmonad;                                  }
 
+dotfiles_task() {
+  link task/task
+  link task/taskrc
+}
+
 dotfiles_vim() {
   link vim
   link vim/vimrc
