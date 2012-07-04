@@ -1,13 +1,10 @@
 #!/bin/bash
 
 #Layout
+HEIGHT=16
 BAR_H=8
 BIGBAR_W=60
 SMABAR_W=30
-WIDTH=1280
-HEIGHT=16
-X_POS=0
-Y_POS=0
 
 #Look and feel
 CRIT="#d74b73"
@@ -25,162 +22,108 @@ IFS='|' #internal field separator (conky)
 CONKYFILE="$HOME/.config/conky/conkyrc"
 ICONPATH="$HOME/etc/icons/"
 INTERVAL=1
-CPUTemp=0
-GPUTemp=0
-CPULoad0=0
-CPULoad1=0
-NetUp=0
-NetDown=0
 
-printVolInfo() {
-  Perc=$(amixer get Master | grep "Front Left:" | awk '{print $5}' | tr -d '[]%')
-  Mute=$(amixer get Master | grep "Front Left:" | awk '{print $6}')
-  if [[ $Mute == "[off]" ]]; then
-    echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_off.xbm) "
-    echo -n "^fg()off "
-    echo -n "$(echo $Perc | gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl)"
+LEFT=(kernel cpu memory)
+RIGHT=(disks filesystem alsa)
+
+print_alsa() {
+  local perc=$(amixer get Master | grep "Front Left:" | awk '{print $5}' | tr -d '[]%')
+  local mute=$(amixer get Master | grep "Front Left:" | awk '{print $6}')
+
+  if [[ $mute == "[off]" ]]; then
+    echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_off.xbm) ^fg()off "
+    gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl <<<$perc
   else
-    echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_on.xbm) "
-    echo -n "^fg()${Perc}% "
-    echo -n "$(echo $Perc | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl)"
+    echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_on.xbm) ^fg()$perc% "
+    gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl <<<$perc
   fi
-  return
 }
 
-printCPUInfo() {
-  echo -n "^fg($COLOR_ICON)^i($ICONPATH/cpu.xbm) "
-  echo -n "^fg()${CPULoad0}% "
-  echo -n "$(echo $CPULoad0 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad1}% "
-  echo -n "$(echo $CPULoad1 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad2}% "
-  echo -n "$(echo $CPULoad2 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad3}% "
-  echo -n "$(echo $CPULoad3 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad4}% "
-  echo -n "$(echo $CPULoad4 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad5}% "
-  echo -n "$(echo $CPULoad5 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad6}% "
-  echo -n "$(echo $CPULoad6 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl) "
-  echo -n "^fg()${CPULoad7}% "
-  echo -n "$(echo $CPULoad7 | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl)"
-  # echo -n "${CPUFreq}GHz"
-  return
+print_cpu() {
+  echo -n "^fg($COLOR_ICON)^i($ICONPATH/cpu.xbm) ^fg()$CPULoad0% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad0
+  echo -n " ^fg()$CPULoad1% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad1
+  echo -n " ^fg()$CPULoad2% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad2
+  echo -n " ^fg()$CPULoad3% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad3
+  echo -n " ^fg()$CPULoad4% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad4
+  echo -n " ^fg()$CPULoad5% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad5
+  echo -n " ^fg()$CPULoad6% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad6
+  echo -n " ^fg()$CPULoad7% "
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s vo -nonl <<<$CPULoad7
 }
 
-# printTempInfo() {
-# 	CPUTemp=$(acpi --thermal | awk '{print substr($4,0,2)}')
-# 	GPUTemp=$(nvidia-settings -q gpucoretemp | grep 'Attribute' | awk '{print $4}' | tr -d '.')
-# 	if [[ $CPUTemp -gt 70 ]]; then
-# 		CPUTemp="^fg($CRIT)$CPUTemp^fg()"
-# 	fi
-# 	if [[ $GPUTemp -gt 70 ]]; then
-# 		GPUTemp="^fg($CRIT)$GPUTemp^fg()"
-# 	fi
-# 	echo -n "^fg($COLOR_ICON)^i($ICONPATH/temp.xbm) "
-# 	echo -n "^fg($DZEN_FG2)cpu ^fg()${CPUTemp}c "
-# 	echo -n "^fg($DZEN_FG2)gpu ^fg()${GPUTemp}c"
-# 	return
-# }
-
-printMemInfo() {
+print_memory() {
   echo -n "^fg($COLOR_ICON)^i($ICONPATH/memory.xbm) "
   echo -n "^fg()${MemUsed} "
-  echo -n "$(echo $MemPerc | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s o -nonl)"
+  gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $SMABAR_W -s o -nonl <<<$MemPerc
   return
 }
 
-printFileInfo() {
-  NPKGS=$(pacman -Q | wc -l)
-  NPROC=$(expr $(ps -A | wc -l) - 1)
+print_filesystem() {
+  local pkgs=$(pacman -Q | wc -l)
+  local proc=$(($(ps -A | wc -l) - 1))
+
   echo -n "^fg($COLOR_ICON)^i($ICONPATH/pc.xbm) "
-  echo -n "^fg($DZEN_FG2)proc ^fg()$NPROC "
-  echo -n "^fg($DZEN_FG2)pkgs ^fg()$NPKGS"
-  return
+  echo -n "^fg($DZEN_FG2)proc ^fg()$proc "
+  echo -n "^fg($DZEN_FG2)pkgs ^fg()$pkgs"
 }
 
-printBattery() {
-  BatPresent=$(acpi -b | wc -l)
-  ACPresent=$(acpi -a | grep -c on-line)
-  if [[ $ACPresent == "1" ]]; then
-    echo -n "^fg($COLOR_ICON)^i($ICONPATH/ac1.xbm) "
-  else
-    echo -n "^fg($COLOR_ICON)^i($ICONPATH/battery_vert3.xbm) "
-  fi
-  if [[ $BatPresent == "0" ]]; then
-    echo -n "^fg($DZEN_FG2)AC ^fg()on ^fg($DZEN_FG2)Bat ^fg()off"
-    return
-  else
-    RPERC=$(acpi -b | awk '{print $4}' | tr -d "%,")
-    echo -n "^fg()$RPERC% "
-    if [[ $ACPresent == "1" ]]; then
-      echo -n "$(echo $RPERC | gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -ss 1 -sw 4 -nonl)"
-    else
-      echo -n "$(echo $RPERC | gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -ss 1 -sw 4 -nonl)"
-    fi
-  fi
-  return
-}
+print_disks() {
+  local rfsp=$(df -h /     | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
+  local bfsp=$(df -h /home | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
 
-printDiskInfo() {
-  RFSP=$(df -h / | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
-  BFSP=$(df -h /home | tail -1 | awk -F' ' '{ print $5 }' | tr -d '%')
-  if [[ $RFSP -gt 70 ]]; then
-    RFSP="^fg($CRIT)"$RFSP"^fg()"
-  fi
-  if [[ $BFSP -gt 70 ]]; then
-    BFSP="^fg($CRIT)"$BFSP"^fg()"
-  fi
+  (( $rfsp > 70 )) && rfsp="^fg($CRIT)"$rfsp"^fg()"
+  (( $bfsp > 70 )) && bfsp="^fg($CRIT)"$bfsp"^fg()"
+
   echo -n "^fg($COLOR_ICON)^i($ICONPATH/file1.xbm) "
-  echo -n "^fg($DZEN_FG2)root ^fg()${RFSP}% "
-  echo -n "^fg($DZEN_FG2)home ^fg()${BFSP}%"
+  echo -n "^fg($DZEN_FG2)root ^fg()$rfsp% "
+  echo -n "^fg($DZEN_FG2)home ^fg()$bfsp%"
 }
 
-printKerInfo() {
+print_kernel() {
   echo -n " ^fg()$(uname -r)^fg(#007b8c)/^fg(#5f656b)$(uname -m) ^fg(#a488d9)| ^fg()$Uptime"
-  return
 }
 
-printDateInfo() {
+print_date() {
   echo -n "^fg()$(date '+%Y^fg(#444).^fg()%m^fg(#444).^fg()%d^fg(#007b8c)/^fg(#5f656b)%a ^fg(#a488d9)| ^fg()%H^fg(#444):^fg()%M^fg(#444):^fg()%S')"
-  return
 }
 
-printSpace() {
+print_sep() {
   echo -n " ^fg($COLOR_SEP)|^fg() "
-  return
 }
 
-printArrow() {
+print_arrow() {
   echo -n " ^fg(#a488d9)>^fg(#007b8c)>^fg(#444444)> "
-  return
 }
 
-printBar() {
+format_segment() {
+  while (( $# )); do
+    print_$1
+    (( $# > 1 )) && print_sep
+    shift
+  done
+}
+
+format_bar() {
   while true; do
     read CPULoad0 CPULoad1 CPULoad2 CPULoad3 CPULoad4 CPULoad5 CPULoad6 CPULoad7 CPUFreq MemUsed MemPerc Uptime
-    printKerInfo
-    printSpace
-    printCPUInfo
-    printSpace
-    printMemInfo
+    format_segment ${LEFT[@]}
     echo -n "^pa(722)"
-    printDiskInfo
-    printSpace
-    printFileInfo
-    printSpace
-    # printTempInfo
-    # printSpace
-    # printBattery
-    # printSpace
-    printVolInfo
-    printArrow
-    printDateInfo
+    format_segment ${RIGHT[@]}
+
+    print_arrow
+    print_date
     echo
   done
-  return
 }
 
 #Print all and pipe into dzen
-conky -c $CONKYFILE -u $INTERVAL | printBar | dzen2 -x $X_POS -y $Y_POS -w $WIDTH -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e 'onstart=lower'
+conky -c $CONKYFILE -u $INTERVAL \
+  | format_bar \
+  | dzen2 -h $HEIGHT -fn $FONT -ta 'l' -bg $DZEN_BG -fg $DZEN_FG -p -e 'onstart=lower'
