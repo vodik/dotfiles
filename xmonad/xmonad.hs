@@ -43,6 +43,7 @@ import XMonad.Util.Environment
 import XMonad.Util.EZConfig
 import XMonad.Util.MPD
 import XMonad.Util.NamedScratchpad
+import XMonad.Util.RunOnce
 import XMonad.Util.Scratchpad
 import XMonad.Util.Services
 import XMonad.Util.Tmux
@@ -135,10 +136,17 @@ myRules ws rect = manageDocks
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
+    <+> runOnce initHook
     <+> setQuery "chat" imClients
     <+> setQuery "work" sort
     <+> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
     <+> startService "udiskie" "udiskie"
+  where
+    initHook = do
+        home <- io getHomeDirectory
+        spawn $ "xrdb"     :+ [ "-merge", home ++ "/.Xresources" ]
+        spawn $ "nitrogen" :+ [ "--restore" ]
+        spawn "topbar"
 
 -- Keymap {{{1
 myKeys ws browser conf = mkKeymap conf $

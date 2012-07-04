@@ -20,8 +20,6 @@ case ${2:-xmonad} in
   gnome)
     launch gnome-session ;;
   xmonad)
-    xrdb -merge ~/.Xresources &
-    nitrogen --restore &
     launch xmonad ;;
   *)
     echo >&2 "Unrecognized command $2"
