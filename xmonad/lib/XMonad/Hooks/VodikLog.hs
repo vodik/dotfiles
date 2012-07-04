@@ -57,12 +57,12 @@ myDzen = "dzen2 " ++ unwords
     , "-e 'onstart=lower'" ]
 
 vodikPP :: WSMap -> PP
-vodikPP m = defaultPP
-    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon m True
-    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon m True
-    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon m True
-    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon m True
-    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon m False
+vodikPP ws = defaultPP
+    { ppCurrent         = dzenColor colorWhite    colorBlue     . dzenWSIcon ws True
+    , ppUrgent          = dzenColor colorWhite    colorRed      . dzenWSIcon ws True
+    , ppVisible         = dzenColor colorWhite    colorGray     . dzenWSIcon ws True
+    , ppHidden          = dzenColor colorGrayAlt  colorGray     . dzenWSIcon ws True
+    , ppHiddenNoWindows = dzenColor colorGray     colorBlackAlt . dzenWSIcon ws False
     , ppTitle           = dzenColor colorWhiteAlt colorBlackAlt . shorten 150
     , ppLayout          = dzenLayout colorRed colorBlue colorBlack . words
     , ppSep             = ""
@@ -72,10 +72,10 @@ vodikPP m = defaultPP
     }
 
 dzenWSIcon :: WSMap -> Bool -> String -> String
-dzenWSIcon wsMap showAll name =
+dzenWSIcon ws showAll name =
     fromMaybe without $ do
         guard . not $ all isDigit name
-        index <- M.lookup name wsMap
+        index <- M.lookup name ws
         let icon   = xmonadIcons </> name <.> ".xbm"
             action = dzenAction 1 (toWorkspace True index)
         return . action . pad $ unwords [ dzenIcon icon, name ]
