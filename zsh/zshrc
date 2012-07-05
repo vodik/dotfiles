@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+fpath=($fpath /usr/share/doc/task/scripts/zsh)
+
 autoload -U colors && colors
 autoload -U compinit && compinit
 
