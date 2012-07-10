@@ -75,9 +75,10 @@ tmuxSessions :: TmuxSessions
 tmuxSessions = [ TS "irc" "weechat-curses" ]
 
 myFloats :: Query Bool
-myFloats =
-    className `queryAny` [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-                         , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
+myFloats = className `queryAny` floats
+  where
+    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
+             , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
 
 myTerminal      = "termite"
 myBorderWidth   = 2
@@ -91,9 +92,9 @@ colorDarkGray   = "#161616"
 colorWhite      = "#ffffff"
 colorWhiteAlt   = "#9d9d9d"
 colorDarkWhite  = "#444444"
-colorMagenta    = "#8e82a2"
+colorMagenta    = "#8cedff"
 colorMagentaAlt = "#a488d9"
-colorBlue       = "#60a0c0"
+colorBlue       = "#8cedff"
 colorBlueAlt    = "#007b8c"
 colorRed        = "#d74b73"
 
@@ -289,10 +290,10 @@ myTabTheme = defaultTheme
 
 myXPConfig = defaultXPConfig
     { font              = xftFont
-    , fgColor           = "#8cedff"
-    , bgColor           = "black"
-    , bgHLight          = "black"
-    , fgHLight          = "#f92672"
+    , fgColor           = colorBlue
+    , bgColor           = colorBlack
+    , bgHLight          = colorBlack
+    , fgHLight          = colorMagenta
     , promptBorderWidth = 0
     , position          = Bottom
     }
@@ -316,7 +317,7 @@ getMachine = buildTags $ do
             , className ~? "^[Ll]ibre[Oo]ffice" ]
     chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ], role =? "irc" ]
     virt  = [ className =? "VirtualBox" ]
-    games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "Wine", "Dwarf_Fortress" ] ]
+    games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "openttd", "Wine", "Dwarf_Fortress" ] ]
 
 main = do
     machine <- getMachine

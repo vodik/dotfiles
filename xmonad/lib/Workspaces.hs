@@ -18,18 +18,13 @@ module Workspaces where
 --     ) where
 
 import Control.Monad
-import Control.Monad.List
 import Control.Monad.Writer
 import Data.Monoid
 import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe)
 import Control.Applicative ((<$>))
-import System.Environment (getEnvironment)
-import System.Directory (getDirectoryContents)
-import System.FilePath
 
 import XMonad
-import XMonad.Actions.TopicSpace
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.SortWindows
 import qualified XMonad.StackSet as W
