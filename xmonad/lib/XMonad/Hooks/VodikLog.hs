@@ -117,6 +117,7 @@ toWorkspace = printf "xdotool key %s+%d" . modifier
     modifier True  = "super"
     modifier False = "super+ctrl"
 
+defaultVodikConfig :: VodikConfig
 defaultVodikConfig = VodikConfig
     { dzenFont     = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
     , dzenBlack    = "#050505"
