@@ -72,7 +72,10 @@ scratchpads =
     scratchpad = "TASK=show termite -r scratchpad"
 
 tmuxSessions :: TmuxSessions
-tmuxSessions = [ TS "irc" "weechat-curses" ]
+tmuxSessions =
+    [ TS "irc"   "weechat-curses"
+    , TS "crawl" "crawl"
+    ]
 
 myFloats :: Query Bool
 myFloats = className `queryAny` floats
