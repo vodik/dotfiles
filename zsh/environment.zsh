@@ -21,23 +21,17 @@ eval $(keychain start) >/dev/null
 
 [[ $TERM == xterm ]] && export TERM=xterm-256color
 
-function precmd {
-  _title "%15<..<%~%<<" "%n@%m: %~"
-}
+case $TERM in
+  termite|vte*|xterm*|rxvt*)
 
-function preexec {
-  local cmd=${1[(wr)^(*=*|sudo|ssh|-*)]}
-  _title "%100>...>$2%<<" "$cmd"
-}
+    function precmd {
+      print -Pn '\e];%n@%m %~\a'
+    }
 
-function _title {
-  case $TERM in
-    screen*)
-      print -Pn "\ek$1:q\e\\"
-      ;;
-    vte*|xterm*|rxvt*)
-      print -Pn "\e]2;$2:q\a"
-      print -Pn "\e]1;$1:q\a"
-      ;;
-  esac
-}
+    function preexec {
+      local cmd=${1[(wr)^(*=*|sudo|ssh|-*)]}
+      print -Pn "\e];$cmd:q\a"
+    }
+
+    ;;
+esac
