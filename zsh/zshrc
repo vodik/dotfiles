@@ -32,6 +32,7 @@ setopt list_packed
 unsetopt menu_complete
 
 # expansion and globbing
+setopt brace_ccl
 setopt extended_glob
 setopt long_list_jobs
 setopt multios
