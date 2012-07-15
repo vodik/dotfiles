@@ -128,6 +128,7 @@ myRules ws rect = manageDocks
     <+> workspaceShift ws
     <+> composeAll
         [ role      =? "scratchpad"       --> customFloating rect
+        , className =? "crawl-tiles"      --> doSink
         , className =? "Transmission-gtk" --> doShift "work"
         , className =? "MPlayer"          --> doCopy [ "NSP" ]
         , resource  =? "desktop_window"   --> doIgnore
@@ -139,6 +140,7 @@ myRules ws rect = manageDocks
         , isFirefoxPreferences -?> doCenterFloat
         , isFullscreen         -?> doFullFloat
         ]
+  where
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
@@ -320,7 +322,8 @@ getMachine = buildTags $ do
             , className ~? "^[Ll]ibre[Oo]ffice" ]
     chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ], role =? "irc" ]
     virt  = [ className =? "VirtualBox" ]
-    games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes", "openttd", "Wine", "Dwarf_Fortress" ] ]
+    games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes",
+                                     "openttd", "Wine", "crawl-tiles", "Dwarf_Fortress" ] ]
 
 main = do
     machine <- getMachine

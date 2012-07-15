@@ -30,6 +30,9 @@ q ~? x = (=~ x) <$> q
 prefixed :: (Functor f) => f String -> String -> f Bool
 q `prefixed` x = (x `isPrefixOf`) <$> q
 
+doSink :: ManageHook
+doSink = doF . W.sink =<< ask
+
 composeOneCaught :: ManageHook -> [MaybeManageHook] -> ManageHook
 composeOneCaught f h = composeOne $ h ++ [ Just <$> f ]
 
