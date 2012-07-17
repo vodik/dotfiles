@@ -8,6 +8,10 @@ ncmpcpp/error.log
 mutt/aliases
 mutt/gmail
 mutt/cache
+ranger/__pycache__
+ranger/bookmarks
+ranger/history
+ranger/tagged
 weechat/irc.conf
 weechat/weechat.conf
 weechat/weeget
