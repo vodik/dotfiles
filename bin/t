@@ -1,14 +1,16 @@
 #!/bin/bash
 
 session() {
+  session=$1; shift
+
   # If we don't have a session, create a new one
-  tmux has -t "$1" || tmux new -ds "$1" "${2-$1}"
+  tmux has -t "$session" || tmux new -ds "$session" "${*-$session}"
 
   # Either switch or attach depending on context
-  [[ -n $TMUX ]] && exec tmux switch -t "$1" \
-                 || exec tmux attach -t "$1"
+  [[ -n $TMUX ]] && exec tmux switch -t "$session" \
+                 || exec tmux attach -t "$session"
 }
 
 # XXX: A bug in epoll/tmux causes tmux to hang
 # if we redirect stderr directly into /dev/null
-session $1 $2 #>/dev/null
+session $* #>/dev/null
