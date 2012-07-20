@@ -48,6 +48,10 @@ case "$extension" in
     catdoc "$path" | trim | fmt -s -w $width
     success && exit 0 || exit 1;;
 
+  odt|odp)
+    odt2txt "$path" | trim | fmt -s -w $width
+    success && exit 0 || exit 1;;
+
   torrent)
     transmission-show "$path" | trim && exit 3
     success && exit 5 || exit 1;;
