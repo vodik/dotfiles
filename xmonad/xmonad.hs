@@ -83,23 +83,19 @@ myFloats = className `queryAny` floats
     floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
              , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
 
-myTerminal      = "termite"
-myBorderWidth   = 2
-myModMask       = mod4Mask
-xftFont         = "xft:Envy Code R:size=9"
-colorBlack      = "#000000"
-colorBlackAlt   = "#050505"
-colorGray       = "#484848"
-colorGrayAlt    = "#b8bcb8"
-colorDarkGray   = "#161616"
-colorWhite      = "#ffffff"
-colorWhiteAlt   = "#9d9d9d"
-colorDarkWhite  = "#444444"
-colorMagenta    = "#8cedff"
-colorMagentaAlt = "#a488d9"
-colorBlue       = "#8cedff"
-colorBlueAlt    = "#007b8c"
-colorRed        = "#d74b73"
+myTerminal     = "termite"
+myBorderWidth  = 2
+myModMask      = mod4Mask
+
+xftFont        = "xft:Envy Code R:size=9"
+colorBlack     = "#000000"
+colorGray      = "#484848"
+colorGrayAlt   = "#b8bcb8"
+colorDarkGray  = "#161616"
+colorWhite     = "#ffffff"
+colorWhiteAlt  = "#9d9d9d"
+colorBlue      = "#439dcA"
+colorRed       = "#f54669"
 
 -- Layouts {{{1
 myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
@@ -298,9 +294,20 @@ myXPConfig = defaultXPConfig
     , fgColor           = colorBlue
     , bgColor           = colorBlack
     , bgHLight          = colorBlack
-    , fgHLight          = colorMagenta
+    , fgHLight          = colorRed
     , promptBorderWidth = 0
     , position          = Bottom
+    }
+
+myVodikConfig = VodikConfig
+    { dzenFont     = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
+    , dzenBlack    = colorBlack
+    , dzenWhite    = colorWhite
+    , dzenWhiteAlt = colorWhiteAlt
+    , dzenGray     = colorGray
+    , dzenGrayAlt  = colorGrayAlt
+    , dzenBlue     = colorBlue
+    , dzenRed      = colorRed
     }
 -- }}}
 
@@ -335,7 +342,7 @@ main = do
         sort   = workspaceSort "work" machine
         pos    = positionRationalRect 16 screen
 
-    xmonad . applyUrgency colorRed =<< dzenVodik defaultVodikConfig defaultConfig
+    xmonad . applyUrgency colorRed =<< dzenVodik myVodikConfig defaultConfig
         { manageHook         = myRules machine pos
         , handleEventHook    = docksEventHook <+> fullscreenEventHook
         , layoutHook         = myLayoutRules sort tweaks

@@ -3,7 +3,6 @@
 module XMonad.Hooks.VodikLog
     ( dzenVodik
     , VodikConfig(..)
-    , defaultVodikConfig
     ) where
 
 import Control.Applicative
@@ -57,26 +56,26 @@ myDzen conf = "dzen2 " ++ unwords
 
 vodikPP :: VodikConfig -> WSMap -> PP
 vodikPP conf ws = defaultPP
-    { ppCurrent         = dzenCurrent conf        . dzenWSIcon ws True
-    , ppUrgent          = dzenUrgent conf         . dzenWSIcon ws True
-    , ppVisible         = dzenVisible conf        . dzenWSIcon ws True
-    , ppHidden          = dzenHidden conf         . dzenWSIcon ws True
-    , ppHiddenNoWindows = dzenHiddenNoWindow conf . dzenWSIcon ws False
-    , ppTitle           = dzenTitle conf          . shorten 150
+    { ppCurrent         = dzenCurrent        . dzenWSIcon ws True
+    , ppUrgent          = dzenUrgent         . dzenWSIcon ws True
+    , ppVisible         = dzenVisible        . dzenWSIcon ws True
+    , ppHidden          = dzenHidden         . dzenWSIcon ws True
+    , ppHiddenNoWindows = dzenHiddenNoWindow . dzenWSIcon ws False
+    , ppTitle           = dzenTitle          . shorten 150
     , ppLayout          = dzenLayout (dzenRed conf) (dzenBlue conf) (dzenBlack conf) . words
     , ppSep             = ""
     , ppWsSep           = ""
     , ppSort            = getSortByIndexWithout [ "NSP" ]
-    , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenSeperator conf "» ", t ]
+    , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenSeperator "» ", t ]
     }
   where
-    dzenCurrent        = liftM2 dzenColor dzenWhite    dzenBlue
-    dzenUrgent         = liftM2 dzenColor dzenWhite    dzenRed
-    dzenVisible        = liftM2 dzenColor dzenWhite    dzenGray
-    dzenHidden         = liftM2 dzenColor dzenGrayAlt  dzenGray
-    dzenHiddenNoWindow = liftM2 dzenColor dzenGray     dzenBlack
-    dzenTitle          = liftM2 dzenColor dzenWhiteAlt dzenBlack
-    dzenSeperator      = liftM2 dzenColor dzenBlue     dzenBlack
+    dzenCurrent        = liftM2 dzenColor dzenWhite    dzenBlue  $ conf
+    dzenUrgent         = liftM2 dzenColor dzenWhite    dzenRed   $ conf
+    dzenVisible        = liftM2 dzenColor dzenWhite    dzenGray  $ conf
+    dzenHidden         = liftM2 dzenColor dzenGrayAlt  dzenGray  $ conf
+    dzenHiddenNoWindow = liftM2 dzenColor dzenGray     dzenBlack $ conf
+    dzenTitle          = liftM2 dzenColor dzenWhiteAlt dzenBlack $ conf
+    dzenSeperator      = liftM2 dzenColor dzenBlue     dzenBlack $ conf
 
 dzenWSIcon :: WSMap -> Bool -> String -> String
 dzenWSIcon ws showAll name =
@@ -116,15 +115,3 @@ toWorkspace = printf "xdotool key %s+%d" . modifier
   where
     modifier True  = "super"
     modifier False = "super+ctrl"
-
-defaultVodikConfig :: VodikConfig
-defaultVodikConfig = VodikConfig
-    { dzenFont     = "-*-envy code r-medium-r-normal-*-12-*-*-*-*-*-*-*"
-    , dzenBlack    = "#050505"
-    , dzenWhite    = "#ffffff"
-    , dzenWhiteAlt = "#9d9d9d"
-    , dzenGray     = "#484848"
-    , dzenGrayAlt  = "#b8bcb8"
-    , dzenBlue     = "#60a0c0"
-    , dzenRed      = "#d74b73"
-    }
