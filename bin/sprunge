@@ -4,35 +4,31 @@
 
 usage() {
   cat << HERE
-USAGE:
-  sprunge [files]
-  sprunge < file
-  piped_data | sprunge
-
-OPTIONS:
-  -h         Show this message
-  -l --lang  Set the fallback language manually (default text)
+Usage: ${0##*/} [files]
 
 Upload data and fetch URL from http://sprunge.us.
+  -h         Show this message
+  -s         Enable syntax detection (or default to text)
+  -l --lang  Set the language manually
 HERE
-  exit "${1:-0}"
+  exit ${1:-0}
 }
 
-options=$(getopt -o hl: -l help,lang: -- "$@") || usage >&2 1
+options=$(getopt -o hsl: -l help,lang: -- "$@") || usage >&2 1
 
 eval set -- $options
 while [[ $# -gt 0 ]]; do
   case $1 in
-    -h|--help) usage  ;;
-    -l|--lang) L="$2" ;;
+    -h|--help) usage          ;;
+    -s)        L="${L:-text}" ;;
+    -l|--lang) L="$2"         ;;
 
-    --) shift; break  ;;
+    --) shift; break ;;
     -*) echo >&2 "$0: error - unrecognized option $1"; usage >&2 1 ;;
   esac
   shift
 done
 
-# the magic happens here
 sprunge() {
   curl -sF 'sprunge=<-' http://sprunge.us
 }
@@ -44,19 +40,19 @@ try:
 	from pygments.lexers import get_lexer_for_filename
 	print(get_lexer_for_filename('$1').aliases[0])
 except:
-	print('${L:-text}')
+	print('$L')
 CODE
 }
 
 declare -a urls=()
 add() {
-  url="${1/ /}?$2"
+  local url="${1/ /}"; [[ -n $2 ]] && url+="?$2"
   echo "$url"; urls+=("$url")
 }
 
 if [[ ! -t 0 || $# -eq 0 ]]; then
   # read from stdin
-  add $(cat | sprunge) ${L:-text}
+  add $(sprunge) $L
 else
   # treat arguments as a list of files to upload
   for file in $@; do
@@ -72,6 +68,6 @@ fi
 # send to clipboard if xclip is installed. Don't copy to clipboad
 # if output is piped.
 if [[ -t 1 ]] && type xclip &>/dev/null; then
-  echo -n "${urls[@]}" | xclip -sel primary
-  echo -n "${urls[@]}" | xclip -sel clipboard
+  echo -n ${urls[@]} | xclip -sel primary
+  echo -n ${urls[@]} | xclip -sel clipboard
 fi

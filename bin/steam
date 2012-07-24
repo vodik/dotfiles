@@ -1,39 +1,31 @@
 #!/bin/bash
 
-export WINEDEBUG="-all"
-export WINEPREFIX="$HOME/steam"
+export WINEDEBUG="${WINEDEBUG:--all}"
+export WINEPREFIX="${WINEPREFIX:-$HOME/steam}"
+
+die() { echo >&2 "$1"; exit 1; }
 
 declare -A apps
 apps=([tf2]=440
       [portal]=400)
 
-die() {
-  echo >&2 "$1" && exit 1
-}
+steam=("$WINEPREFIX/drive_c/Program Files"*/Steam/Steam.exe)
+(( ${#steam[@]} == 0 )) && steam() { die "$0: steam not found";  } \
+                        || steam() { exec wine "${steam[0]}" $*; }
 
-steam() {
-  steam=("$WINEPREFIX/drive_c/Program Files"*/Steam/Steam.exe)
-  (( ${#steam[@]} == 0 )) && die "$0: steam not found"
-  exec wine "${steam[0]}" $*
-}
+(( $# == 0 )) && steam
 
-if (( $# == 0 )); then
-  steam
-else
-  case $1 in
-    install)
-      cd /tmp
-      [[ ! -f SteamInstall.msi ]] && wget http://cdn.steampowered.com/download/SteamInstall.msi
-      exec wine msiexec /i SteamInstall.msi
-      ;;
-    kill)
-      exec wineserver -k ;;
-    config)
-      exec winecfg ;;
-    *)
-      id="${apps[$1]}"
-      [[ -z "$id" ]] && die "$0: can't launch $1"
-      steam -applaunch "$id" -novid -dxlevel 9
-      ;;
-  esac
-fi
+case $1 in
+  install)
+    cd /tmp
+    [[ ! -f SteamInstall.msi ]] && wget http://cdn.steampowered.com/download/SteamInstall.msi
+    exec wine msiexec /i SteamInstall.msi
+    ;;
+  kill)   exec wineserver -k ;;
+  config) exec winecfg       ;;
+  *)
+    local id="${apps[$1]}"
+    [[ -z "$id" ]] && die "$0: can't launch $1"
+    steam -applaunch "$id" -novid -dxlevel 9
+    ;;
+esac
