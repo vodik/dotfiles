@@ -18,7 +18,7 @@ steam=("$WINEPREFIX/drive_c/Program Files"*/Steam/Steam.exe)
 case $1 in
   install)
     cd /tmp
-    [[ ! -f SteamInstall.msi ]] && wget http://cdn.steampowered.com/download/SteamInstall.msi
+    [[ ! -f SteamInstall.msi ]] && curl -O http://cdn.steampowered.com/download/SteamInstall.msi
     exec wine msiexec /i SteamInstall.msi
     ;;
   kill)   exec wineserver -k ;;
