@@ -2,7 +2,7 @@
 
 module XMonad.Util.Commands
     ( Command(..)
-    , Commands(..)
+    , Executable(..)
     , execute, executeShell
     , run, spawn
     , runWith
@@ -16,14 +16,14 @@ import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
 import System.Directory (setCurrentDirectory)
-import System.Posix.Env
+import System.Posix.Env (putEnv)
 import System.Posix.Process (createSession, executeFile, forkProcess)
 import System.Posix.Types (ProcessID(..))
 import XMonad hiding (spawn)
 
 infixr 4 :+
-data Commands = Shell String
-              | String :+ [String]
+data Executable = Shell String
+                | String :+ [String]
 
 class Command a where
     exec :: a -> IO ()
@@ -31,7 +31,7 @@ class Command a where
 instance Command String where
     exec cmd = execute cmd []
 
-instance Command Commands where
+instance Command Executable where
     exec (Shell cmd)   = executeShell cmd
     exec (cmd :+ args) = execute cmd args
 
