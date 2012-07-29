@@ -31,12 +31,13 @@ import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
 import XMonad.Layout.SortWindows
 import XMonad.Layout.Tabbed
-import XMonad.Layout.ToggleLayouts
+import XMonad.Layout.ToggleLayouts hiding (Toggle)
 import XMonad.Layout.TrackFloating
 import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Commands
+import XMonad.Util.Commands.Common
 import XMonad.Util.Cursor
 import XMonad.Util.CycleWS
 import XMonad.Util.Environment
@@ -215,31 +216,31 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M1-C-l", spawn "slock")
 
     -- screenshots
-    , ("C-<Print>", delayedSpawn 100 $ scrot True)
-    , ("<Print>",   spawn            $ scrot False)
+    , ("C-<Print>", scrot scrotDir Window)
+    , ("<Print>",   scrot scrotDir Desktop)
 
     -- media keys
     , ("<XF86AudioPlay>",        withMPD MPD.toggle)
     , ("<XF86AudioStop>",        withMPD MPD.stop)
     , ("<XF86AudioPrev>",        withMPD MPD.previous)
     , ("<XF86AudioNext>",        withMPD MPD.next)
-    , ("<XF86AudioMute>",        spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
-    , ("<XF86AudioLowerVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
-    , ("<XF86AudioRaiseVolume>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
+    , ("<XF86AudioMute>",        amixer "Master" Toggle)
+    , ("<XF86AudioLowerVolume>", amixer "Master" $ Decrease 3)
+    , ("<XF86AudioRaiseVolume>", amixer "Master" $ Increase 3)
 
     -- for happy hacking keyboard
     , ("M-<F1>",  withMPD MPD.previous)
     , ("M-<F2>",  withMPD MPD.toggle)
     , ("M-<F3>",  withMPD MPD.next)
-    , ("M-<F10>", spawn $ "amixer" :+ [ "-q", "set", "Master", "toggle" ])
-    , ("M-<F11>", spawn $ "amixer" :+ [ "-q", "set", "Master", "3%-" ])
-    , ("M-<F12>", spawn $ "amixer" :+ [ "-q", "set", "Master", "on", "3%+" ])
+    , ("M-<F10>", amixer "Master" Toggle)
+    , ("M-<F11>", amixer "Master" $ Decrease 3)
+    , ("M-<F12>", amixer "Master" $ Increase 3)
     ]
     <+> wsSwitchKeys (tagSet ws)
     <+> searchKeys
   where
-    skip  = [ skipWS [ "NSP" ] ]
-    scrot = Scrot "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
+    skip     = [ skipWS [ "NSP" ] ]
+    scrotDir = "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
 wsSwitchKeys tags = namedTags <+> moreTags
   where

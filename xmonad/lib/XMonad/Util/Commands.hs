@@ -1,6 +1,14 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
-module XMonad.Util.Commands where
+module XMonad.Util.Commands
+    ( Command(..)
+    , Commands(..)
+    , execute, executeShell
+    , run, spawn
+    , runWith
+    , delayedSpawn
+    , spawnIn
+    ) where
 
 import Codec.Binary.UTF8.String
 import Control.Applicative
@@ -9,7 +17,6 @@ import Control.Monad
 import System.Directory (setCurrentDirectory)
 import System.Posix.Process (createSession, executeFile, forkProcess)
 import System.Posix.Types (ProcessID(..))
-
 import XMonad hiding (spawn)
 
 infixr 4 :+
@@ -51,12 +58,3 @@ spawnIn dir = void_ . runWith (setDir dir)
 
 void_ :: Monad m => m a -> m ()
 void_ = (>>= const (return ()))
-
-data Scrot = Scrot FilePath Bool
-
-instance Command Scrot where
-    exec (Scrot path True)  = execute "scrot" ["-s", path]
-    exec (Scrot path False) = execute "scrot" []
-
-data Action = On | Off | Toggle
-data Amixer = Amixer String Action Int
