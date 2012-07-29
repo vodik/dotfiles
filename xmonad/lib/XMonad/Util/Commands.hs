@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances, OverloadedStrings #-}
 
 module XMonad.Util.Commands
     ( Command(..)
@@ -11,13 +11,13 @@ module XMonad.Util.Commands
     , spawnWithEnv
     ) where
 
-import Codec.Binary.UTF8.String (encodeString)
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
+import Data.ByteString.UTF8 (fromString)
 import System.Directory (setCurrentDirectory)
 import System.Posix.Env (putEnv)
-import System.Posix.Process (createSession, executeFile, forkProcess)
+import System.Posix.Process.ByteString (createSession, executeFile, forkProcess)
 import System.Posix.Types (ProcessID(..))
 import XMonad hiding (spawn)
 
@@ -36,10 +36,10 @@ instance Command Executable where
     exec (cmd :+ args) = execute cmd args
 
 execute :: String -> [String] -> IO ()
-execute cmd args = executeFile (encodeString cmd) True (encodeString <$> args) Nothing
+execute cmd args = executeFile (fromString cmd) True (fromString <$> args) Nothing
 
 executeShell :: String -> IO ()
-executeShell cmd = executeFile "/bin/sh" False [ "-c", encodeString cmd ] Nothing
+executeShell cmd = executeFile "/bin/sh" False [ "-c", fromString cmd ] Nothing
 
 run :: (MonadIO m, Command c) => c -> m ProcessID
 run = xfork . exec
