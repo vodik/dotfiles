@@ -3,8 +3,10 @@
 module XMonad.Util.Commands where
 
 import Codec.Binary.UTF8.String
+import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
+import System.Directory (setCurrentDirectory)
 import System.Posix.Process (createSession, executeFile, forkProcess)
 import System.Posix.Types (ProcessID(..))
 
@@ -15,39 +17,46 @@ data Commands = Shell String
               | String :+ [String]
 
 class Command a where
-    run :: MonadIO m => a -> m ProcessID
+    exec :: MonadIO m => a -> m ()
 
 instance Command String where
-    run cmd = safeSpawn cmd []
+    exec cmd = execute cmd []
 
 instance Command Commands where
-    run (Shell cmd)   = spawnPID cmd
-    run (cmd :+ args) = safeSpawn cmd args
+    exec (Shell cmd)   = executeShell cmd
+    exec (cmd :+ args) = execute cmd args
+
+execute :: MonadIO m => String -> [String] -> m ()
+execute cmd args = io $ executeFile (encodeString cmd) True (encodeString <$> args) Nothing
+
+executeShell :: MonadIO m => String -> m ()
+executeShell cmd = io $ executeFile "/bin/sh" False [ "-c", encodeString cmd ] Nothing
+
+run :: (MonadIO m, Command c) => c -> m ProcessID
+run = xfork . exec
 
 spawn :: (MonadIO m, Command c) => c -> m ()
-spawn cmd = run cmd >>= const (return ())
+spawn = void_ . run
+
+runWith :: (MonadIO m, Command c) => IO () -> c -> m ProcessID
+runWith f c = xfork $ f >> exec c
 
 delayedSpawn :: (MonadIO m, Command c) => Int -> c -> m ()
 delayedSpawn d cmd = io (threadDelay d) >> spawn cmd
 
-execute :: String -> [String] -> IO a
-execute cmd args = executeFile (encodeString cmd) True (fmap encodeString args) Nothing
+spawnIn :: (MonadIO m, Command c) => FilePath -> c -> m ()
+spawnIn dir = void_ . runWith (setDir dir)
+  where
+    setDir = catchIO . setCurrentDirectory
 
-safeSpawn :: MonadIO m => String -> [String] -> m ProcessID
-safeSpawn cmd args = xfork $ execute cmd args
-
--- spawnIn :: (MonadIO m, Command c) => FilePath -> c -> m ()
--- spawnIn dir cmd args = xfork $ do
---     catchIO . setCurrentDirectory $ cleanPath dir
---     execute cmd args
+void_ :: Monad m => m a -> m ()
+void_ = (>>= const (return ()))
 
 data Scrot = Scrot FilePath Bool
 
-iff :: Bool -> a -> a -> a
-iff b a c = if b then a else c
-
 instance Command Scrot where
-    run (Scrot path s) = run $ "scrot" :+ iff s ["-s"] [] ++ [path]
+    exec (Scrot path True)  = execute "scrot" ["-s", path]
+    exec (Scrot path False) = execute "scrot" []
 
 data Action = On | Off | Toggle
 data Amixer = Amixer String Action Int
