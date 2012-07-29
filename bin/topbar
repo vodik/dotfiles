@@ -123,6 +123,8 @@ format_bar() {
   done
 }
 
+[[ $(hostname) == "gmzlj" ]] && exit 0
+
 #Print all and pipe into dzen
 conky -c $CONKYFILE -u $INTERVAL \
   | format_bar \
