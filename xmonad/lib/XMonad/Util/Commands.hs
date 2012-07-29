@@ -1,9 +1,8 @@
 {-# LANGUAGE FlexibleInstances, OverloadedStrings #-}
 
 module XMonad.Util.Commands
-    ( Command(..)
+    ( Command
     , Executable(..)
-    , execute, executeShell
     , run, spawn
     , runWith
     , delayedSpawn
