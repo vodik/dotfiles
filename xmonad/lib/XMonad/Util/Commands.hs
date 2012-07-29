@@ -10,7 +10,7 @@ module XMonad.Util.Commands
     , spawnIn
     ) where
 
-import Codec.Binary.UTF8.String
+import Codec.Binary.UTF8.String (encodeString)
 import Control.Applicative
 import Control.Concurrent (threadDelay)
 import Control.Monad
@@ -24,7 +24,7 @@ data Commands = Shell String
               | String :+ [String]
 
 class Command a where
-    exec :: MonadIO m => a -> m ()
+    exec :: a -> IO ()
 
 instance Command String where
     exec cmd = execute cmd []
@@ -33,11 +33,11 @@ instance Command Commands where
     exec (Shell cmd)   = executeShell cmd
     exec (cmd :+ args) = execute cmd args
 
-execute :: MonadIO m => String -> [String] -> m ()
-execute cmd args = io $ executeFile (encodeString cmd) True (encodeString <$> args) Nothing
+execute :: String -> [String] -> IO ()
+execute cmd args = executeFile (encodeString cmd) True (encodeString <$> args) Nothing
 
-executeShell :: MonadIO m => String -> m ()
-executeShell cmd = io $ executeFile "/bin/sh" False [ "-c", encodeString cmd ] Nothing
+executeShell :: String -> IO ()
+executeShell cmd = executeFile "/bin/sh" False [ "-c", encodeString cmd ] Nothing
 
 run :: (MonadIO m, Command c) => c -> m ProcessID
 run = xfork . exec
