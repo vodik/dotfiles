@@ -48,6 +48,7 @@ dotfiles_X() {
   link X/Xresources
   link X/xinitrc
   link X/gtkrc-2.0 .gtkrc-2.0.mine
+  link X/fonts.conf
 }
 
 dotfiles_zsh() {
