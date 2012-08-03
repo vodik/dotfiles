@@ -8,7 +8,7 @@ Usage: ${0##*/} [files]
 
 Upload data and fetch URL from http://sprunge.us.
   -h         Show this message
-  -s         Enable syntax detection (or default to text)
+  -t         Default to ?text if no syntax is detected
   -l --lang  Set the language manually
 HERE
   exit ${1:-0}
@@ -20,7 +20,7 @@ eval set -- $options
 while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help) usage          ;;
-    -s)        L="${L:-text}" ;;
+    -t)        L="${L:-text}" ;;
     -l|--lang) L="$2"         ;;
 
     --) shift; break ;;
