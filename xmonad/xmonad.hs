@@ -121,15 +121,15 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
 
 -- Rules {{{1
 myRules ws rect = manageDocks
-    <+> workspaceShift ws
-    <+> composeAll
+    <> workspaceShift ws
+    <> composeAll
         [ role      =? "scratchpad"       --> customFloating rect
         , className =? "crawl-tiles"      --> doSink
         , className =? "Transmission-gtk" --> doShift "work"
         , className =? "MPlayer"          --> doCopy [ "NSP" ]
         , resource  =? "desktop_window"   --> doIgnore
         ]
-    <+> composeOneCaught (insertPosition Below Newer)
+    <> composeOneCaught (insertPosition Below Newer)
         [ className =? "Wine"  -?> doFloat
         , myFloats             -?> doCenterFloat
         , isDialog             -?> doCenterFloat
@@ -140,15 +140,15 @@ myRules ws rect = manageDocks
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
-    <+> runOnce initHook
-    <+> setQuery "chat" imClients
-    <+> setQuery "work" sort
-    <+> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
-    <+> startService "udiskie" "udiskie"
+    <> runOnce initHook
+    <> setQuery "chat" imClients
+    <> setQuery "work" sort
+    <> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
+    <> startService "udiskie" "udiskie"
   where
     initHook = do
         home <- io getHomeDirectory
-        spawn $ "xrdb"     :+ [ "-merge", home ++ "/.Xresources" ]
+        spawn $ "xrdb"     :+ [ "-merge", home <> "/.Xresources" ]
         spawn $ "nitrogen" :+ [ "--restore" ]
         spawn "topbar"
 
@@ -235,22 +235,22 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-<F11>", spawn $ "pulsemix" :+ [ "decrease", "3" ])
     , ("M-<F12>", spawn $ "pulsemix" :+ [ "increase", "3" ])
     ]
-    <+> wsSwitchKeys (tagSet ws)
-    <+> searchKeys
+    <> wsSwitchKeys (tagSet ws)
+    <> searchKeys
   where
     skip     = [ skipWS [ "NSP" ] ]
     scrotDir = "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
-wsSwitchKeys tags = namedTags <+> moreTags
+wsSwitchKeys tags = namedTags <> moreTags
   where
-    namedTags = [ (m ++ i, f w) | (i, w) <- zip (show <$> [1..]) tags, (m, f) <- keymap "M-"   ]
-    moreTags  = [ (m ++ i, f i) | i      <- show <$> [1..9],           (m, f) <- keymap "M-C-" ]
+    namedTags = [ (m <> i, f w) | (i, w) <- zip (show <$> [1..]) tags, (m, f) <- keymap "M-"   ]
+    moreTags  = [ (m <> i, f i) | i      <- show <$> [1..9],           (m, f) <- keymap "M-C-" ]
     keymap p =
         [ (p,         toggleOrDoSkip [ "NSP" ] W.greedyView)
-        , (p ++ "S-", windows . W.shift)
+        , (p <> "S-", windows . W.shift)
         ]
 
-searchKeys = [ ("M-s " ++ k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
+searchKeys = [ ("M-s " <> k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
   where
     searchList =
         [ ("g", S.google)
@@ -344,13 +344,13 @@ main = do
 
     xmonad . applyUrgency colorRed =<< dzenVodik myVodikConfig defaultConfig
         { manageHook         = myRules machine pos
-        , handleEventHook    = docksEventHook <+> fullscreenEventHook
+        , handleEventHook    = docksEventHook <> fullscreenEventHook
         , layoutHook         = myLayoutRules sort tweaks
         , startupHook        = myStartupHook sort
         , modMask            = myModMask
         , keys               = myKeys machine browser
         , mouseBindings      = myMouseBindings
-        , workspaces         = tagSet machine ++ fmap show [1..9]
+        , workspaces         = tagSet machine <> fmap show [1..9]
         , terminal           = myTerminal
         , borderWidth        = myBorderWidth
         , normalBorderColor  = colorGray
