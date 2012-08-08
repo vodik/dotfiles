@@ -37,7 +37,6 @@ import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
 import XMonad.Util.Commands
-import XMonad.Util.Commands.Common
 import XMonad.Util.Cursor
 import XMonad.Util.CycleWS
 import XMonad.Util.Environment
@@ -216,25 +215,25 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M1-C-l", spawn "slock")
 
     -- screenshots
-    , ("C-<Print>", scrot scrotDir Window)
-    , ("<Print>",   scrot scrotDir Desktop)
+    , ("<Print>",   delayedSpawn 100 $ "scrot" :+ [ scrotDir ])
+    , ("C-<Print>", delayedSpawn 100 $ "scrot" :+ [ "-s", scrotDir ])
 
     -- media keys
     , ("<XF86AudioPlay>",        withMPD MPD.toggle)
     , ("<XF86AudioStop>",        withMPD MPD.stop)
     , ("<XF86AudioPrev>",        withMPD MPD.previous)
     , ("<XF86AudioNext>",        withMPD MPD.next)
-    , ("<XF86AudioMute>",        amixer "Master" Toggle)
-    , ("<XF86AudioLowerVolume>", amixer "Master" $ Decrease 3)
-    , ("<XF86AudioRaiseVolume>", amixer "Master" $ Increase 3)
+    , ("<XF86AudioMute>",        spawn $ "pulsemix" :+ [ "toggle" ])
+    , ("<XF86AudioLowerVolume>", spawn $ "pulsemix" :+ [ "decrease", "3" ])
+    , ("<XF86AudioRaiseVolume>", spawn $ "pulsemix" :+ [ "increase", "3" ])
 
     -- for happy hacking keyboard
     , ("M-<F1>",  withMPD MPD.previous)
     , ("M-<F2>",  withMPD MPD.toggle)
     , ("M-<F3>",  withMPD MPD.next)
-    , ("M-<F10>", amixer "Master" Toggle)
-    , ("M-<F11>", amixer "Master" $ Decrease 3)
-    , ("M-<F12>", amixer "Master" $ Increase 3)
+    , ("M-<F10>", spawn $ "pulsemix" :+ [ "toggle" ])
+    , ("M-<F11>", spawn $ "pulsemix" :+ [ "decrease", "3" ])
+    , ("M-<F12>", spawn $ "pulsemix" :+ [ "increase", "3" ])
     ]
     <+> wsSwitchKeys (tagSet ws)
     <+> searchKeys

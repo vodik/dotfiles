@@ -24,13 +24,12 @@ ICONPATH="$HOME/etc/icons/"
 INTERVAL=1
 
 LEFT=(kernel cpu memory)
-RIGHT=(disks filesystem alsa)
+RIGHT=(disks filesystem pulse)
 
-print_alsa() {
-  local perc=$(amixer get Master | grep "Front Left:" | awk '{print $5}' | tr -d '[]%')
-  local mute=$(amixer get Master | grep "Front Left:" | awk '{print $6}')
+print_pulse() {
+  local perc=$(pulsemix get-volume)
 
-  if [[ $mute == "[off]" ]]; then
+  if pulsemix is-muted; then
     echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_off.xbm) ^fg()off "
     gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl <<<$perc
   else
