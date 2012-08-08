@@ -69,13 +69,13 @@ vodikPP conf ws = defaultPP
     , ppOrder           = \(ws:l:t:_) -> [ ws, l, dzenSeperator "» ", t ]
     }
   where
-    dzenCurrent        = liftM2 dzenColor dzenWhite    dzenBlue  $ conf
-    dzenUrgent         = liftM2 dzenColor dzenWhite    dzenRed   $ conf
-    dzenVisible        = liftM2 dzenColor dzenWhite    dzenGray  $ conf
-    dzenHidden         = liftM2 dzenColor dzenGrayAlt  dzenGray  $ conf
-    dzenHiddenNoWindow = liftM2 dzenColor dzenGray     dzenBlack $ conf
-    dzenTitle          = liftM2 dzenColor dzenWhiteAlt dzenBlack $ conf
-    dzenSeperator      = liftM2 dzenColor dzenBlue     dzenBlack $ conf
+    dzenCurrent        = liftM2 dzenColor dzenWhite    dzenBlue  conf
+    dzenUrgent         = liftM2 dzenColor dzenWhite    dzenRed   conf
+    dzenVisible        = liftM2 dzenColor dzenWhite    dzenGray  conf
+    dzenHidden         = liftM2 dzenColor dzenGrayAlt  dzenGray  conf
+    dzenHiddenNoWindow = liftM2 dzenColor dzenGray     dzenBlack conf
+    dzenTitle          = liftM2 dzenColor dzenWhiteAlt dzenBlack conf
+    dzenSeperator      = liftM2 dzenColor dzenBlue     dzenBlack conf
 
 dzenWSIcon :: WSMap -> Bool -> String -> String
 dzenWSIcon ws showAll name =
