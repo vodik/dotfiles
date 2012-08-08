@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 sprunge() {
-  curl -sF 'sprunge=<-' http://sprunge.us
+  curl -sF 'sprunge=@-' http://sprunge.us
 }
 
 # use python to attempt to detect the lang
