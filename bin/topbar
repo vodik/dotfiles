@@ -34,6 +34,7 @@ print_pulse() {
     gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl <<<$perc
   else
     echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_on.xbm) ^fg()$perc% "
+    (( $perc > 100 )) && perc=100
     gdbar -fg $BAR_FG -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl <<<$perc
   fi
 }
