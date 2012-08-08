@@ -136,7 +136,6 @@ myRules ws rect = manageDocks
         , isFirefoxPreferences -?> doCenterFloat
         , isFullscreen         -?> doFullFloat
         ]
-  where
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
