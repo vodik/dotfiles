@@ -1,21 +1,29 @@
-local pmt="red"
+setopt prompt_subst
+autoload -Uz vcs_info
 
-(( EUID == 0 )) && pmt="blue"
-[[ -n $SSH_CONNECTION ]] && pmt="magenta"
+zstyle ':vcs_info:*'              enable        git cvs svn
+zstyle ':vcs_info:*'              actionformats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{3}|%F{1}%a%F{5}]%f '
+zstyle ':vcs_info:*'              formats       '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{5}]%f '
+zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat  '%b%F{1}:%F{3}%r'
 
-PROMPT="%{$fg[$pmt]%}[%0~] "
+vcs_info_wrapper() {
+  vcs_info
+  [[ -n "$vcs_info_msg_0_" ]] && echo "%{$fg[grey]%}${vcs_info_msg_0_/ /}%{$reset_color%}"
+}
 
-if (( EUID == 0 )); then
-  PROMPT+="%{$fg[red]%}##%{$reset_color%} "
-else
-  PROMPT+="%{$fg[blue]%}//%{$reset_color%} "
-fi
+set_prompt() {
+  local pmt="red"
 
-unset pmt
+  (( EUID == 0 ))          && pmt="blue"
+  [[ -n $SSH_CONNECTION ]] && pmt="magenta"
 
-# RPROMPT="$(git_prompt_info)"
+  PROMPT="%{$fg[$pmt]%}[%0~] "
+  (( EUID == 0 )) && PROMPT+="%{$fg[red]%}##%{$reset_color%} " \
+                  || PROMPT+="%{$fg[blue]%}//%{$reset_color%} "
 
-# ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[green]%}["
-# ZSH_THEME_GIT_PROMPT_SUFFIX="]%{$reset_color%}"
-# ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg[red]%}*%{$fg[green]%}"
-# ZSH_THEME_GIT_PROMPT_CLEAN=""
+  RPROMPT=$'$(vcs_info_wrapper)'
+  RPROMPT+="%{$fg[yellow]%}%(?.. %?)%{$reset_color%}"
+}
+
+set_prompt
+unset set_promt
