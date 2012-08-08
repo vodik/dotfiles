@@ -22,7 +22,7 @@ if [[ -n $terminfo[khome] ]]; then
 fi
 
 # end
-if [[ -n $terminfo[khome] ]]; then
+if [[ -n $terminfo[kend] ]]; then
   bindkey "$terminfo[kend]" vi-end-of-line
   bindkey -M vicmd "$terminfo[kend]" vi-end-of-line
 fi
