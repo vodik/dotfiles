@@ -5,7 +5,9 @@ bitlbee.denniscwik
 bitlbee.pawi59
 bitlbee.tgoodlet
 freenode.Caleb
+freenode.Goodboy
 freenode.MrElendig
+freenode.Tom^
 freenode.allanbrokeit
 freenode.falconindy
 freenode.geekosaur
