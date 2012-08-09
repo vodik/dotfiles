@@ -26,6 +26,7 @@ au BufWriteCmd *.rtf setl readonly
 au FileType vim             setl sw=2 ts=2 et
 au FileType c,cpp           setl cino=(0
 au FileType html,xhtml,xml  setl sw=2 ts=2 et
+au FileType hamlet          setl sw=2 ts=2 et
 au FileType ruby            setl sw=2 ts=2 et
 au FileType python          setl et
 au FileType bash,sh,zsh     setl sw=2 ts=2 et
