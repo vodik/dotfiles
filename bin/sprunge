@@ -2,36 +2,55 @@
 
 # Depends on curl, python, python-pygments
 
+# Supported pastebins {{{1
+bin_sprunge() {
+  local url=$(curl -snF 'sprunge=@-' http://sprunge.us <&0)
+  [[ -n $1 ]] && url+="?$1"
+  echo ${url/ /}
+}
+
+bin_ix() {
+  local url=$(curl -snF 'f:1=<-' http://ix.io <&0)
+  [[ -n $1 ]] && url+="/$1"
+  echo $url
+}
+# }}}
+
 usage() {
   cat << HERE
-Usage: ${0##*/} [files]
+usage: ${0##*/} [files]
 
-Upload data and fetch URL from http://sprunge.us.
-  -h         Show this message
-  -t         Default to ?text if no syntax is detected
-  -l --lang  Set the language manually
+ Options:
+  -h          Show this message
+  -t          Default to 'text' if no syntax is detected
+  -l, --lang  Set the language manually
+  -b, --bin   Set the pastebin to use
+
+ Supported bins:
 HERE
+
+  for fun in $(compgen -A function bin_); do
+    echo "  ${fun#bin_}"
+  done
   exit ${1:-0}
 }
 
-options=$(getopt -o hsl: -l help,lang: -- "$@") || usage >&2 1
+bin="sprunge"
+options=$(getopt -o hl:b:t -l help,lang:,bin: -- "$@") || usage >&2 1
 
 eval set -- $options
 while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help) usage          ;;
-    -t)        L="${L:-text}" ;;
+    -b|--bin)  bin="$2"       ;;
     -l|--lang) L="$2"         ;;
+    -t)        L="${L:-text}" ;;
 
     --) shift; break ;;
-    -*) echo >&2 "$0: error - unrecognized option $1"; usage >&2 1 ;;
+    -*) echo >&2 "${0##*/}: error - unrecognized option $1"; usage >&2 1 ;;
   esac
   shift
 done
-
-sprunge() {
-  curl -sF 'sprunge=@-' http://sprunge.us
-}
 
 # use python to attempt to detect the lang
 pygment() {
@@ -46,22 +65,25 @@ CODE
 
 declare -a urls=()
 add() {
-  local url="${1/ /}"; [[ -n $2 ]] && url+="?$2"
+  url=$(bin_$bin "${2:-$L}" <"$1" 2>/dev/null)
+  if (( $? == 127 )); then
+    echo >&2 "${0##*/}: bin \"$bin\" is not supported"
+    exit 1
+  fi
   echo "$url"; urls+=("$url")
 }
 
 if [[ ! -t 0 || $# -eq 0 ]]; then
   # read from stdin
-  add $(sprunge) $L
+  add /dev/stdin
 else
   # treat arguments as a list of files to upload
   for file in $@; do
     if [[ ! -f "$file" ]]; then
-      echo >&2 "$file isn't a file"
+      echo >&2 "warning: $file isn't a file"
       continue
     fi
-
-    add $(sprunge <"$file") $(pygment "$file")
+    add "$file" "$(pygment "$file")"
   done
 fi
 
