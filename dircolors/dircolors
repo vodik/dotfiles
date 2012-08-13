@@ -1,3 +1,5 @@
+# vi: ft=dircolors
+
 TERM linux
 TERM putty
 TERM rxvt-unicode-256color
@@ -109,6 +111,7 @@ EXEC    01;32
 
 # source code {{{1
 .c    00;36
+.cc   00;36
 .cpp  00;36
 .cxx  00;36
 .h    00;36
