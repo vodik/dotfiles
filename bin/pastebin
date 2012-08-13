@@ -1,6 +1,8 @@
 #!/bin/bash
-
+#
 # Depends on curl, python, python-pygments
+#
+# Copyright (c) 2012 Simon Gomizelj
 
 # Supported pastebins {{{1
 bin_sprunge() {
@@ -29,13 +31,13 @@ usage: ${0##*/} [files]
  Supported bins:
 HERE
 
-  for fun in $(compgen -A function bin_); do
-    echo "  ${fun#bin_}"
+  for fn in $(compgen -A function bin_); do
+    echo "  ${fn#bin_}"
   done
   exit ${1:-0}
 }
 
-bin="sprunge"
+bin="ix"
 options=$(getopt -o hl:b:t -l help,lang:,bin: -- "$@") || usage >&2 1
 
 eval set -- $options

@@ -64,8 +64,8 @@ Automated deploy function for dotfile syncronization.
 SUPPORTED:
 HERE
 
-  for fun in $(compgen -A function dotfiles_); do
-    echo "  ${fun#dotfiles_}"
+  for fn in $(compgen -A function dotfiles_); do
+    echo "  ${fn#dotfiles_}"
   done
   exit ${1:-0}
 }

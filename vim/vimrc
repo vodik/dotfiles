@@ -114,7 +114,7 @@ nnoremap <silent> <leader>h :nohl<CR>
 nnoremap <silent> <leader>l :ls<CR>:b<space>
 nnoremap <silent> <leader>s :setl spell!<CR>
 nnoremap <silent> <leader>w :call spaces#StripTrailing()<CR>
-nnoremap <silent> <leader>p :!sprunge "%"<CR>
+nnoremap <silent> <leader>p :!pastebin "%"<CR>
 
 " window movements
 nmap <silent> <C-H> :winc h<CR>
