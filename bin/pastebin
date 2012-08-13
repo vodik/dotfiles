@@ -18,6 +18,9 @@ bin_ix() {
 }
 # }}}
 
+# set a default bin
+bin="${DEFAULT_BIN:-ix}"
+
 usage() {
   cat << HERE
 usage: ${0##*/} [files]
@@ -30,14 +33,12 @@ usage: ${0##*/} [files]
 
  Supported bins:
 HERE
-
   for fn in $(compgen -A function bin_); do
     echo "  ${fn#bin_}"
   done
   exit ${1:-0}
 }
 
-bin="ix"
 options=$(getopt -o hl:b:t -l help,lang:,bin: -- "$@") || usage >&2 1
 
 eval set -- $options
