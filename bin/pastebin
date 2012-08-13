@@ -42,7 +42,7 @@ HERE
 options=$(getopt -o hl:b:t -l help,lang:,bin: -- "$@") || usage >&2 1
 
 eval set -- $options
-while [[ $# -gt 0 ]]; do
+while (( $# > 0 )); do
   case $1 in
     -h|--help) usage          ;;
     -b|--bin)  bin="$2"       ;;
