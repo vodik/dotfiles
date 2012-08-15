@@ -19,10 +19,9 @@ export ABSROOT="$HOME/build/abs"
 
 eval $(keychain start) >/dev/null
 
-[[ $TERM == xterm ]] && export TERM=xterm-256color
-
 case $TERM in
   termite|vte*|xterm*|rxvt*)
+    [[ -n $TMUX ]] && export TERM=screen-256color
 
     function precmd {
       print -Pn '\e];%n@%m %~\a'
