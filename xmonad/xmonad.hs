@@ -222,17 +222,17 @@ myKeys ws browser conf = mkKeymap conf $
     , ("<XF86AudioStop>",        withMPD MPD.stop)
     , ("<XF86AudioPrev>",        withMPD MPD.previous)
     , ("<XF86AudioNext>",        withMPD MPD.next)
-    , ("<XF86AudioMute>",        spawn $ "pulsemix" :+ [ "toggle" ])
-    , ("<XF86AudioLowerVolume>", spawn $ "pulsemix" :+ [ "decrease", "3" ])
-    , ("<XF86AudioRaiseVolume>", spawn $ "pulsemix" :+ [ "increase", "3" ])
+    , ("<XF86AudioMute>",        spawn $ "ponymix" :+ [ "toggle" ])
+    , ("<XF86AudioLowerVolume>", spawn $ "ponymix" :+ [ "decrease", "3" ])
+    , ("<XF86AudioRaiseVolume>", spawn $ "ponymix" :+ [ "increase", "3" ])
 
     -- for happy hacking keyboard
     , ("M-<F1>",  withMPD MPD.previous)
     , ("M-<F2>",  withMPD MPD.toggle)
     , ("M-<F3>",  withMPD MPD.next)
-    , ("M-<F10>", spawn $ "pulsemix" :+ [ "toggle" ])
-    , ("M-<F11>", spawn $ "pulsemix" :+ [ "decrease", "3" ])
-    , ("M-<F12>", spawn $ "pulsemix" :+ [ "increase", "3" ])
+    , ("M-<F10>", spawn $ "ponymix" :+ [ "toggle" ])
+    , ("M-<F11>", spawn $ "ponymix" :+ [ "decrease", "3" ])
+    , ("M-<F12>", spawn $ "ponymix" :+ [ "increase", "3" ])
     ]
     <> wsSwitchKeys (tagSet ws)
     <> searchKeys

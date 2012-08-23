@@ -27,9 +27,9 @@ LEFT=(kernel cpu memory)
 RIGHT=(disks filesystem pulse)
 
 print_pulse() {
-  local perc=$(pulsemix get-volume)
+  local perc=$(ponymix get-volume)
 
-  if pulsemix is-muted; then
+  if ponymix is-muted; then
     echo -n "^fg($COLOR_ICON)^i($ICONPATH/volume_off.xbm) ^fg()off "
     gdbar -fg $CRIT -bg $BAR_BG -h $BAR_H -w $BIGBAR_W -s o -nonl <<<$perc
   else
