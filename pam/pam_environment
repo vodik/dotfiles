@@ -2,7 +2,7 @@
 LANG=en_CA.utf8
 
 # default applications
-BROWSER=firefox
+BROWSER=aurora
 EDITOR=vim
 VISUAL=vim
 PAGER=less
