@@ -4,16 +4,58 @@
 #
 # Copyright (c) 2012 Simon Gomizelj
 
+# use python to attempt to detect the lang
+# declare L=""
+
+pygment() {
+  python << CODE
+from sys import exit
+try:
+	from pygments.lexers import get_lexer_for_filename
+	print(get_lexer_for_filename('$1').aliases[0])
+except:
+	exit(1)
+CODE
+}
+
 # Supported pastebins {{{1
 bin_sprunge() {
-  local url=$(curl -snF 'sprunge=@-' http://sprunge.us <&0)
-  [[ -n $1 ]] && url+="?$1"
+  local url=$(curl -snF 'sprunge=@-' "sprunge.us" <&0)
+
+  if [[ -n $1 ]]; then
+    local lang="$(pygment "$1")"
+    lang=${lang:-$2}
+    [[ -n $lang ]] && url+="?$lang"
+  fi
   echo ${url/ /}
 }
 
+auth_ix() {
+  [[ $anon == 1 || ! -f $HOME/.netrc ]] && return
+
+  awk '$2=="ix.io" {print $4, $6}' $HOME/.netrc | while read login token; do
+    echo "login=$login&token=$token"
+    break
+  done
+}
+
 bin_ix() {
-  local url=$(curl -snF 'f:1=<-' http://ix.io <&0)
-  [[ -n $1 ]] && url+="/$1"
+  local query="ix.io?"
+  [[ -n $auth ]] && query+="$auth&"
+
+  if [[ -n $1 ]]; then
+    local filename="${1##*/}"
+    local base="${filename%.[^.]*}"
+    local ext="${filename:${#base} + 1}"
+    ext=${ext:-$L}
+
+    query+="name:1=$base&"
+    [[ -n $ext ]] && query+="ext:1=$ext&"
+  fi
+
+  local url=$(curl -snF "f:1=<-" "$query" <&0)
+
+  [[ -n $ext ]] && url+="/"
   echo $url
 }
 # }}}
@@ -27,7 +69,8 @@ usage: ${0##*/} [files]
 
  Options:
   -h          Show this message
-  -t          Default to 'text' if no syntax is detected
+  -a, --anon  Paste anonymously
+  -t, --text  Default to 'text' if no syntax is detected
   -l, --lang  Set the language manually
   -b, --bin   Set the pastebin to use
 
@@ -39,15 +82,16 @@ HERE
   exit ${1:-0}
 }
 
-options=$(getopt -o hl:b:t -l help,lang:,bin: -- "$@") || usage >&2 1
+options=$(getopt -o htal:b: -l help,text,anon,lang:,bin: -- "$@") || usage >&2 1
 
 eval set -- $options
 while (( $# > 0 )); do
   case $1 in
     -h|--help) usage          ;;
+    -a|--anon) anon=1         ;;
     -b|--bin)  bin="$2"       ;;
     -l|--lang) L="$2"         ;;
-    -t)        L="${L:-text}" ;;
+    -t|--text) L="${L:-text}" ;;
 
     --) shift; break ;;
     -*) echo >&2 "${0##*/}: error - unrecognized option $1"; usage >&2 1 ;;
@@ -55,20 +99,11 @@ while (( $# > 0 )); do
   shift
 done
 
-# use python to attempt to detect the lang
-pygment() {
-  python << CODE
-try:
-	from pygments.lexers import get_lexer_for_filename
-	print(get_lexer_for_filename('$1').aliases[0])
-except:
-	print('$L')
-CODE
-}
+auth="$(auth_$bin 2>/dev/null)"
 
 declare -a urls=()
 add() {
-  url=$(bin_$bin "${2:-$L}" <"$1" 2>/dev/null)
+  url=$(bin_$bin "$1" "$L" <"${1:-/dev/stdin}" 2>/dev/null)
   if (( $? == 127 )); then
     echo >&2 "${0##*/}: bin \"$bin\" is not supported"
     exit 1
@@ -78,7 +113,7 @@ add() {
 
 if [[ ! -t 0 || $# -eq 0 ]]; then
   # read from stdin
-  add /dev/stdin
+  add
 else
   # treat arguments as a list of files to upload
   for file in $@; do
@@ -86,7 +121,7 @@ else
       echo >&2 "warning: $file isn't a file"
       continue
     fi
-    add "$file" "$(pygment "$file")"
+    add "$file"
   done
 fi
 
