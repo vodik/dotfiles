@@ -1,0 +1,17 @@
+set toolbars=noaddons,nobookmarks,nomenu,nonavigation,tabs
+set showstatuslinks=2
+set nofocuscontent
+set smartcase
+set incsearch
+set history=1000
+
+set! browser.tabs.closeButtons=2
+set! browser.tabs.closeWindowWithLastTab=false
+
+noremap j 7j
+noremap k 7k
+
+map s :open google 
+map S :tabopen google 
+
+" vim: ft=vimperator
