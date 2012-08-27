@@ -34,7 +34,7 @@ set incsearch
 
 " editing
 set list
-set listchars=tab:\ \ ,extends:$,precedes:^
+set listchars=tab:\ \ ,extends:$,precedes:^,trail:-
 set nrformats+=alpha
 
 " folding
@@ -84,7 +84,6 @@ set undodir=~/.vim/undo
 " AUTOCMDS {{{1
 " ----------------------------
 au VimResized   * exe "normal! \<c-w>="
-au BufWritePre  * if ! &bin | silent! :call spaces#StripTrailing()<CR>
 au BufWritePost * if getline(1) =~ "^#!" | silent :!chmod +x <afile>
 
 " MAPPINGS {{{1
@@ -115,6 +114,7 @@ nnoremap <silent> <leader>l :ls<CR>:b<space>
 nnoremap <silent> <leader>s :setl spell!<CR>
 nnoremap <silent> <leader>w :call spaces#StripTrailing()<CR>
 nnoremap <silent> <leader>p :!pastebin "%"<CR>
+nnoremap <silent> <leader>x :silent! call spaces#StripTrailing()<CR>
 
 " window movements
 nmap <silent> <C-H> :winc h<CR>
