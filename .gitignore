@@ -16,6 +16,7 @@ weechat/irc.conf
 weechat/weechat.conf
 weechat/weeget
 weechat/*log*
+weechat/script/*
 xmonad/xmonad-*-linux
 xmonad/xmonad.errors
 xmonad/history
