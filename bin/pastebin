@@ -47,7 +47,7 @@ bin_ix() {
     local filename="${1##*/}"
     local base="${filename%.[^.]*}"
     local ext="${filename:${#base} + 1}"
-    ext=${ext:-$L}
+    ext=${ext:-$2}
 
     query+="name:1=$base&"
     [[ -n $ext ]] && query+="ext:1=$ext&"
