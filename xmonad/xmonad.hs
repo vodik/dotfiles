@@ -130,12 +130,18 @@ myRules ws rect = manageDocks
         , resource  =? "desktop_window"   --> doIgnore
         ]
     <> composeOneCaught (insertPosition Below Newer)
-        [ className =? "Wine"  -?> doFloat
-        , myFloats             -?> doCenterFloat
-        , isDialog             -?> doCenterFloat
-        , isFirefoxPreferences -?> doCenterFloat
-        , isFullscreen         -?> doFullFloat
+        [ className =? "Wine" -?> doFloat
+        , myFloats            -?> doCenterFloat
+        , isDialog            -?> doCenterFloat
+        , isFirefoxWindow     -?> doCenterFloat
+        , isFullscreen        -?> doFullFloat
         ]
+  where
+    isFirefoxWindow = do
+        browser <- className `queryAny` [ "Firefox", "Aurora" ]
+        if browser
+            then role `queryNone` [ "browser", "view-source", "manager" ]
+            else return False
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
@@ -313,7 +319,7 @@ myVodikConfig = VodikConfig
 getMachine = buildTags $ do
     host <- nodeName <$> io getSystemID
 
-    tag  "work" $ Workspace [ "firefox" ] :> work
+    tag  "work" $ Workspace [ "aurora" ] :> work
     tag1 "term" $ Terminals Nothing
     tag1 "code" $ Terminals (Just "~/projects")
     tag  "chat" $ Workspace [ "pidgin", "skype" ] :> chat
@@ -323,7 +329,7 @@ getMachine = buildTags $ do
 
     tag "games" $ Workspace [ "sol" ] :> games
   where
-    work  = [ className `queryAny` [ "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
+    work  = [ className `queryAny` [ "Aurora", "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
             , title     =? "MusicBrainz Picard"
             , className ~? "^[Ll]ibre[Oo]ffice" ]
     chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ], role =? "irc" ]

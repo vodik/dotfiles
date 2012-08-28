@@ -24,6 +24,9 @@ instance UrgencyHook BorderUrgencyHook where
 queryAny :: Eq a => Query a -> [a] -> Query Bool
 queryAny q xs = foldl1 (<||>) $ (q =?) <$> xs
 
+queryNone :: Eq a => Query a -> [a] -> Query Bool
+queryNone q xs = foldl1 (<&&>) $ (q /=?) <$> xs
+
 (~?) :: (Functor f) => f String -> String -> f Bool
 q ~? x = (=~ x) <$> q
 
@@ -38,9 +41,6 @@ composeOneCaught f h = composeOne $ h ++ [ Just <$> f ]
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"
-
-isFirefoxPreferences :: Query Bool
-isFirefoxPreferences = className =? "Firefox" <&&> role =? "Preferences"
 
 withFocused' :: (Window -> X ()) -> X ()
 withFocused' f = withWindowSet $ \ws -> whenJust (W.peek ws) $
