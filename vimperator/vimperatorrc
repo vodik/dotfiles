@@ -1,5 +1,5 @@
 set toolbars=noaddons,nobookmarks,nomenu,nonavigation,tabs
-set showstatuslinks=2
+set showstatuslinks=1
 set nofocuscontent
 set smartcase
 set incsearch
@@ -7,6 +7,7 @@ set history=1000
 
 set! browser.tabs.closeButtons=2
 set! browser.tabs.closeWindowWithLastTab=false
+set! browser.download.manager.showWhenStarting=false
 
 noremap j 7j
 noremap k 7k
