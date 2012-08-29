@@ -13,6 +13,8 @@ au BufNewFile,BufRead *.bf  setf brainfuck
 au BufNewFile,BufRead ~/.vimperatorrc  setf vimperator
 au BufNewFile,BufRead /etc/nginx/*conf setf nginx
 
+au BufNewFile,BufRead /tmp/vimperator-www.reddit.com.tmp setf markdown
+
 au BufReadPost *.doc silent %!catdoc "%"
 au BufWriteCmd *.doc setl readonly
 au BufReadPost *.odt,*.odp silent %!odt2txt "%"
