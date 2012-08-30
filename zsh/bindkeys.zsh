@@ -1,4 +1,4 @@
-autoload zsh/terminfp
+autoload zsh/terminfo
 
 # up
 if [[ -n $terminfo[cuu1] ]]; then
