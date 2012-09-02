@@ -8,6 +8,7 @@ set history=1000
 set! browser.tabs.closeButtons=2
 set! browser.tabs.closeWindowWithLastTab=false
 set! browser.download.manager.showWhenStarting=false
+set! plugins.hide_infobar_for_missing_plugin=true
 
 noremap j 7j
 noremap k 7k
