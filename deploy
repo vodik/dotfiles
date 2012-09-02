@@ -19,6 +19,7 @@ link() {
 # Deploy scriptlets {{{1
 dotfiles_cower()       { link cower .config/cower;                     }
 dotfiles_dircolors()   { link dircolors/dircolors;                     }
+dotfiles_fontconfig()  { link fontconfig .config/fontconfig;           }
 dotfiles_git()         { link git/gitconfig;                           }
 dotfiles_htop()        { link htop/htoprc;                             }
 dotfiles_lxdm()        { link lxdm/dmrc;                               }
