@@ -152,8 +152,6 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <> startService "udiskie" "udiskie"
   where
     initHook = do
-        home <- io getHomeDirectory
-        spawn $ "xrdb"     :+ [ "-merge", home <> "/.Xresources" ]
         spawn $ "nitrogen" :+ [ "--restore" ]
         spawn "topbar"
 
