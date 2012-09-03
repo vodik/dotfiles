@@ -10,6 +10,7 @@ au BufNewFile,BufRead *.md  setf pandoc
 au BufNewFile,BufRead *.hsc setf haskell
 au BufNewFile,BufRead *.chs setf haskell
 au BufNewFile,BufRead *.bf  setf brainfuck
+au BufNewFile,BufRead *.rl  setf ragel
 au BufNewFile,BufRead ~/.vimperatorrc  setf vimperator
 au BufNewFile,BufRead /etc/nginx/*conf setf nginx
 
