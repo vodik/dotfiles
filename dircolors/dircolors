@@ -5,7 +5,7 @@ TERM putty
 TERM rxvt-unicode-256color
 TERM screen-256color
 TERM vte-256color
-TERM termite
+TERM xterm-termite
 
 # defaults {{{1
 NORMAL  00
