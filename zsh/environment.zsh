@@ -18,7 +18,7 @@ export ABSROOT="$HOME/build/abs"
   hash -d repo=/srv/http/archlinux/vodik/os
 
 if (( $+commands[envoy] )); then
-  envoy && eval $(envoy -p)
+  envoy 2>/dev/null && eval $(envoy -p)
 fi
 
 [[ $TERM == xterm ]] && export TERM=xterm-256color
