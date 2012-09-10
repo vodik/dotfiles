@@ -80,8 +80,9 @@ tmuxSessions =
 myFloats :: Query Bool
 myFloats = className `queryAny` floats
   where
-    floats = [ "Xmessage", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig", "Gcolor2", "Pavucontrol"
-             , "Nvidia-settings", "Arandr", "Rbutil", "zsnes", "Dwarf_Fortress", "Display" ]
+    floats = [ "Xmessage", "Pinentry-gtk-2", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig"
+             , "Gcolor2", "Pavucontrol", "Nvidia-settings", "Arandr", "Rbutil", "zsnes"
+             , "Dwarf_Fortress", "Display" ]
 
 myTerminal     = "termite"
 myBorderWidth  = 2
