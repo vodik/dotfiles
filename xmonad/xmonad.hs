@@ -132,6 +132,7 @@ myRules ws rect = manageDocks
         ]
     <> composeOneCaught (insertPosition Below Newer)
         [ className =? "Wine" -?> doFloat
+        , className =? "Gvim" -?> idHook
         , myFloats            -?> doCenterFloat
         , isDialog            -?> doCenterFloat
         , isFirefoxWindow     -?> doCenterFloat
