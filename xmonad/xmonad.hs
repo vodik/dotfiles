@@ -151,6 +151,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <> setQuery "chat" imClients
     <> setQuery "work" sort
     <> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
+    <> startService "pulse"   "start-pulseaudio-x11"
     <> startService "udiskie" "udiskie"
   where
     initHook = do
