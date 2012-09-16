@@ -4,6 +4,7 @@ alias la='ls -a'
 alias lla='ls -la'
 alias tree='tree -A'
 
+alias agent='eval $(envoy -p)'
 alias please='sudo $(history -n -1)'
 
 alias netcfg='sudo netcfg'
