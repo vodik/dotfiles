@@ -14,7 +14,8 @@ au BufNewFile,BufRead *.rl  setf ragel
 au BufNewFile,BufRead ~/.vimperatorrc  setf vimperator
 au BufNewFile,BufRead /etc/nginx/*conf setf nginx
 
-au BufNewFile,BufRead /tmp/vimperator-www.reddit.com.tmp setf markdown
+au BufNewFile,BufRead /tmp/vimperator-*reddit*.tmp setf markdown
+au BufNewFile,BufRead /tmp/vimperator-*github*.tmp setf markdown
 
 au BufReadPost *.doc silent %!catdoc "%"
 au BufWriteCmd *.doc setl readonly
