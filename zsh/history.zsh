@@ -1,6 +1,7 @@
 HISTFILE=$HOME/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
+HISTIGNORE=' '
 
 setopt append_history
 setopt extended_history
