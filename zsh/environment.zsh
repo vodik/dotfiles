@@ -17,7 +17,7 @@ export ABSROOT="$HOME/build/abs"
 [[ -d /srv/http/archlinux/vodik/os ]] && \
   hash -d repo=/srv/http/archlinux/vodik/os
 
-if (( $+commands[envoy] )); then
+if (( $UID != 0 && $+commands[envoy] )); then
   envoy 2>/dev/null
   eval $(envoy -p)
 fi
