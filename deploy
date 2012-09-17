@@ -21,6 +21,7 @@ dotfiles_cower()       { link cower .config/cower;                     }
 dotfiles_dircolors()   { link dircolors/dircolors;                     }
 dotfiles_fontconfig()  { link fontconfig .config/fontconfig;           }
 dotfiles_git()         { link git/gitconfig;                           }
+dotfiles_haskell()     { link haskell/haskeline;                       }
 dotfiles_htop()        { link htop/htoprc;                             }
 dotfiles_lxdm()        { link lxdm/dmrc;                               }
 dotfiles_ncmpcpp()     { link ncmpcpp;                                 }
