@@ -19,6 +19,8 @@ colorscheme diablo3
 " formatting
 set tabstop=4
 set shiftwidth=4
+set softtabstop=2
+set cinoptions=(0
 set smartindent
 set linebreak
 set nolist
@@ -33,8 +35,7 @@ set smartcase
 set incsearch
 
 " editing
-set list
-set listchars=tab:\ \ ,extends:$,precedes:^,trail:-
+set list listchars=tab:\ \ ,extends:$,precedes:^,trail:-
 set nrformats+=alpha
 
 " folding
@@ -59,27 +60,29 @@ set cursorline
 set shortmess=at
 set hidden
 set laststatus=2
-set wildmenu
-set wildmode=list:longest,full
+set scrolloff=3
+set wildmenu wildmode=list:longest,full
 set completeopt=longest,menuone
+set whichwrap+=<,>,[,],h,l
 set history=50
-set mouse=a
 set confirm
 set equalalways
+
+if has('mouse')
+  set mouse=a
+endif
 
 set wildignore+=.hg,.git,.svn                  " version control
 set wildignore+=*.aux,*.out,*.toc              " LaTeX intermediate files
 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg " images files
-set wildignore+=*.a*.o,*.obj,*.so,*.hi         " compiled object files
+set wildignore+=*.a,*.o,*.obj,*.so,*.hi        " compiled object files
 set wildignore+=*.pyc                          " python byte code
 set wildignore+=*.spl                          " compiled spell lists
 
 " backup
-set backup
-set backupdir=~/.vim/backups
 set dir=~/.vim/tmp
-set undofile
-set undodir=~/.vim/undo
+set backup   backupdir=~/.vim/backups
+set undofile undodir=~/.vim/undo
 
 " AUTOCMDS {{{1
 " ----------------------------
