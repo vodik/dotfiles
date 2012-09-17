@@ -28,7 +28,6 @@ dotfiles_htop()        { link htop/htoprc;                                     }
 dotfiles_lxdm()        { link lxdm/dmrc;                                       }
 dotfiles_ncmpcpp()     { link ncmpcpp;                                         }
 dotfiles_mutt()        { link mutt;                                            }
-dotfiles_nethack()     { link nethack/nethackrc;                               }
 dotfiles_pam()         { link pam/pam_environment;                             }
 dotfiles_ranger()      { link ranger .config/ranger;                           }
 dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg;         }
@@ -52,8 +51,6 @@ dotfiles_vim() {
 dotfiles_X() {
   link X/Xresources
   link X/xinitrc
-  link X/gtkrc-2.0 .gtkrc-2.0.mine
-  link X/fonts.conf
 }
 
 dotfiles_zsh() {
