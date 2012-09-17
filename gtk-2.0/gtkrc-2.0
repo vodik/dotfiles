@@ -1,6 +1,7 @@
 gtk-theme-name="Zukitwo-Dark"
 gtk-icon-theme-name="hicolor"
 gtk-font-name="Sans 10"
+gtk-key-theme-name=Emacs
 gtk-toolbar-style=GTK_TOOLBAR_ICONS
 gtk-toolbar-icon-size=GTK_ICON_SIZE_SMALL_TOOLBAR
 gtk-button-images=0
