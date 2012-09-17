@@ -26,12 +26,12 @@ function set_prompt {
   (( EUID == 0 ))          && pmt="blue"
   [[ -n $SSH_CONNECTION ]] && pmt="magenta"
 
-  PROMPT="%{$fg[$pmt]%}[%0~] "
-  (( EUID == 0 )) && PROMPT+="%{$fg[red]%}##%{$reset_color%} " \
-                  || PROMPT+="%{$fg[blue]%}//%{$reset_color%} "
+  PROMPT="%{$fg[${pmt}]%}[%0~] "
+  (( EUID == 0 )) && PROMPT+='%{$fg[red]%}##%{$reset_color%} ' \
+                  || PROMPT+='%{$fg[blue]%}//%{$reset_color%} '
 
   RPROMPT='$(vcs_info_wrapper)'
-  RPROMPT+="%{$fg[yellow]%}%(?.. %?)%{$reset_color%}"
+  RPROMPT+='%{$fg[yellow]%}%(?.. %?)%{$reset_color%}'
   RPROMPT+='%{$fg[green]%} ${vimode}%{$reset_color%}'
 }
 
