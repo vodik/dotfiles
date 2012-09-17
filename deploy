@@ -17,25 +17,26 @@ link() {
 }
 
 # Deploy scriptlets {{{1
-dotfiles_cower()       { link cower .config/cower;                     }
-dotfiles_dircolors()   { link dircolors/dircolors;                     }
-dotfiles_fontconfig()  { link fontconfig .config/fontconfig;           }
-dotfiles_git()         { link git/gitconfig;                           }
-dotfiles_gtk2()        { link gtk-2.0/gtkrc-2.0;                       }
-dotfiles_gtk3()        { link gtk-3.0 .config/gtk-3.0;                 }
-dotfiles_haskell()     { link haskell/haskeline;                       }
-dotfiles_htop()        { link htop/htoprc;                             }
-dotfiles_lxdm()        { link lxdm/dmrc;                               }
-dotfiles_ncmpcpp()     { link ncmpcpp;                                 }
-dotfiles_mutt()        { link mutt;                                    }
-dotfiles_nethack()     { link nethack/nethackrc;                       }
-dotfiles_pam()         { link pam/pam_environment;                     }
-dotfiles_ranger()      { link ranger .config/ranger;                   }
-dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg; }
-dotfiles_tmux()        { link tmux/tmux.conf;                          }
-dotfiles_vimperator()  { link vimperator/vimperatorrc;                 }
-dotfiles_weechat()     { link weechat;                                 }
-dotfiles_xmonad()      { link xmonad;                                  }
+dotfiles_cower()       { link cower .config/cower;                             }
+dotfiles_dircolors()   { link dircolors/dircolors;                             }
+dotfiles_fontconfig()  { link fontconfig .config/fontconfig;                   }
+dotfiles_git()         { link git/gitconfig;                                   }
+dotfiles_gtk2()        { link gtk-2.0/gtkrc-2.0;                               }
+dotfiles_gtk3()        { link gtk-3.0 .config/gtk-3.0;                         }
+dotfiles_haskell()     { link haskell/haskeline;                               }
+dotfiles_htop()        { link htop/htoprc;                                     }
+dotfiles_lxdm()        { link lxdm/dmrc;                                       }
+dotfiles_ncmpcpp()     { link ncmpcpp;                                         }
+dotfiles_mutt()        { link mutt;                                            }
+dotfiles_nethack()     { link nethack/nethackrc;                               }
+dotfiles_pam()         { link pam/pam_environment;                             }
+dotfiles_ranger()      { link ranger .config/ranger;                           }
+dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg;         }
+dotfiles_tmux()        { link tmux/tmux.conf;                                  }
+dotfiles_user-dirs()   { link user-dirs/user-dirs.dirs .config/user-dirs.dirs; }
+dotfiles_vimperator()  { link vimperator/vimperatorrc;                         }
+dotfiles_weechat()     { link weechat;                                         }
+dotfiles_xmonad()      { link xmonad;                                          }
 
 dotfiles_task() {
   link task/task
