@@ -1,3 +1,11 @@
+gtk-theme-name="Zukitwo-Dark"
+gtk-icon-theme-name="hicolor"
+gtk-font-name="Sans 10"
+gtk-toolbar-style=GTK_TOOLBAR_ICONS
+gtk-toolbar-icon-size=GTK_ICON_SIZE_SMALL_TOOLBAR
+gtk-button-images=0
+gtk-menu-images=0
+
 style "no-resize-handle" {
     GtkWindow::resize-grip-height = 0
     GtkWindow::resize-grip-width  = 0
