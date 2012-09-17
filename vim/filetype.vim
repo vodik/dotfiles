@@ -36,7 +36,7 @@ au FileType ruby            setl sw=2 ts=2 et
 au FileType python          setl et
 au FileType bash,sh,zsh     setl sw=2 ts=2 et
 au FileType haskell,cabal   setl et
-au FileType *               setl lcs+=tab:▸\ ,trail:- fo+=cr
+au FileType *               setl lcs+=tab:→\ ,trail:- fo+=cr
 
 " tab completion help
 au FileType c,cpp           setl tags+=~/.vim/tags/gtk3
