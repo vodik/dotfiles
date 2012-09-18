@@ -165,6 +165,7 @@ nnoremap <silent> <leader>u :GundoToggle<CR>
 
 " fugative config
 nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>ge :Gedit<CR>
 nnoremap <silent> <leader>gb :Gbrowse<CR>
 
 " tagbar config
