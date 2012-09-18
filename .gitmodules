@@ -73,3 +73,6 @@
 [submodule "vim/bundle/html-template-syntax"]
 	path = vim/bundle/html-template-syntax
 	url = https://github.com/pbrisbin/html-template-syntax.git
+[submodule "vim/bundle/unimpaired"]
+	path = vim/bundle/unimpaired
+	url = https://github.com/tpope/vim-unimpaired.git
