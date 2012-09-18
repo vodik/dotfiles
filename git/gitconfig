@@ -16,6 +16,13 @@
 	decorate = full
 [diff]
 	rename = copies
+[web]
+	browser = aurora
+[browser "aurora"]
+	cmd = aurora
+[alias]
+	co = checkout
+	br = branch
 [branch "master"]
 	remote = origin
 	merge = master
