@@ -6,7 +6,6 @@
 " ----------------------------
 au BufNewFile,BufRead *.nfo setf nfo
 au BufNewFile,BufRead *.txt setf txt
-au BufNewFile,BufRead *.md  setf pandoc
 au BufNewFile,BufRead *.hsc setf haskell
 au BufNewFile,BufRead *.chs setf haskell
 au BufNewFile,BufRead *.bf  setf brainfuck
