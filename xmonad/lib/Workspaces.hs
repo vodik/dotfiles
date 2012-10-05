@@ -1,21 +1,4 @@
-{-# LANGUAGE ExistentialQuantification #-}
-
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RankNTypes #-}
-
 module Workspaces where
-
--- module Workspaces
---     ( getWorkspaces
---     , filterWS
---     , workspaceShift
---     , workspaceSort
---     , getPPInfo
---     , PPWS
---     , PPInfo (..)
---     , Workspace (..)
---     , Tweaks (..)
---     ) where
 
 import Control.Monad
 import Control.Monad.Writer
@@ -47,44 +30,20 @@ defaultTweaks = Tweaks
     , masterN   = 2
     }
 
-class WorkspaceI a where
-    action :: a -> X () -> X ()
-    action = const id
-    rules  :: a -> [Query Bool]
-    rules = const []
+type Tag = (WorkspaceId, [Query Bool])
+type WSGenT = WriterT [Tag]
 
-data Tag = forall a. (WorkspaceI a) => Tag a
-         | forall a. (WorkspaceI a) => a :> [Query Bool]
+tag :: MonadIO m => String -> [Query Bool] -> WSGenT m ()
+tag n r = tell $ return (n, r)
 
-instance WorkspaceI Tag where
-    action (Tag  a) = action a
-    action (a :> _) = action a
+tagSet :: [Tag] -> [WorkspaceId]
+tagSet = fmap fst
 
-    rules (Tag  a) = rules a
-    rules (_ :> r) = r
-
-type WSGenT = WriterT [(WorkspaceId, Tag)]
-
-tag1 :: (MonadWriter [(WorkspaceId, Tag)] m, WorkspaceI w) => String -> w -> m ()
-tag1 n t = tell [(n, Tag t)]
-
-tag :: MonadWriter [(WorkspaceId, Tag)] m => String -> Tag -> m ()
-tag  n t = tell [(n, t)]
-
-tagSet :: [(WorkspaceId, Tag)] -> [WorkspaceId]
-tagSet = map fst
-
-buildTags :: MonadIO m => WSGenT m () -> m [(WorkspaceId, Tag)]
+buildTags :: MonadIO m => WSGenT m () -> m [Tag]
 buildTags = execWriterT
 
-workspaceShift :: [(WorkspaceId, Tag)] -> ManageHook
-workspaceShift = foldr (\(w, t) -> (composeAll [ r --> doShift w | r <- rules t ] <+>)) idHook
+workspaceShift :: [Tag] -> MaybeManageHook
+workspaceShift = foldr (\(w, t) -> mappend $ composeAll [ r -?> doShift w | r <- t ]) (return Nothing)
 
-workspaceSort :: WorkspaceId -> [(WorkspaceId, Tag)] -> Query Any
-workspaceSort w ws = composeAs Any . fromMaybe [] $ rules <$> lookup w ws
-
-workspaceAction :: WorkspaceId -> X () -> [(WorkspaceId, Tag)] -> X ()
-workspaceAction w x ws = fromMaybe x $ (`action` x) <$> lookup w ws
-
-currentAction :: X () -> [(WorkspaceId, Tag)] -> X ()
-currentAction x ws = (\w -> workspaceAction w x ws) =<< gets (W.tag . W.workspace . W.current . windowset)
+workspaceSort :: WorkspaceId -> [Tag] -> Query Any
+workspaceSort w = composeAs Any . fromMaybe [] . lookup w

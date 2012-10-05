@@ -11,6 +11,7 @@ import System.FilePath
 import System.Directory (getDirectoryContents, getAppUserDataDirectory)
 import Data.List
 import Data.Maybe
+import Data.Monoid
 import XMonad
 import XMonad.Prompt
 import XMonad.Prompt.Input
@@ -25,10 +26,10 @@ type Action = String -> String -> X ()
 runningSessions :: IO (M.Map String Action)
 runningSessions = M.fromList <$> do
     sessions <- runProcessWithInput "tmux" [ "list-sessions", "-F", "#{session_name}" ] ""
-    return . map (flip (,) attach) $ lines sessions
+    return . fmap (flip (,) attach) $ lines sessions
 
 tmuxSessions :: TmuxSessions -> M.Map String Action
-tmuxSessions = M.fromList . map (liftA2 (,) name (create . Just . command))
+tmuxSessions = M.fromList . fmap (liftA2 (,) name (create . Just . command))
 
 tmuxPrompt :: TmuxSessions -> XPConfig -> X ()
 tmuxPrompt ts conf = do
@@ -42,8 +43,8 @@ attachTmux commands t = do
 
 attach :: Action
 attach term t = safeSpawn term [ "-r", t, "-e", tmux ]
-  where tmux = "tmux attach -t " ++ t
+  where tmux = "tmux attach -t " <> t
 
 create :: Maybe String -> Action
 create cmd term t = safeSpawn term [ "-r", t, "-e", tmux ]
-  where tmux = unwords $ [ "tmux new -s", t ] ++ maybe [] return cmd
+  where tmux = unwords $ [ "tmux new -s", t ] <> maybe [] return cmd

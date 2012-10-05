@@ -8,6 +8,7 @@ module XMonad.Util.Commands
     , delayedSpawn
     , spawnIn
     , spawnWithEnv
+    , spawnPipe
     ) where
 
 import Control.Applicative
@@ -15,7 +16,9 @@ import Control.Concurrent (threadDelay)
 import Control.Monad
 import Data.ByteString.UTF8 (fromString)
 import System.Directory (setCurrentDirectory)
+import System.IO
 import System.Posix.Env (putEnv)
+import System.Posix.IO
 import System.Posix.Process.ByteString (createSession, executeFile, forkProcess)
 import System.Posix.Types (ProcessID(..))
 import XMonad hiding (spawn)
@@ -57,6 +60,16 @@ spawnIn dir = void_ . runWith (setCurrentDirectory dir)
 
 spawnWithEnv :: (MonadIO m, Command c) => [String] -> c -> m ()
 spawnWithEnv env = void_ . runWith (mapM_ putEnv env)
+
+spawnPipe :: (MonadIO m, Command c) => c -> m Handle
+spawnPipe c = io $ do
+    (rd, wr) <- createPipe
+    setFdOption wr CloseOnExec True
+    h <- fdToHandle wr
+    hSetBuffering h LineBuffering
+    runWith (void $ dupTo rd stdInput) c
+    closeFd rd
+    return h
 
 void_ :: Monad m => m a -> m ()
 void_ = (>>= const (return ()))

@@ -11,6 +11,7 @@ import qualified XMonad.StackSet as W
 
 import Control.Monad
 import Data.List ((\\))
+import Data.Monoid
 import qualified Data.Map as M
 
 data BalancedTall a = BalancedTall
@@ -23,7 +24,7 @@ data BalancedTall a = BalancedTall
 instance LayoutClass BalancedTall a where
     doLayout (BalancedTall nmaster _ frac mfrac) r =
         return . (\x -> (x, Nothing))
-        . ap zip (tile frac (mfrac ++ repeat 1) r nmaster . length) . W.integrate
+        . ap zip (tile frac (mfrac <> repeat 1) r nmaster . length) . W.integrate
 
     handleMessage (BalancedTall nmaster delta frac mfrac) m = do
         ms <- gets $ W.stack . W.workspace . W.current . windowset
@@ -49,7 +50,7 @@ instance LayoutClass BalancedTall a where
         mresize' s d = let n      = length $ W.up s
                            total  = n + length (W.down s) + 1
                            pos    = if n == (nmaster - 1) || n == (total - 1) then n - 1 else n
-                           mfrac' = modifymfrac (mfrac ++ repeat 1) d pos
+                           mfrac' = modifymfrac (mfrac <> repeat 1) d pos
                        in BalancedTall nmaster delta frac $ take total mfrac'
 
         modifymfrac [] _ _ = []
@@ -65,7 +66,7 @@ tile f mf r nmaster n =
     if n == 1 || nmaster == 0
        then splitVertically mf n r
        else let nmaster' = min (n `quot` 2) nmaster
-            in splitVertically mf nmaster' r1 ++ splitVertically (drop nmaster' mf) (n - nmaster') r2
+            in splitVertically mf nmaster' r1 <> splitVertically (drop nmaster' mf) (n - nmaster') r2
   where
     (r1, r2) = splitHorizontallyBy f r
 

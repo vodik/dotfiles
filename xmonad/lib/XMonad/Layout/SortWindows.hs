@@ -49,7 +49,7 @@ infix 1 <?>
 f <?> p = fmap f p
 
 composeAs :: (Monoid (f b), Functor f) => (a -> b) -> [f a] -> f b
-composeAs f = composeAll . map (fmap f)
+composeAs f = composeAll . fmap (fmap f)
 
 sortQuery :: (LayoutClass l1 a, LayoutClass l2 a)
              => String
@@ -70,12 +70,12 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
         let origws = W.integrate s              -- passed in windows
             w1c = origws `intersect` w1         -- current windows in the first pane
             w2c = origws `intersect` w2         -- current windows in the second pane
-            new = origws \\ (w1c ++ w2c)        -- new windows
+            new = origws \\ (w1c <> w2c)        -- new windows
             f'  = focus s : delete (focus s) f  -- list of focused windows, contains 2 elements at most
         in do
             matching <- queryFilter query new   -- new windows matching predecate
-            let w1' = w1c ++ matching           -- updated first pane windows
-                w2' = w2c ++ (new \\ matching)  -- updated second pane windows
+            let w1' = w1c <> matching           -- updated first pane windows
+                w2' = w2c <> (new \\ matching)  -- updated second pane windows
                 s1  = differentiate f' w1'      -- first pane stack
                 s2  = differentiate f' w2'      -- second pane stack
             (wrs, ml1', ml2') <- split fill w1' l1 s1 w2' l2 s2 frac r
@@ -129,7 +129,7 @@ split _    [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, m
 split _    w1 l1 s1 w2 l2 s2 f r = do
     (wrs1, ml1') <- runLayout (Workspace "" l1 s1) r1
     (wrs2, ml2') <- runLayout (Workspace "" l2 s2) r2
-    return (wrs1 ++ wrs2, ml1', ml2')
+    return (wrs1 <> wrs2, ml1', ml2')
   where
     (r1, r2) = splitHorizontallyBy f r
 

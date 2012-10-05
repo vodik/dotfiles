@@ -5,6 +5,7 @@ module Utils where
 import Control.Applicative
 import Control.Monad
 import Data.List
+import Data.Monoid
 import Graphics.X11.Xlib.Display
 import Graphics.X11.Xinerama (getScreenInfo)
 import Text.Regex.Posix ((=~))
@@ -37,7 +38,7 @@ doSink :: ManageHook
 doSink = doF . W.sink =<< ask
 
 composeOneCaught :: ManageHook -> [MaybeManageHook] -> ManageHook
-composeOneCaught f h = composeOne $ h ++ [ Just <$> f ]
+composeOneCaught f h = composeOne $ h <> [ Just <$> f ]
 
 role :: Query String
 role = stringProperty "WM_WINDOW_ROLE"

@@ -16,7 +16,7 @@ gaps g = ModifiedLayout (Gaps g)
 data Gaps a = Gaps Int deriving (Show, Read)
 
 instance LayoutModifier Gaps a where
-    pureModifier gap r _ wrs = (map (second $ shrinkRect gap r) wrs, Nothing)
+    pureModifier gap r _ wrs = (fmap (second $ shrinkRect gap r) wrs, Nothing)
 
 -- | Shrink the window's rectangle to add a nice gap between windows.
 --

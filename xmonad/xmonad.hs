@@ -54,7 +54,6 @@ import qualified XMonad.Actions.Search as S
 import DynamicTopic
 import Utils
 import Workspaces
-import Workspaces.Instances
 
 imClients :: Query Any
 imClients = composeAs Any
@@ -72,17 +71,7 @@ scratchpads =
     scratchpad = "TASK=show termite -r scratchpad"
 
 tmuxSessions :: TmuxSessions
-tmuxSessions =
-    [ TS "irc"   "weechat-curses"
-    , TS "crawl" "crawl"
-    ]
-
-myFloats :: Query Bool
-myFloats = className `queryAny` floats
-  where
-    floats = [ "Xmessage", "Pinentry-gtk-2", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig"
-             , "Gcolor2", "Pavucontrol", "Nvidia-settings", "Arandr", "Rbutil", "zsnes"
-             , "Dwarf_Fortress", "Display" ]
+tmuxSessions = [ TS "irc" "weechat-curses" ]
 
 myTerminal     = "termite"
 myBorderWidth  = 2
@@ -102,7 +91,7 @@ colorRed       = "#f54669"
 myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
     . onWorkspace "work"  (mstr tabs ||| tiled)
     . onWorkspace "term"  (mtiled ||| tiled)
-    . onWorkspace "chat"  (tag "IM" . sortIM $ tabs ||| grid)
+    . onWorkspace "chat"  full
     . onWorkspace "virt"  full
     . onWorkspace "games" full
     $ tiled ||| Mirror tiled
@@ -113,30 +102,24 @@ myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
     tabs   = trackFloating $ tabbed shrinkText myTabTheme
     tiled  = gaps 5 $ BalancedTall 2 step (11 % 20) [ 31 % 25 ]
     mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) [ 31 % 25 ]
-    sortIM = sortQuery "chat" False step (imWidth tw) imClients panel
     panel  = ifTaller 1024 Grid tabs
-    grid   = gaps 5 . GridRatio $ imGrid tw
     full   = noBorders Full
     tag t  = renamed [ PrependWords t ]
     step   = 1 % 50
 
 -- Rules {{{1
 myRules ws rect = manageDocks
-    <> workspaceShift ws
-    <> composeAll
-        [ role      =? "scratchpad"       --> customFloating rect
-        , className =? "crawl-tiles"      --> doSink
-        , className =? "Transmission-gtk" --> doShift "work"
-        , className =? "MPlayer"          --> doCopy [ "NSP" ]
-        , resource  =? "desktop_window"   --> doIgnore
+    <> composeOne
+        [ workspaceShift ws
+        , role      =? "scratchpad"       -?> customFloating rect
+        , className =? "Transmission-gtk" -?> doShift "work"
         ]
     <> composeOneCaught (insertPosition Below Newer)
-        [ className =? "Wine" -?> doFloat
-        , className =? "Gvim" -?> idHook
-        , myFloats            -?> doCenterFloat
-        , isDialog            -?> doCenterFloat
-        , isFirefoxWindow     -?> doCenterFloat
-        , isFullscreen        -?> doFullFloat
+        [ className =? "Gvim"         -?> idHook
+        , className =? "Wine"         -?> doFloat
+        , className `queryAny` floats -?> doCenterFloat
+        , isDialog                    -?> doCenterFloat
+        , isFirefoxWindow             -?> doCenterFloat
         ]
   where
     isFirefoxWindow = do
@@ -144,14 +127,16 @@ myRules ws rect = manageDocks
         if browser
             then role `queryNone` [ "browser", "view-source", "manager" ]
             else return False
+    floats = [ "Xmessage", "Pinentry-gtk-2", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig"
+             , "Gcolor2", "Pavucontrol", "Nvidia-settings", "Arandr", "Rbutil", "zsnes"
+             , "Dwarf_Fortress" ]
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <> runOnce initHook
-    <> setQuery "chat" imClients
     <> setQuery "work" sort
-    <> startService "compton" ("compton" :+ [ "-cGfI", "0.20", "-O", "0.20" ])
     <> startService "pulse"   "start-pulseaudio-x11"
+    <> startService "notify"  "dunst"
     <> startService "udiskie" "udiskie"
   where
     initHook = do
@@ -176,8 +161,6 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-C-c",   kill)
     , ("M-S-C-c", spawn "xkill")
     , ("M-q",     restart "xmonad" True)
-
-    , ("M-C-<Space>", stopService "compton")
 
     -- layout
     , ("M-<Space>",   sendMessage NextLayout)
@@ -320,23 +303,15 @@ myVodikConfig = VodikConfig
 getMachine = buildTags $ do
     host <- nodeName <$> io getSystemID
 
-    tag  "work" $ Workspace [ "aurora" ] :> work
-    tag1 "term" $ Terminals Nothing
-    tag1 "code" $ Terminals (Just "~/projects")
-    tag  "chat" $ Workspace [ "pidgin", "skype" ] :> chat
+    tag "work" [ className `queryAny` [ "Aurora", "Firefox", "Chromium", "Zathura" ]
+               , title     =? "MusicBrainz Picard"
+               , className ~? "^[Ll]ibre[Oo]ffice" ]
 
-    unless (host == "gmzlj") .
-        tag "virt" $ Workspace [ "VirtualBox" ] :> virt
-
-    tag "games" $ Workspace [ "sol" ] :> games
-  where
-    work  = [ className `queryAny` [ "Aurora", "Firefox", "Chromium", "Zathura", "Thunar", "Gimp" ]
-            , title     =? "MusicBrainz Picard"
-            , className ~? "^[Ll]ibre[Oo]ffice" ]
-    chat  = [ className `queryAny` [ "Empathy", "Pidgin", "Skype" ], role =? "irc" ]
-    virt  = [ className =? "VirtualBox" ]
-    games = [ className `queryAny` [ "Sol", "Pychess", "net-minecraft-LauncherFrame", "zsnes",
-                                     "openttd", "Wine", "crawl-tiles", "Dwarf_Fortress" ] ]
+    tag "term" []
+    tag "code" []
+    tag "chat" [ role =? "irc" ]
+    unless (host == "omg") $ tag "virt" [ className =? "VirtualBox" ]
+    tag "games" []
 
 main = do
     machine <- getMachine

@@ -9,6 +9,7 @@ import Control.Applicative
 import Control.Monad
 import Data.Char
 import Data.Maybe
+import Data.Monoid
 import System.FilePath
 import System.IO
 import System.IO.Unsafe
@@ -17,7 +18,7 @@ import qualified Data.Map as M
 
 import XMonad
 import XMonad.Hooks.DynamicLog
-import XMonad.Util.Run
+import XMonad.Util.Commands
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.StackSet as W
 
@@ -44,15 +45,13 @@ dzenVodik conf xconf = do
         logHook' = dynamicLogWithPP (vodikPP conf wsMap) { ppOutput = hPutStrLn dzenbar }
     return xconf { logHook = logHook' }
 
-myDzen :: VodikConfig -> String
-myDzen conf = "dzen2 " ++ unwords
-    [ "-y"   , "-16"
-    , "-h"   ,  "16"
-    , "-fn"  , quote $ dzenFont conf
-    , "-fg"  , quote $ dzenWhite conf
-    , "-bg"  , quote $ dzenBlack conf
-    , "-ta l"
-    , "-e 'onstart=lower'" ]
+myDzen :: VodikConfig -> Executable
+myDzen conf = "dzen2" :+ [ "-y", "-16", "-h", "16"
+                         , "-fn", dzenFont conf
+                         , "-fg", dzenWhite conf
+                         , "-bg", dzenBlack conf
+                         , "-ta", "l"
+                         , "-e", "'onstart=lower'" ]
 
 vodikPP :: VodikConfig -> WSMap -> PP
 vodikPP conf ws = defaultPP
