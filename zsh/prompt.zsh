@@ -22,11 +22,11 @@ function vcs_info_wrapper {
 
 function set_prompt {
   local pmt="red"
-
   (( EUID == 0 ))          && pmt="blue"
   [[ -n $SSH_CONNECTION ]] && pmt="magenta"
+  PROMPT="┌┤%{$fg[green]%}%n%{$reset_color%}>%{$fg[${pmt}]%}%m%{$reset_color%} %{$fg[blue]%}[%0~]%{$reset_color%}
+└→ "
 
-  PROMPT="%{$fg[${pmt}]%}[%0~] "
   (( EUID == 0 )) && PROMPT+='%{$fg[red]%}##%{$reset_color%} ' \
                   || PROMPT+='%{$fg[blue]%}//%{$reset_color%} '
 
