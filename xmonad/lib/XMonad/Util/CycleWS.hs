@@ -28,9 +28,6 @@ isEmpty = return $ W.stack >>> isNothing
 isNonEmpty :: WSFilter
 isNonEmpty = return $ W.stack >>> isJust
 
-filterWSI :: WSFilter -> [WindowSpace] -> [WindowSpace]
-filterWSI = map filter >>> foldr1 (.)
-
 mkWSI :: WSFilter -> CW.WSType
 mkWSI = foldr1 (liftA2 (&&)) >>> return >>> CW.WSIs
 
@@ -38,7 +35,7 @@ moveTo :: CW.Direction1D -> WSFilter -> X ()
 moveTo dir = CW.moveTo dir . mkWSI
 
 moveToNonEmpty :: CW.Direction1D -> WSFilter -> X ()
-moveToNonEmpty dir = CW.moveTo dir . mkWSI . (mappend isNonEmpty)
+moveToNonEmpty dir = CW.moveTo dir . mkWSI . mappend isNonEmpty
 
 shiftTo :: CW.Direction1D -> WSFilter -> X ()
 shiftTo dir f = do
