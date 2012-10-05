@@ -111,6 +111,7 @@ myRules ws rect = manageDocks
         , className `queryAny` floats -?> doCenterFloat
         , isDialog                    -?> doCenterFloat
         , isFirefoxWindow             -?> doCenterFloat
+        , isFullscreen                -?> doFullFloat
         ]
   where
     isFirefoxWindow = do
