@@ -198,7 +198,6 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-S-<R>", shiftToEmpty Next skip)
     , ("M-S-<L>", shiftToEmpty Prev skip)
     , ("M-<Tab>", toggleWS [ "NSP" ])
-    , ("M-=",     toggleCopy [ "NSP" ])
 
     -- misc keybinds against alt
     , ("M1-C-l", spawn "slock")
@@ -227,7 +226,7 @@ myKeys ws browser conf = mkKeymap conf $
     <> wsSwitchKeys (tagSet ws)
     <> searchKeys
   where
-    skip     = [ skipWS [ "NSP" ] ]
+    skip     = skipWS [ "NSP" ]
     scrotDir = "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
 wsSwitchKeys tags = namedTags <> moreTags
@@ -262,7 +261,7 @@ myMouseBindings conf@(XConfig {modMask = modm}) =
         , ((modm .|. shiftMask, button5), const $ shiftTo Next skip)
         ]
   where
-    skip = [ skipWS [ "NSP" ] ]
+    skip = skipWS [ "NSP" ]
 
 -- Themes {{{1
 myTabTheme = defaultTheme
