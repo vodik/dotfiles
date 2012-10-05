@@ -36,6 +36,7 @@ import XMonad.Layout.TrackFloating
 import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
+import XMonad.Util
 import XMonad.Util.Commands
 import XMonad.Util.Cursor
 import XMonad.Util.CycleWS
@@ -46,21 +47,11 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Util.RunOnce
 import XMonad.Util.Scratchpad
 import XMonad.Util.Services
+import XMonad.Util.TagBuilder
 import XMonad.Util.Tmux
 import qualified XMonad.StackSet as W
 import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.Actions.Search as S
-
-import DynamicTopic
-import Utils
-import Workspaces
-
-imClients :: Query Any
-imClients = composeAs Any
-    [ className =? "Empathy" <&&> role =? "contact_list"
-    , className =? "Pidgin"  <&&> role =? "buddy_list"
-    , className =? "Skype"   <&&> title `prefixed` "Skype"
-    ]
 
 scratchpads :: NamedScratchpads
 scratchpads =

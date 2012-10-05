@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Utils where
+module XMonad.Util where
 
 import Control.Applicative
 import Control.Monad
