@@ -11,7 +11,7 @@ apps=([tf2]=440
 
 steam=("$WINEPREFIX/drive_c/Program Files"*/Steam/Steam.exe)
 (( ${#steam[@]} == 0 )) && steam() { die "$0: steam not found";  } \
-                        || steam() { exec wine "${steam[0]}" $*; }
+                        || steam() { exec wine "${steam[0]}" -no-dwrite $*; }
 
 (( $# == 0 )) && steam
 
