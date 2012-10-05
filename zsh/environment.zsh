@@ -1,5 +1,3 @@
-export DISPLAY=${DISPLAY:-:0}
-
 export GREP_OPTIONS="--color=auto"
 export GREP_COLOR="4;1;31"
 
