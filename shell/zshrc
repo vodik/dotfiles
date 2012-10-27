@@ -55,5 +55,5 @@ setopt vi
 
 [[ $TASK == show ]] && task long
 
-for snippets ($HOME/etc/shell/*.zsh(N))
+for snippets ($HOME/etc/shell/zsh/*.zsh(N))
   source $snippets
