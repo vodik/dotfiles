@@ -1,14 +1,17 @@
 module XMonad.Util.Environment
     ( env
-    , getBrowser
+    , browser
     ) where
 
-import Control.Applicative
-import Data.Maybe
-import System.Environment (getEnvironment)
+import Data.Maybe (fromMaybe)
+import System.Posix.Env (getEnv, setEnv)
 
-env :: String -> IO (Maybe String)
-env = (<$> getEnvironment) . lookup
+env :: String -> String -> IO String
+env var def = do
+    v <- getEnv var
+    case v of
+        Nothing -> setEnv var def True >> return def
+        Just x  -> return x
 
-getBrowser :: String -> IO String
-getBrowser = (<$> env "BROWSER") . fromMaybe
+browser :: String -> IO String
+browser = env "BROWSER"

@@ -307,7 +307,7 @@ getMachine = buildTags $ do
 main = do
     machine <- getMachine
     screen  <- getScreen
-    browser <- getBrowser "firefox"
+    browser <- browser "firefox"
 
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
