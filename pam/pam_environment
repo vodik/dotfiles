@@ -7,6 +7,10 @@ EDITOR=vim
 VISUAL=vim
 PAGER=less
 
+# use clang
+CC=clang
+CXX=clang++
+
 # xdg stuff
 XDG_MENU_PREFIX=
 
