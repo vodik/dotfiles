@@ -143,6 +143,8 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-\\", tmuxPrompt tmuxSessions myXPConfig)
     , ("M-p",  shellPrompt myXPConfig)
 
+    , ("<XF86Launch1>", spawn browser)
+
     -- scratchpads
     , ("M-`", namedScratchpadAction scratchpads "scratchpad")
     , ("M-v", namedScratchpadAction scratchpads "volume")
