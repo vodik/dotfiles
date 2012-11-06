@@ -315,22 +315,23 @@ main = do
     let tweaks = defaultTweaks
         sort   = workspaceSort "work" machine
         pos    = positionRationalRect 16 screen
+        config = defaultConfig
+            { manageHook         = myRules machine pos
+            , handleEventHook    = docksEventHook <> fullscreenEventHook
+            , layoutHook         = myLayoutRules sort tweaks
+            , startupHook        = myStartupHook sort
+            , modMask            = myModMask
+            , keys               = myKeys machine browser
+            , mouseBindings      = myMouseBindings
+            , workspaces         = tagSet machine <> fmap show [1..9]
+            , terminal           = myTerminal
+            , borderWidth        = myBorderWidth
+            , normalBorderColor  = colorGray
+            , focusedBorderColor = colorBlue
+            , focusFollowsMouse  = True
+            }
 
-    xmonad . applyUrgency colorRed =<< dzenVodik myVodikConfig defaultConfig
-        { manageHook         = myRules machine pos
-        , handleEventHook    = docksEventHook <> fullscreenEventHook
-        , layoutHook         = myLayoutRules sort tweaks
-        , startupHook        = myStartupHook sort
-        , modMask            = myModMask
-        , keys               = myKeys machine browser
-        , mouseBindings      = myMouseBindings
-        , workspaces         = tagSet machine <> fmap show [1..9]
-        , terminal           = myTerminal
-        , borderWidth        = myBorderWidth
-        , normalBorderColor  = colorGray
-        , focusedBorderColor = colorBlue
-        , focusFollowsMouse  = True
-        }
+    dzenVodik myVodikConfig config >>= xmonad . applyUrgency colorRed
 
 -- vodikTweaks = defaultTweaks
 --     { mainWidth  = 2/3
