@@ -120,8 +120,7 @@ myRules ws rect = manageDocks
             then role `queryNone` [ "browser", "view-source", "manager" ]
             else return False
     floats = [ "Xmessage", "Pinentry-gtk-2", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig"
-             , "Gcolor2", "Pavucontrol", "Nvidia-settings", "Arandr", "Rbutil", "zsnes"
-             , "Dwarf_Fortress" ]
+             , "Gcolor2", "Pavucontrol", "Arandr", "Rbutil", "zsnes", "Steam" ]
 
 -- Startup {{{1
 myStartupHook sort = setDefaultCursor xC_left_ptr
