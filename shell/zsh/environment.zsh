@@ -1,23 +1,24 @@
-export GREP_OPTIONS="--color=auto"
-export GREP_COLOR="4;1;31"
+export GREP_OPTIONS='--color=auto'
+export GREP_COLOR=$'4;1;31'
+export SUDO_PROMPT=$'\e[31mSUDO\e[m: password for \e[34m%p\e[m: '
 
-[[ -f ~/etc/dircolors/dircolors ]] && eval $(dircolors ~/etc/dircolors/dircolors)
+[[ -f ~/etc/dircolors/dircolors ]] && \
+  eval $(dircolors ~/etc/dircolors/dircolors)
 
-export LESS_TERMCAP_mb=$'\E[01;31m'  # begin blinking
-export LESS_TERMCAP_md=$'\E[01;31m'  # begin bold
-export LESS_TERMCAP_me=$'\E[0m'      # end mode
-export LESS_TERMCAP_so=$'\E[01;36m'  # begin standout-mode
-export LESS_TERMCAP_se=$'\E[0m'      # end standout-mode
-export LESS_TERMCAP_us=$'\E[00;36m'  # begin underline
-export LESS_TERMCAP_ue=$'\E[0m'      # end underline
+export LESS_TERMCAP_mb=$'\e[01;31m'  # begin blinking
+export LESS_TERMCAP_md=$'\e[01;31m'  # begin bold
+export LESS_TERMCAP_me=$'\e[0m'      # end mode
+export LESS_TERMCAP_so=$'\e[01;36m'  # begin standout-mode
+export LESS_TERMCAP_se=$'\e[0m'      # end standout-mode
+export LESS_TERMCAP_us=$'\e[00;36m'  # begin underline
+export LESS_TERMCAP_ue=$'\e[0m'      # end underline
 
 export ABSROOT="$HOME/build/abs"
 [[ -d /srv/http/archlinux/vodik/os ]] && \
   hash -d repo=/srv/http/archlinux/vodik/os
 
-if [[ $DESKTOP_SESSION != "gnome" ]] && (( $UID != 0 && $+commands[envoy] )); then
+[[ $DESKTOP_SESSION != 'gnome' ]] && (( $UID != 0 && $+commands[envoy] )) && \
   eval $(envoy -p)
-fi
 
 [[ $TERM == xterm ]] && export TERM=xterm-256color
 
