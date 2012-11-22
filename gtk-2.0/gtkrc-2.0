@@ -1,5 +1,5 @@
-gtk-theme-name="Zukitwo-Dark"
-gtk-icon-theme-name="hicolor"
+gtk-theme-name="Adwaita"
+gtk-icon-theme-name="Faience"
 gtk-font-name="Sans 10"
 gtk-key-theme-name=Emacs
 gtk-toolbar-style=GTK_TOOLBAR_ICONS
