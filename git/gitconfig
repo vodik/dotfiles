@@ -29,5 +29,10 @@
 [branch "upstream"]
 	remote = upstream
 	merge = master
+[sendemail]
+	smtpserver = smtp.gmail.com
+	smtpserverport = 587
+	smtpencryption = tls
+	smtpuser = simongmzlj@gmail.com
 
 # vim: set ft=gitconfig noet:
