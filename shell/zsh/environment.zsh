@@ -1,6 +1,6 @@
 export GREP_OPTIONS='--color=auto'
 export GREP_COLOR=$'4;1;31'
-export SUDO_PROMPT=$'\e[31mSUDO\e[m: password for \e[34m%p\e[m: '
+export SUDO_PROMPT=$'\e[31mSUDO\e[m password for \e[34m%p\e[m: '
 
 [[ -f ~/etc/dircolors/dircolors ]] && \
   eval $(dircolors ~/etc/dircolors/dircolors)
