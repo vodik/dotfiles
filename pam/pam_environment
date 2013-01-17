@@ -18,4 +18,9 @@ XDG_MENU_PREFIX=
 SDL_VIDEO_X11_DGAMOUSE=0
 SDL_VIDEO_FULLSCREEN_HEAD=0
 
+# wine settings
+WINEARCH=win32
+WINDEBUG=-all
+WINEDLLOVERRIDES=winemenubuilder.exe=d
+
 # vim: ft=conf
