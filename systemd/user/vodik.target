@@ -1,0 +1,6 @@
+[Unit]
+Description=Stuff for Vodik
+After=xorg.target
+
+[Install]
+Alias=default.target

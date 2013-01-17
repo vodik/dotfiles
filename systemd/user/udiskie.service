@@ -1,0 +1,8 @@
+[Unit]
+Description=UDiskie Automounter
+
+[Service]
+ExecStart=/usr/bin/udiskie
+
+[Install]
+WantedBy=vodik.target

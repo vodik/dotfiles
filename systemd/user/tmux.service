@@ -1,0 +1,11 @@
+[Unit]
+Description=Tmux Server
+After=network.target
+
+[Service]
+RemainAfterExit=yes
+ExecStart=/usr/bin/tmux start-server
+ExecStop=/usr/bin/tmux kill-server
+
+[Install]
+WantedBy=vodik.target

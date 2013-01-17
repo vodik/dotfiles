@@ -126,13 +126,11 @@ myRules ws rect = manageDocks
 myStartupHook sort = setDefaultCursor xC_left_ptr
     <> runOnce initHook
     <> setQuery "work" sort
-    <> startService "pulse"   "start-pulseaudio-x11"
     <> startService "notify"  "dunst"
-    <> startService "udiskie" "udiskie"
   where
     initHook = do
         spawn $ "nitrogen" :+ [ "--restore" ]
-        spawn "topbar"
+        -- spawn "topbar"
 
 -- Keymap {{{1
 myKeys ws browser conf = mkKeymap conf $
