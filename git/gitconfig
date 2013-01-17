@@ -34,5 +34,6 @@
 	smtpserverport = 587
 	smtpencryption = tls
 	smtpuser = simongmzlj@gmail.com
+	confirm = auto
 
 # vim: set ft=gitconfig noet:
