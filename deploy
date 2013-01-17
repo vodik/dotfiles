@@ -30,6 +30,7 @@ dotfiles_ncmpcpp()     { link ncmpcpp;                                         }
 dotfiles_mutt()        { link mutt;                                            }
 dotfiles_pam()         { link pam/pam_environment;                             }
 dotfiles_ranger()      { link ranger .config/ranger;                           }
+dotfiles_mpd()         { link mpd/mpd.conf .config/mpd.conf;                   }
 dotfiles_systemd()     { link systemd .config/systemd;                         }
 dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg;         }
 dotfiles_tmux()        { link tmux/tmux.conf;                                  }
