@@ -1,10 +1,8 @@
-export GREP_OPTIONS='--color=auto'
-export GREP_COLOR=$'4;1;31'
-export SUDO_PROMPT=$'\e[31mSUDO\e[m password for \e[34m%p\e[m: '
-
+# colour env settings
 [[ -f ~/etc/dircolors/dircolors ]] && \
-  eval $(dircolors ~/etc/dircolors/dircolors)
+  source <(dircolors ~/etc/dircolors/dircolors)
 
+export SUDO_PROMPT=$'\e[31mSUDO\e[m password for \e[34m%p\e[m: '
 export LESS_TERMCAP_mb=$'\e[01;31m'  # begin blinking
 export LESS_TERMCAP_md=$'\e[01;31m'  # begin bold
 export LESS_TERMCAP_me=$'\e[0m'      # end mode

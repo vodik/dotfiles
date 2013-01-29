@@ -7,6 +7,10 @@ EDITOR=vim
 VISUAL=vim
 PAGER=less
 
+LESS=-R
+GREP_OPTIONS=--color=auto
+GREP_COLOR=4;1;31
+
 # use clang
 CC=clang
 CXX=clang++
