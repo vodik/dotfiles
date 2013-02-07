@@ -65,6 +65,14 @@ esac
 
 mimetype=$(file --mime-type -Lb "$path")
 case "$mimetype" in
+  text/x-makefile)
+    highlight --out-format=ansi --src-lang=make "$path" | trim
+    success && exit 5 || exit 2;;
+
+  text/plain)
+    trim < "$path"
+    success && exit 5 || exit 2;;
+
   text/*|*/xml)
     highlight --out-format=ansi "$path" | trim
     success && exit 5 || exit 2;;
