@@ -32,7 +32,7 @@ dotfiles_pam()         { link pam/pam_environment;                             }
 dotfiles_ranger()      { link ranger .config/ranger;                           }
 dotfiles_mpd()         { link mpd/mpd.conf .config/mpd.conf;                   }
 dotfiles_systemd()     { link systemd .config/systemd;                         }
-dotfiles_termite()     { link termite/termite.cfg .config/termite.cfg;         }
+dotfiles_termite()     { link termite .config/termite;                         }
 dotfiles_tmux()        { link tmux/tmux.conf;                                  }
 dotfiles_user-dirs()   { link user-dirs/user-dirs.dirs .config/user-dirs.dirs; }
 dotfiles_vimperator()  { link vimperator/vimperatorrc;                         }
