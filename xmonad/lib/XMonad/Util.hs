@@ -15,13 +15,6 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
 import qualified XMonad.StackSet as W
 
-data BorderUrgencyHook = BorderUrgencyHook !String
-    deriving (Show, Read)
-
-instance UrgencyHook BorderUrgencyHook where
-    urgencyHook (BorderUrgencyHook cs) w = withDisplay $ \dpy -> io $
-        initColor dpy cs >>= maybe (return ()) (setWindowBorder dpy w)
-
 queryAny :: Eq a => Query a -> [a] -> Query Bool
 queryAny q xs = foldl1 (<||>) $ (q =?) <$> xs
 
