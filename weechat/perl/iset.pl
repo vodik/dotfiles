@@ -19,6 +19,10 @@
 #
 # History:
 #
+# 2012-12-16,  nils_2 <weechatter@arcor.de>:
+#     version 2.9: fix focus window with iset buffer on mouse click
+# 2012-08-25,  nils_2 <weechatter@arcor.de>:
+#     version 2.8: most important key and mouse bindings for iset buffer added to title-bar (idea The-Compiler)
 # 2012-07-31,  nils_2 <weechatter@arcor.de>:
 #     version 2.7: add combined option and value search (see /help iset)
 #                : add exact value search (see /help iset)
@@ -96,7 +100,7 @@
 use strict;
 
 my $PRGNAME = "iset";
-my $VERSION = "2.7";
+my $VERSION = "2.9";
 my $DESCR   = "Interactive Set for configuration options";
 my $AUTHOR  = "Sebastien Helleu <flashcode\@flashtux.org>";
 my $LICENSE = "GPL3";
@@ -120,7 +124,8 @@ my $iset_filter_title = "";
 # search modes: 0 = index() on value, 1 = grep() on value, 2 = grep() on option, 3 = grep on option & value
 my $search_mode = 2;
 my $search_value = "";
-
+my $help_text_keys = "Keys: alt+space: toggle boolean on/off, alt+'+'/'-': increase/decrease value (for integer or color), alt+enter: set new value for option, alt+'i',alt+'r': reset value of option, alt+'i',alt+'u': unset option, alt+'v': toggle help bar on/off, alt+'p': toggle 'plugin_description' on/off";
+my $help_text_mouse = "Mouse: left button: select an option from list, right button: toggle boolean (on/off) or set a new value for option (edit with command line), right button + gesture left/right: increase/decrease value (for integer or color)";
 my %options_iset;
 
 my %mouse_keys = ("\@chat(perl.$PRGNAME):button1" => "hsignal:iset_mouse",
@@ -172,14 +177,18 @@ sub iset_title
         my $show_plugin_descr_txt = "";
         $show_plugin_descr_txt = " (plugins description hidden)" if (weechat::config_boolean($options_iset{"show_plugin_description"}) == 0);
         weechat::buffer_set($iset_buffer, "title",
-                            "Interactive set (iset.pl v$VERSION)  |  "
+                            "Interactive set (iset.pl v$VERSION) | "
                             .$iset_filter_title
                             .weechat::color("yellow")
                             .$show_filter
-                            .weechat::color("default")."  |  "
+                            .weechat::color("default")." | "
                             .$current_line_counter
                             .@options_names.$opt_txt
-                            .$show_plugin_descr_txt);
+                            .$show_plugin_descr_txt
+                            ." | "
+                            .$help_text_keys
+                            ." | "
+                            .$help_text_mouse);
     }
 }
 
@@ -228,7 +237,7 @@ sub iset_buffer_input
         $search_mode = 2;
         if ( $array_count >= 2 and $cmd_array[0] ne "f" or $cmd_array[0] ne "s")
         {
-            if ( defined $cmd_array[1] and substr($cmd_array[1], 0, 1) eq weechat::config_string($options_iset{"value_search_char"}) 
+            if ( defined $cmd_array[1] and substr($cmd_array[1], 0, 1) eq weechat::config_string($options_iset{"value_search_char"})
             or defined $cmd_array[2] and substr($cmd_array[2], 0, 1) eq weechat::config_string($options_iset{"value_search_char"}) )
             {
                 $search_mode = 3;
@@ -747,7 +756,7 @@ sub iset_cmd_cb
             $search_mode = 2;
             if ( $array_count >= 2 and $cmd_array[0] ne "f" or $cmd_array[0] ne "s")
             {
-                if ( defined $cmd_array[1] and substr($cmd_array[1], 0, 1) eq weechat::config_string($options_iset{"value_search_char"}) 
+                if ( defined $cmd_array[1] and substr($cmd_array[1], 0, 1) eq weechat::config_string($options_iset{"value_search_char"})
                 or defined $cmd_array[2] and substr($cmd_array[2], 0, 1) eq weechat::config_string($options_iset{"value_search_char"}) )
                 {
                     $search_mode = 3;
@@ -1147,7 +1156,22 @@ sub iset_hsignal_mouse_cb
             }
         }
     }
+    window_switch();
 }
+
+sub window_switch
+{
+    my $current_window = weechat::current_window();
+    my $dest_window = weechat::window_search_with_buffer(weechat::buffer_search("perl","iset"));
+    return 0 if ($dest_window eq "" or $current_window eq $dest_window);
+
+    my $infolist = weechat::infolist_get("window", $dest_window, "");
+    weechat::infolist_next($infolist);
+    my $number = weechat::infolist_integer($infolist, "number");
+    weechat::infolist_free($infolist);
+    weechat::command("","/window " . $number);
+}
+
 sub distance
 {
     my ($x1,$x2) = ($_[0], $_[1]);
