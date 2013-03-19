@@ -4,21 +4,41 @@ alias la='ls -a'
 alias lla='ls -la'
 alias tree='tree -A'
 
-alias agent='source <(envoy -p)'
-alias please='sudo $(history -n -1)'
-
 alias netcfg='sudo netcfg'
 alias netcfg-menu='sudo netcfg-menu'
 alias wifi-select='sudo wifi-select'
 
 alias startx='exec \startx'
 
-alias x='exec startx'
-
 # stderred support (https://github.com/albinoloverats/stderred)
 alias _='LD_PRELOAD=/usr/lib/libstderred.so'
 
-usegcc() {
-  [[ $CC  == gcc ]] && export CC=clang    || export CC=gcc
-  [[ $CXX == g++ ]] && export CXX=clang++ || export CXX=g++
+agent() {
+  local -a envoy
+  envoy=(envoy -t gpg-agent)
+
+  case ${1:-start} in
+    start) source <($envoy -p) ;;
+    stop)  $envoy -K           ;;
+    list)  $envoy -l           ;;
+    print) $envoy -p           ;;
+  esac
+}
+
+aurgrab() {
+  curl -s "https://aur.archlinux.org/packages/${1:0:2}/$1/$1".tar.gz | tar -xzv
+}
+
+usecc() {
+  local cc=$1
+
+  if [[ -z $cc ]]; then
+    [[ $CC = "gcc" ]] && cc="clang" || cc="gcc"
+  fi
+
+  case $cc in
+    gcc)   export CC="gcc"   CXX="g++"          ;;
+    clang) export CC="clang" CXX="clang++"      ;;
+    *)     echo >&2 "Compiler $cc unrecognized" ;;
+  esac
 }
