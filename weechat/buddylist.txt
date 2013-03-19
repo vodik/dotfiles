@@ -1,11 +1,10 @@
-bitlbee.andrej
-bitlbee.anna
 bitlbee.david
 bitlbee.denniscwik
 bitlbee.pawi59
 bitlbee.tgoodlet
 freenode.Caleb
 freenode.Goodboy
+freenode.KaiSforza
 freenode.MrElendig
 freenode.Tom^
 freenode.allanbrokeit
