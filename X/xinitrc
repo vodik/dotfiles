@@ -3,9 +3,9 @@
 cd
 case ${2:-xmonad} in
   xbmc)
-    exec xbmc-standalone ;;
+    exec xbmc ;;
   gnome)
     exec gnome-session ;;
   *)
-    exec xmonad ;;
+    exec dbus-launch xmonad ;;
 esac
