@@ -79,24 +79,20 @@ colorBlue      = "#439dcA"
 colorRed       = "#f54669"
 
 -- Layouts {{{1
-myLayoutRules sort tw = avoidStruts . lessBorders OnlyFloat . tfull
-    . onWorkspace "work"  (mstr tabs ||| tiled)
-    . onWorkspace "term"  (mtiled ||| tiled)
-    . onWorkspace "chat"  full
-    . onWorkspace "virt"  full
-    . onWorkspace "games" full
-    $ tiled ||| Mirror tiled
-  where
-    tfull  = toggleLayouts . tag "Triggered" $ noBorders Full
-    mstr l = smartBorders $ ifWider 1200 (work ||| l) l
-    work   = tag "Work" $ sortQuery "work" True step (mainWidth tw) sort tabs tabs
-    tabs   = trackFloating $ tabbed shrinkText myTabTheme
-    tiled  = gaps 5 $ BalancedTall 2 step (11 % 20) [ 31 % 25 ]
-    mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) [ 31 % 25 ]
-    panel  = ifTaller 1024 Grid tabs
-    full   = noBorders Full
-    tag t  = renamed [ PrependWords t ]
-    step   = 1 % 50
+myLayoutRules sort tw =
+    let tfull  = toggleLayouts . name "Triggered" $ noBorders Full
+        tabs   = smartBorders $ tabbed shrinkText myTabTheme
+        tiled  = gaps 5 $ BalancedTall 2 step (11 % 20) [ 31 % 25 ]
+        mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) [ 31 % 25 ]
+        full   = noBorders Full
+        name t = renamed [ PrependWords t ]
+        step   = 1 % 50
+    in avoidStruts . lessBorders OnlyFloat . tfull
+        . onWorkspace "work"  (tabs   ||| tiled ||| mtiled)
+        . onWorkspace "term"  (mtiled ||| tiled)
+        . onWorkspace "chat"  (full   ||| tiled)
+        -- . onWorkspace "games" (full   ||| tiled)
+        $ tiled ||| mtiled
 
 -- Rules {{{1
 myRules ws rect = manageDocks
@@ -121,7 +117,7 @@ myRules ws rect = manageDocks
         if browser
             then role `queryNone` [ "browser", "view-source", "manager" ]
             else return False
-    floats = [ "Xmessage", "Pinentry-gtk-2", "MPlayer", "Lxappearance", "Nitrogen", "Qtconfig"
+    floats = [ "Xmessage", "Pinentry-gtk-2", "mplayer2", "Lxappearance", "Nitrogen", "Qtconfig"
              , "Gcolor2", "Pavucontrol", "Arandr", "Rbutil", "zsnes", "Steam" ]
 
 -- Startup {{{1
@@ -138,7 +134,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
 myKeys ws browser conf = mkKeymap conf $
     [ ("M-<Return>", spawn $ terminal conf)
 
-    , ("M-w",  spawn browser)
+    , ("M-b",  spawn browser)
     , ("M-\\", tmuxPrompt tmuxSessions myXPConfig)
     , ("M-p",  shellPrompt myXPConfig)
 
@@ -217,19 +213,24 @@ myKeys ws browser conf = mkKeymap conf $
     , ("M-<F12>", spawn $ "ponymix" :+ [ "increase", "3" ])
     ]
     <> wsSwitchKeys (tagSet ws)
+    <> screenSwitchKeys
     <> searchKeys
   where
     skip     = skipWS [ "NSP" ]
     scrotDir = "/home/simongmzlj/pictures/screenshots/%Y-%m-%d_%H:%M:%S_$wx$h.png"
 
-wsSwitchKeys tags = namedTags <> moreTags
+wsSwitchKeys tags = namedTags <> moreTags -- <> screens
   where
     namedTags = [ (m <> i, f w) | (i, w) <- zip (show <$> [1..]) tags, (m, f) <- keymap "M-"   ]
-    moreTags  = [ (m <> i, f i) | i      <- show <$> [1..9],           (m, f) <- keymap "M-C-" ]
+    moreTags  = [ (m <> i, f i) | i      <- show <$> [1..9],           (m, f) <- keymap "M-e " ]
     keymap p =
         [ (p,         toggleOrDoSkip [ "NSP" ] W.greedyView)
         , (p <> "S-", windows . W.shift)
         ]
+
+screenSwitchKeys = [ ("M-w " <> k, switchScreen i) | (i, k) <- zip [0..] ["1", "2"] ]
+  where
+    switchScreen i = screenWorkspace i >>= flip whenJust (windows . W.view)
 
 searchKeys = [ ("M-s " <> k, S.promptSearch myXPConfig f) | (k, f) <- searchList ]
   where
@@ -295,15 +296,15 @@ myVodikConfig = VodikConfig
 getMachine = buildTags $ do
     host <- nodeName <$> io getSystemID
 
-    tag "work" [ className `queryAny` [ "Aurora", "Firefox", "Chromium", "Zathura" ]
+    tag "work" [ className `queryAny` [ "Aurora", "Firefox", "Chromium" ]
                , title     =? "MusicBrainz Picard"
                , className ~? "^[Ll]ibre[Oo]ffice" ]
 
     tag "term" []
     tag "code" []
     tag "chat" [ role =? "irc" ]
-    unless (host == "omg") $ tag "virt" [ className =? "VirtualBox" ]
-    tag "games" []
+    -- unless (host == "omg") $ tag "virt" [ className =? "VirtualBox" ]
+    -- tag "games" []
 
 main = do
     machine <- getMachine
