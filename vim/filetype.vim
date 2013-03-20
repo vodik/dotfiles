@@ -11,13 +11,6 @@ au BufNewFile,BufRead *.chs setf haskell
 au BufNewFile,BufRead *.bf  setf brainfuck
 au BufNewFile,BufRead *.rl  setf ragel
 
-au BufNewFile,BufRead /etc/nginx/*conf setf nginx
-au BufNewFile,BufRead /tmp/vimperator-*reddit*.tmp setf markdown
-au BufNewFile,BufRead /tmp/vimperator-*github*.tmp setf markdown
-
-au BufNewFile,BufRead */xmonad.hs call xmonad#AddGhcModPath()
-au BufNewFile,BufRead */.vimperatorrc setf vimperator
-
 au BufReadPost *.doc silent %!catdoc "%"
 au BufWriteCmd *.doc setl readonly
 au BufReadPost *.odt,*.odp silent %!odt2txt "%"
