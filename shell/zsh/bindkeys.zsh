@@ -76,11 +76,15 @@ if [[ -n $terminfo[kcuu1] ]]; then
   bindkey -M vicmd "$terminfo[kcuu1]" history-beginning-search-backward
 fi
 
+bindkey '^[[A' history-beginning-search-backward
+
 # down arrow (history search)
 if [[ -n $terminfo[kcud1] ]]; then
   bindkey          "$terminfo[kcud1]" history-beginning-search-forward
   bindkey -M vicmd "$terminfo[kcud1]" history-beginning-search-forward
 fi
+
+bindkey '^[[B' history-beginning-search-forward
 
 # left arrow (whichwrap)
 if [[ -n $terminfo[kcub1] ]]; then
