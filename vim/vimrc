@@ -107,17 +107,18 @@ nnoremap j gj
 nnoremap k gk
 
 " map Y to act like D and C; yank till end of line
-map Y y$
+noremap Y y$
 
-" shortcut to update diff
 nnoremap <silent> <leader>c :call toggle#ToggleList("Quickfix List", 'c')<CR>
 nnoremap <silent> <leader>d :diffupdate<CR>
 nnoremap <silent> <leader>h :nohl<CR>
 nnoremap <silent> <leader>l :ls<CR>:b<space>
 nnoremap <silent> <leader>s :setl spell!<CR>
-nnoremap <silent> <leader>w :call spaces#StripTrailing()<CR>
 nnoremap <silent> <leader>p :!pastebin "%"<CR>
 nnoremap <silent> <leader>x :silent! call spaces#StripTrailing()<CR>
+
+" strip trailing spaces
+noremap <silent> <leader>w :call spaces#StripTrailing()<CR>
 
 " window movements
 nnoremap <silent> <C-H> :winc h<CR>

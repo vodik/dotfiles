@@ -1,5 +1,5 @@
 " Function to strip trailing spaces from a file
-function spaces#StripTrailing()
+function spaces#StripTrailing() range
   if ! &bin
     normal mZ
     %s/\s\+$//e
