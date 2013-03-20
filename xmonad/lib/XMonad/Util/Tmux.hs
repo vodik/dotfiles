@@ -4,12 +4,6 @@ module XMonad.Util.Tmux
     ) where
 
 import Control.Applicative
-import Control.Exception
-import Control.Monad
-import Control.Monad.List
-import System.FilePath
-import System.Directory (getDirectoryContents, getAppUserDataDirectory)
-import Data.List
 import Data.Maybe
 import Data.Monoid
 import XMonad

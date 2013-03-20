@@ -29,7 +29,7 @@ shrinkRect (Gaps g) (Rectangle sx sy sw sh) (Rectangle x y w h) =
     in Rectangle (x + dl) (y + dt) (w - fi dl - dr) (h - fi dt - db)
 
 gap :: Integral a => Int -> Bool -> a
-gap g b = if b then fi g else truncate . (/2) $ fi g
+gap g b = if b then fi g else truncate . (/ 2) $ (fi g :: Double)
 
 -- | Calculate the gap's offset from the right/bottom.
 --

@@ -19,8 +19,8 @@ import System.Directory (setCurrentDirectory)
 import System.IO
 import System.Posix.Env (putEnv)
 import System.Posix.IO
-import System.Posix.Process.ByteString (createSession, executeFile, forkProcess)
-import System.Posix.Types (ProcessID(..))
+import System.Posix.Process.ByteString (executeFile)
+import System.Posix.Types (ProcessID)
 import XMonad hiding (spawn)
 
 infixr 4 :+

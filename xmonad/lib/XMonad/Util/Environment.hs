@@ -3,7 +3,6 @@ module XMonad.Util.Environment
     , browser
     ) where
 
-import Data.Maybe (fromMaybe)
 import System.Posix.Env (getEnv, setEnv)
 
 env :: String -> String -> IO String

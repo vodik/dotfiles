@@ -15,9 +15,7 @@ import Data.Maybe
 import Data.Monoid
 
 import XMonad hiding (focus)
-import XMonad.Core
 import XMonad.StackSet (Workspace (..), Stack (..))
-import XMonad.Layout.WindowNavigation
 import XMonad.Util.Invisible
 import qualified XMonad.StackSet as W
 
@@ -39,7 +37,7 @@ data SortLayout l1 l2 a = SortLayout
     , delta       :: Rational
     , mfrac       :: Rational
     , query       :: InvisibleQuery
-    , layoutLetf  :: l1 a
+    , layoutLeft  :: l1 a
     , layoutRight :: l2 a
     }
     deriving (Read, Show)
@@ -105,7 +103,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
     description sl =
         unwords [ "SortLayout", description (layoutRight sl), description (layoutRight sl) ]
 
-swap us@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = do
+swap (SortLayout f ws1 ws2 name fill delta frac query l1 l2) _ = do
     mst <- gets $ W.stack . W.workspace . W.current . windowset
     let (ws1', ws2') = case mst of
                           Nothing -> (ws1, ws2)
@@ -124,9 +122,9 @@ passThroughMessage (SortLayout f ws1 ws2 name fill delta frac query l1 l2) m = d
         then return . Just $ SortLayout f ws1 ws2 name fill delta frac query (fromMaybe l1 ml1') (fromMaybe l2 ml2')
         else return Nothing
 
-split True w1 l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
-split _    [] _  _  w2 l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
-split _    w1 l1 s1 w2 l2 s2 f r = do
+split True _  l1 s1 [] _  _  _ r = runLayout (Workspace "" l1 s1) r >>= \(wrs, ml) -> return (wrs, ml, Nothing)
+split _    [] _  _  _  l2 s2 _ r = runLayout (Workspace "" l2 s2) r >>= \(wrs, ml) -> return (wrs, Nothing, ml)
+split _    _  l1 s1 _  l2 s2 f r = do
     (wrs1, ml1') <- runLayout (Workspace "" l1 s1) r1
     (wrs2, ml2') <- runLayout (Workspace "" l2 s2) r2
     return (wrs1 <> wrs2, ml1', ml2')

@@ -11,8 +11,6 @@ import Data.Maybe
 import Data.Monoid
 
 import XMonad
-import XMonad.Actions.CopyWindow
-import XMonad.Util.Stack
 import XMonad.Util.WorkspaceCompare
 import qualified XMonad.Actions.CycleWS as CW
 import qualified XMonad.StackSet as W

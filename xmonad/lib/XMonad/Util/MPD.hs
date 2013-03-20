@@ -2,7 +2,6 @@
 
 module XMonad.Util.MPD where
 
-import Control.Applicative
 import Control.Monad
 import qualified Network.MPD as MPD
 

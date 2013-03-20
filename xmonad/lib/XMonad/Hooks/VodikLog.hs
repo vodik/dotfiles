@@ -5,11 +5,9 @@ module XMonad.Hooks.VodikLog
     , VodikConfig(..)
     ) where
 
-import Control.Applicative
 import Control.Monad
 import Data.Char
 import Data.Maybe
-import Data.Monoid
 import System.FilePath
 import System.IO
 import System.IO.Unsafe
@@ -99,9 +97,6 @@ getSortByIndexWithout :: [String] -> X WorkspaceSort
 getSortByIndexWithout tags = do
     sort <- getSortByIndex
     return $ sort . filter ((`notElem` tags) . W.tag)
-
-quote :: String -> String
-quote = printf "'%s'"
 
 dzenIcon :: String -> String
 dzenIcon = printf "^i(%s)"

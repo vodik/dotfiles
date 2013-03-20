@@ -25,18 +25,15 @@ module XMonad.Layout.GuardLayout.Instances
     ) where
 
 import Control.Applicative
-import Control.Monad
 import Data.Maybe
 import Data.Ratio
 import System.Posix.Unistd (getSystemID, nodeName)
 
-import Graphics.X11 (Rectangle (..))
 import Graphics.X11.Xinerama (getScreenInfo)
 
 import XMonad
 import XMonad.Layout.GuardLayout
 import XMonad.Layout.LayoutModifier
-import qualified XMonad.StackSet as W
 
 -- |
 ifWider :: (LayoutClass l1 a, LayoutClass l2 a)
@@ -104,18 +101,18 @@ data Hostname = Hostname String
     deriving (Show, Read)
 
 instance Condition ScreenSize where
-    validate ws (SmallerThan si) =
+    validate _ (SmallerThan si) =
         calculateBox si (<) <$> getScreenSize
 
-    validate ws (AtLeast si) =
+    validate _ (AtLeast si) =
         calculateBox si (>=) <$> getScreenSize
 
 instance Condition AspectRatio where
-    validate ws (AspectRatio r) =
+    validate _ (AspectRatio r) =
         getScreenSize >>= \(Rectangle _ _ sw sh) -> return $ r == (sw % sh)
 
 instance Condition Hostname where
-    validate ws (Hostname n) =
+    validate _ (Hostname n) =
         (n ==) . nodeName <$> io getSystemID
 
 getScreenSize :: X Rectangle

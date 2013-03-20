@@ -1,17 +1,11 @@
 module XMonad.Util.TagBuilder where
 
-import Control.Monad
 import Control.Monad.Writer
-import Data.Monoid
-import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe)
-import Control.Applicative ((<$>))
-import qualified Data.Map as M
 
 import XMonad
 import XMonad.Hooks.ManageHelpers
 import XMonad.Layout.SortWindows
-import qualified XMonad.StackSet as W
 
 data Tweaks = Tweaks
     { mainWidth  :: Rational
@@ -20,6 +14,7 @@ data Tweaks = Tweaks
     , masterN    :: Int
     }
 
+defaultTweaks :: Tweaks
 defaultTweaks = Tweaks
     { mainWidth = 1/2
     , imWidth   = 1/5

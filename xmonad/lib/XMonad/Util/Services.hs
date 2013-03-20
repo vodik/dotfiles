@@ -5,13 +5,12 @@ module XMonad.Util.Services
     , stopService
     ) where
 
-import Prelude hiding (catch)
 import Control.Applicative
 import Control.Exception
 import Control.Monad
 import Data.Map as Map
 import Data.Maybe
-import System.Posix.Types (ProcessGroupID(..))
+import System.Posix.Types (ProcessGroupID)
 import System.Posix.Process (getProcessStatus)
 import System.Posix.Signals
 

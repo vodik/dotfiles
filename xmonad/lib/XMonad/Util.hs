@@ -51,7 +51,7 @@ getScreen :: IO Rectangle
 getScreen = openDisplay "" >>= fmap head . getScreenInfo
 
 positionRationalRect :: Rational -> Rectangle -> W.RationalRect
-positionRationalRect bh (Rectangle sx sy sw sh) =
+positionRationalRect bh (Rectangle _ _ _ sh) =
     let h  = (2 * fi sh / 5) - bh
         ry = (fi sh - h - bh) / fi sh
         rh = h / fi sh

@@ -1,11 +1,7 @@
 import Control.Applicative
-import Control.Monad
-import Data.Maybe
 import Data.Monoid
 import Data.Ratio
-import System.Directory
 import System.Exit
-import System.Posix.Env
 import System.Posix.Unistd (getSystemID, nodeName)
 import qualified Data.Map as M
 import qualified Network.MPD as MPD
@@ -14,7 +10,6 @@ import qualified Network.MPD.Commands.Extensions as MPD
 import XMonad hiding (spawn)
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.CycleWS hiding (shiftTo, moveTo, toggleWS)
-import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.InsertPosition
 import XMonad.Hooks.ManageDocks
@@ -22,17 +17,12 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.VodikLog
 import XMonad.Layout.BalancedTile
-import XMonad.Layout.Grid
-import XMonad.Layout.GuardLayout
-import XMonad.Layout.GuardLayout.Instances
-import XMonad.Layout.Master
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Renamed
 import XMonad.Layout.SortWindows
 import XMonad.Layout.Tabbed
 import XMonad.Layout.ToggleLayouts hiding (Toggle)
-import XMonad.Layout.TrackFloating
 import XMonad.Layout.WindowGaps
 import XMonad.Prompt
 import XMonad.Prompt.Shell (shellPrompt)
@@ -45,7 +35,6 @@ import XMonad.Util.EZConfig
 import XMonad.Util.MPD
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.RunOnce
-import XMonad.Util.Scratchpad
 import XMonad.Util.Services
 import XMonad.Util.TagBuilder
 import XMonad.Util.Tmux
