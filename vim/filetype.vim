@@ -37,14 +37,8 @@ au FileType bash,sh,zsh     setl sw=2 ts=2 et
 au FileType haskell,cabal   setl et
 au FileType *               setl lcs+=tab:→\ ,trail:- fo+=cr
 
-" tab completion help
-au FileType c,cpp           setl tags+=~/.vim/tags/gtk3
-au FileType c,cpp           setl tags+=~/.vim/tags/cairo
-au FileType c,cpp           setl tags+=~/.vim/tags/pango
-
 " TEXT {{{1
 " ----------------------------
-au FileType mail            setl spell et fo+=ct
-au FileType plaintex,pod    setl spell et fo+=ct
-au FileType gitcommit       setl spell et fo+=ct
-au FileType pandoc,markdown setl spell et sw=2 ts=2 fo+=ct
+au FileType gitcommit,mail setl spell et fo+=ct
+au FileType plaintex,pod   setl spell et fo+=ct
+au FileType pandoc         setl spell et sw=2 ts=2 fo+=ct

@@ -23,10 +23,10 @@ set softtabstop=2
 set cinoptions=(0
 set smartindent
 set linebreak
-set nolist
 set nowrap
 set textwidth=72
 set wrapmargin=0
+set whichwrap+=<,>,[,],h,l
 set formatoptions=qn1
 
 " searching
@@ -63,10 +63,10 @@ set laststatus=2
 set scrolloff=3
 set wildmenu wildmode=list:longest,full
 set completeopt=longest,menuone
-set whichwrap+=<,>,[,],h,l
 set history=50
 set confirm
 set equalalways
+set lazyredraw
 
 if has('mouse')
   set mouse=a
@@ -120,10 +120,10 @@ nnoremap <silent> <leader>p :!pastebin "%"<CR>
 nnoremap <silent> <leader>x :silent! call spaces#StripTrailing()<CR>
 
 " window movements
-nmap <silent> <C-H> :winc h<CR>
-nmap <silent> <C-J> :winc j<CR>
-nmap <silent> <C-K> :winc k<CR>
-nmap <silent> <C-L> :winc l<CR>
+nnoremap <silent> <C-H> :winc h<CR>
+nnoremap <silent> <C-J> :winc j<CR>
+nnoremap <silent> <C-K> :winc k<CR>
+nnoremap <silent> <C-L> :winc l<CR>
 
 " map space to create/open/close fold
 nnoremap <silent> <Space> @=(foldlevel('.')?'za':'l')<CR>
@@ -153,22 +153,23 @@ let g:NERDTreeShowBookmarks = 1
 let g:NERDTreeMinimalUI     = 1
 nnoremap <silent> <F9> :NERDTreeToggle<CR>
 
-" SuperTab config
-let g:SuperTabDefaultCompletionType = "context"
-
 " gundo config
 nnoremap <silent> <leader>u :GundoToggle<CR>
 
 " fugative config
+nnoremap <leader>gg :copen<CR>:Ggrep 
+nnoremap <silent> <leader>gs :Gstatus<CR>
 nnoremap <silent> <leader>gd :Gdiff<CR>
 nnoremap <silent> <leader>ge :Gedit<CR>
-nnoremap <silent> <leader>gb :Gbrowse<CR>
+nnoremap <silent> <leader>gb :Gblame<CR>
 
 " tagbar config
 nnoremap <silent> <leader>t :TagbarToggle<CR>
 
 " tabular config
-nnoremap <silent> <leader>== :Tabular /=<CR>
+noremap <silent> <leader>a= :Tabular /=<CR>
+noremap <silent> <leader>a: :Tabular /[^:]\+:<CR>
+noremap <silent> <leader>a, :Tabular /[^,]\+,<CR>
 
 " youcompleteme config
 let g:ycm_global_ycm_extra_conf = '~/.vim/ycm/c_conf.py'
@@ -176,11 +177,11 @@ nnoremap <silent> <leader>d :YcmDiag<CR>
 
 " pandoc config
 let g:pandoc_no_empty_implicits = 1
-let g:pandoc_no_spans = 1
-let g:pandoc_no_folding = 1
+let g:pandoc_no_spans           = 1
+let g:pandoc_no_folding         = 1
 
 " utilsnips config
-let g:UltiSnipsSnippetsDi="~/.vim/snippets"
-let g:UltiSnipsExpandTrigger="<c-j>"
-let g:UltiSnipsJumpForwardTrigger="<c-j>"
-let g:UltiSnipsJumpBackwardTrigger="<c-k>"
+let g:UltiSnipsSnippetsDir         = "~/.vim/snippets"
+let g:UltiSnipsExpandTrigger       = "<c-j>"
+let g:UltiSnipsJumpForwardTrigger  = "<c-j>"
+let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
