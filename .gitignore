@@ -2,6 +2,7 @@
 *.o
 *.swp
 *.swo
+*.pyc
 bin/*
 conky/*
 ncmpcpp/error.log

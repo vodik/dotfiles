@@ -145,10 +145,6 @@ nnoremap <S-F6> :!./"%"<CR>
 let g:netrw_http_cmd  = "curl"
 let g:netrw_http_xcmd = "-so"
 
-" snippets config
-let snips_author = 'Simon Gomizelj'
-let snips_email  = 'simongmzlj@gmail.com'
-
 " NERDTree config
 let g:NERDTreeChDirMode     = 2
 let g:NERDTreeIgnore        = ['\~$', '\.swp$', '\.o$', '\.hi$']
@@ -175,7 +171,8 @@ nnoremap <silent> <leader>t :TagbarToggle<CR>
 nnoremap <silent> <leader>== :Tabular /=<CR>
 
 " youcompleteme config
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+let g:ycm_global_ycm_extra_conf = '~/.vim/ycm/c_conf.py'
+nnoremap <silent> <leader>d :YcmDiag<CR>
 
 " pandoc config
 let g:pandoc_no_empty_implicits = 1
@@ -183,6 +180,7 @@ let g:pandoc_no_spans = 1
 let g:pandoc_no_folding = 1
 
 " utilsnips config
+let g:UltiSnipsSnippetsDi="~/.vim/snippets"
 let g:UltiSnipsExpandTrigger="<c-j>"
 let g:UltiSnipsJumpForwardTrigger="<c-j>"
 let g:UltiSnipsJumpBackwardTrigger="<c-k>"
