@@ -164,6 +164,10 @@ nnoremap <silent> <leader>gd :Gdiff<CR>
 nnoremap <silent> <leader>ge :Gedit<CR>
 nnoremap <silent> <leader>gb :Gblame<CR>
 
+" ghc-mod config
+nnoremap <silent> <leader>hc :GhcModCheck<CR>
+nnoremap <silent> <leader>hl :GhcModLint<CR>
+
 " tagbar config
 nnoremap <silent> <leader>t :TagbarToggle<CR>
 
