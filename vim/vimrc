@@ -35,7 +35,7 @@ set smartcase
 set incsearch
 
 " editing
-set list listchars=tab:\ \ ,extends:$,precedes:^,trail:-
+set list listchars=tab:→\ ,extends:$,precedes:^,trail:-
 set nrformats+=alpha
 
 " folding
