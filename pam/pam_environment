@@ -7,7 +7,7 @@ EDITOR=vim
 VISUAL=vim
 PAGER=less
 
-LESS=-R
+LESS=FRSX
 GREP_OPTIONS=--color=auto
 GREP_COLOR=4;1;31
 
