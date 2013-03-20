@@ -5,34 +5,34 @@ _force_rehash() {
   return 1
 }
 
-zstyle ':completion::complete:*'               use-cache on
+zstyle ':completion::complete:*'       use-cache on
 
 # Group matches and describe.
-zstyle ':completion:*:*:*:*:*'                 menu yes select
-zstyle ':completion:*:matches'                 group 'yes'
-zstyle ':completion:*:options'                 description 'yes'
-zstyle ':completion:*:options'                 auto-description '%d'
-zstyle ':completion:*:corrections'             format '%B%F{green}>> %d (errors: %e)%f%b'
-zstyle ':completion:*:descriptions'            format '%B%F{magenta}>> %d%f%b'
-zstyle ':completion:*:messages'                format '%B%F{cyan}>> %d%f%b'
-zstyle ':completion:*:warnings'                format '%B%F{red}>> no matches found%f%b'
-zstyle ':completion:*:default'                 list-prompt '%B%S%M matches%s%b'
-zstyle ':completion:*'                         format '%B%F{cyan}>> %d%f%b'
-zstyle ':completion:*'                         group-name ''
-zstyle ':completion:*'                         verbose yes
+zstyle ':completion:*:*:*:*:*'         menu yes select
+zstyle ':completion:*:matches'         group 'yes'
+zstyle ':completion:*:options'         description 'yes'
+zstyle ':completion:*:options'         auto-description '%d'
+zstyle ':completion:*:corrections'     format '%B%F{green}>> %d (errors: %e)%f%b'
+zstyle ':completion:*:descriptions'    format '%B%F{magenta}>> %d%f%b'
+zstyle ':completion:*:messages'        format '%B%F{cyan}>> %d%f%b'
+zstyle ':completion:*:warnings'        format '%B%F{red}>> no matches found%f%b'
+zstyle ':completion:*:default'         list-prompt '%B%S%M matches%s%b'
+zstyle ':completion:*'                 format '%B%F{cyan}>> %d%f%b'
+zstyle ':completion:*'                 group-name ''
+zstyle ':completion:*'                 verbose yes
 
-zstyle ':completion:*'                         matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*'                         list-colors ''
-zstyle ':completion:*'                         completer _oldlist _expand _force_rehash _complete _match _approximate
-zstyle ':completion:*'                         menu select=2
+zstyle ':completion:*'                 matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*'                 list-colors ''
+zstyle ':completion:*'                 completer _oldlist _expand _force_rehash _complete _match _approximate
+zstyle ':completion:*'                 menu select=2
 
-zstyle ':completion:*:functions'               ignored-patterns '_*'
-zstyle ':completion:*:match:*'                 original only
-zstyle ':completion:*:approximate:*'           max-errors 1 numeric
+zstyle ':completion:*:functions'       ignored-patterns '_*'
+zstyle ':completion:*:match:*'         original only
+zstyle ':completion:*:approximate:*'   max-errors 1 numeric
 
-zstyle ':completion:*:*:*:users'               ignored-patterns \
-                                                   bin daemon mail ftp http nobody dbus avahi named git bitlbee mpd \
-                                                   rtkit ntp usbmux gdm
+zstyle ':completion:*:*:*:users'       ignored-patterns \
+                                           bin daemon mail ftp http nobody dbus avahi named git bitlbee mpd \
+                                           rtkit ntp usbmux gdm
 
 # COMMANDS {{{1
 zstyle ':completion:*'                         list-colors "${(s.:.)LS_COLORS}"
