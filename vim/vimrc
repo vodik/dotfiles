@@ -181,3 +181,8 @@ let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 let g:pandoc_no_empty_implicits = 1
 let g:pandoc_no_spans = 1
 let g:pandoc_no_folding = 1
+
+" utilsnips config
+let g:UltiSnipsExpandTrigger="<c-j>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
