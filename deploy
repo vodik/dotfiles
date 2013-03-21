@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dotfiles=$PWD
+ROOT=$PWD
 
 ALL_OFF="$(tput sgr0)"
 BOLD="$(tput bold)"
@@ -32,7 +32,7 @@ link() {
   fi
 
   [[ -d "$target" ]] && rm "$target"
-  ln -fs "$dotfiles/$1" "$target"
+  ln -fs "$ROOT/$1" "$target"
 }
 
 # Deploy scriptlets {{{1
@@ -76,6 +76,8 @@ dotfiles_X() {
 }
 # }}}
 
+dotfiles=($(compgen -A function dotfiles_))
+
 usage() {
   cat << HERE
 Automated deploy function for dotfile syncronization.
@@ -83,9 +85,10 @@ Automated deploy function for dotfile syncronization.
 SUPPORTED:
 HERE
 
-  for fn in $(compgen -A function dotfiles_); do
+  for fn in ${dotfiles[@]}; do
     echo "${fn#dotfiles_}"
   done | column
+
   exit ${1:-0}
 }
 
@@ -105,7 +108,7 @@ deploy() {
 }
 
 if (( $# == 0 )); then
-  deploy $(compgen -A function dotfiles_)
+  deploy ${dotfiles[@]}
 elif [[ "$1" =~ -h|--help ]]; then
   usage 0
 else
