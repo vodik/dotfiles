@@ -178,7 +178,7 @@ noremap <silent> <leader>a, :Tabular /[^,]\+,<CR>
 
 " youcompleteme config
 let g:ycm_global_ycm_extra_conf = '~/.vim/ycm/c_conf.py'
-nnoremap <silent> <leader>d :YcmDiag<CR>
+nnoremap <silent> <leader>y :YcmDiag<CR>
 
 " pandoc config
 let g:pandoc_no_empty_implicits = 1
