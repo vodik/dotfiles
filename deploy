@@ -45,11 +45,6 @@ dotfiles_shell() {
   link shell/profile
 }
 
-dotfiles_task() {
-  link task/task
-  link task/taskrc
-}
-
 dotfiles_vim() {
   link vim
   link vim/vimrc

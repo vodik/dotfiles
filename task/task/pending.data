@@ -1,7 +1,0 @@
-[description:"Submit your journals" entry:"1341435149" priority:"H" project:"eng108d" status:"pending" uuid:"3e980a4a-82c0-4a86-8176-9a9930445d46"]
-[description:"Come up with thesis statement" entry:"1341435161" priority:"H" project:"eng108d" status:"pending" uuid:"35b3968a-9d1c-47cb-b3c1-c04427a48ec8"]
-[description:"Catch up on journals" entry:"1341435170" project:"eng108d" status:"pending" uuid:"376ed0f2-d7fa-4a8b-ac45-85ed553aba62"]
-[description:"Integrate new cli arg parser" entry:"1341435515" project:"pacrat" status:"pending" uuid:"aa7de395-68a4-4cbd-8baf-f78267d106ed"]
-[description:"Replace TopicSpace and Workspaces modules" entry:"1341435540" project:"xmonad" status:"pending" uuid:"2a8c8c46-00e8-4831-8bae-906a5139bd9f"]
-[description:"Rewrite topbar" entry:"1341437030" project:"xmonad" status:"pending" uuid:"2f45a39c-3848-413b-b16f-3da740d6626c"]
-[description:"Fix resizing issues" entry:"1341447337" project:"termite" status:"pending" uuid:"165db06c-0aa0-4433-81f5-4d62c9b6fd97"]
