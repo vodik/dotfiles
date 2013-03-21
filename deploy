@@ -85,10 +85,7 @@ Automated deploy function for dotfile syncronization.
 SUPPORTED:
 HERE
 
-  for fn in ${dotfiles[@]}; do
-    echo "${fn#dotfiles_}"
-  done | column
-
+  printf '%s\n' ${dotfiles[@]#dotfiles_} | column
   exit ${1:-0}
 }
 
