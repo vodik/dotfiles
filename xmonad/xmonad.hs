@@ -86,7 +86,8 @@ myLayoutRules sort tw =
 -- Rules {{{1
 myRules ws rect = manageDocks
     <> composeOne
-        [ workspaceShift ws
+        [ isDialog                        -?> idHook
+        , workspaceShift ws
         , role      =? "scratchpad"       -?> customFloating rect
         , className =? "Transmission-gtk" -?> doShift "work"
         , className =? "Steam"            -?> doFloat <> doIgnore
