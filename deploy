@@ -27,7 +27,7 @@ link() {
               || target="${2:-$target}"
 
   if [[ -e "$target" && ! -h "$target" ]]; then
-    warn "$target exists in filesyste"
+    warn "$target exists in filesystem"
     return
   fi
 
