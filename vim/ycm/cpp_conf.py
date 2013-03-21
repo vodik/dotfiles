@@ -20,17 +20,8 @@ flags = [
   '-fexceptions',
   '-DNDEBUG',
   '-DUSE_CLANG_COMPLETER',
-  '-std=c++11'
+  '-std=c++11',
   '-x', 'c++',
-  '-isystem', '../BoostParts',
-  '-isystem', '../llvm/include',
-  '-isystem', '../llvm/tools/clang/include',
-  '-I',       '.',
-  '-I',       './ClangCompleter',
-  '-isystem', './tests/gmock/gtest',
-  '-isystem', './tests/gmock/gtest/include',
-  '-isystem', './tests/gmock',
-  '-isystem', './tests/gmock/include'
 ]
 
 if compilation_database_folder:
@@ -82,14 +73,6 @@ def FlagsForFile( filename ):
             compilation_info.compiler_flags_,
             compilation_info.compiler_working_dir_ ),
         filename )
-
-    # NOTE: This is just for YouCompleteMe; it's highly likely that your project
-    # does NOT need to remove the stdlib flag. DO NOT USE THIS IN YOUR
-    # ycm_extra_conf IF YOU'RE NOT 100% YOU NEED IT.
-    try:
-      final_flags.remove( '-stdlib=libc++' )
-    except ValueError:
-      pass
   else:
     relative_to = DirectoryOfThisScript()
     final_flags = MakeRelativePathsInFlagsAbsolute( flags, relative_to )
