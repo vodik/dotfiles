@@ -5,19 +5,33 @@ dotfiles=$PWD
 ALL_OFF="$(tput sgr0)"
 BOLD="$(tput bold)"
 GREEN="${BOLD}$(tput setaf 2)"
+YELLOW="${BOLD}$(tput setaf 3)"
+RED="${BOLD}$(tput setaf 1)"
 WHITE="${BOLD}$(tput setaf 7)"
 
-die() {
-  echo >&2 "$1" && exit 1
+err() {
+  printf "${RED}error: ${ALL_OFF}${1}\n" >&2
+}
+
+warn() {
+  printf "${YELLOW}warning: ${ALL_OFF}${1}\n" >&2
+}
+
+msg() {
+  local mesg=$1; shift
+  printf "${GREEN}==> ${WHITE}${mesg}${ALL_OFF}\n" "$*" >&2
 }
 
 link() {
   [[ -z $2 ]] && target=".${1##*/}" \
               || target="${2:-$target}"
 
-  [[ -e "$target" && ! -h "$target" ]] && die "$0: $target exists in filesystem"
-  [[ -d "$target"                   ]] && rm "$target"
+  if [[ -e "$target" && ! -h "$target" ]]; then
+    warn "$target exists in filesyste"
+    return
+  fi
 
+  [[ -d "$target" ]] && rm "$target"
   ln -fs "$dotfiles/$1" "$target"
 }
 
@@ -62,11 +76,6 @@ dotfiles_X() {
 }
 # }}}
 
-msg() {
-  local mesg=$1; shift
-  printf "${GREEN}==> ${WHITE}${mesg}${ALL_OFF}\n" "$*" >&2
-}
-
 usage() {
   cat << HERE
 Automated deploy function for dotfile syncronization.
@@ -85,12 +94,12 @@ deploy() {
     fun=${1#dotfiles_}
 
     msg "Deploying $fun..."
-    (cd $HOME && dotfiles_$fun)
-
-    if [[ $? == 127 ]]; then
-      echo  >&2 "Error: don't know how to deploy \"$1\""
+    if ! declare -f dotfiles_$fun >/dev/null; then
+      err "don't know how to deploy \"$1\""
       usage >&2 1
     fi
+
+    (cd $HOME && dotfiles_$fun)
     shift
   done
 }
