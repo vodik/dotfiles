@@ -21,11 +21,6 @@ link() {
   ln -fs "$dotfiles/$1" "$target"
 }
 
-msg() {
-  local mesg=$1; shift
-  printf "${GREEN}==> ${WHITE}${mesg}${ALL_OFF}\n" "$*" >&2
-}
-
 # Deploy scriptlets {{{1
 dotfiles_cower()       { link cower .config/cower;                             }
 dotfiles_dircolors()   { link dircolors/dircolors;                             }
@@ -67,6 +62,11 @@ dotfiles_X() {
 }
 # }}}
 
+msg() {
+  local mesg=$1; shift
+  printf "${GREEN}==> ${WHITE}${mesg}${ALL_OFF}\n" "$*" >&2
+}
+
 usage() {
   cat << HERE
 Automated deploy function for dotfile syncronization.
@@ -75,7 +75,7 @@ SUPPORTED:
 HERE
 
   for fn in $(compgen -A function dotfiles_); do
-    echo "  ${fn#dotfiles_}"
+    echo "${fn#dotfiles_}"
   done | column
   exit ${1:-0}
 }
