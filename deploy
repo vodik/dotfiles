@@ -2,6 +2,11 @@
 
 dotfiles=$PWD
 
+ALL_OFF="$(tput sgr0)"
+BOLD="$(tput bold)"
+GREEN="${BOLD}$(tput setaf 2)"
+WHITE="${BOLD}$(tput setaf 7)"
+
 die() {
   echo >&2 "$1" && exit 1
 }
@@ -14,6 +19,11 @@ link() {
   [[ -d "$target"                   ]] && rm "$target"
 
   ln -fs "$dotfiles/$1" "$target"
+}
+
+msg() {
+  local mesg=$1; shift
+  printf "${GREEN}==> ${WHITE}${mesg}${ALL_OFF}\n" "$*" >&2
 }
 
 # Deploy scriptlets {{{1
@@ -66,13 +76,17 @@ HERE
 
   for fn in $(compgen -A function dotfiles_); do
     echo "  ${fn#dotfiles_}"
-  done
+  done | column
   exit ${1:-0}
 }
 
 deploy() {
   while (( $# )); do
-    cd && dotfiles_${1#dotfiles_}
+    fun=${1#dotfiles_}
+
+    msg "Deploying $fun..."
+    (cd $HOME && dotfiles_$fun)
+
     if [[ $? == 127 ]]; then
       echo  >&2 "Error: don't know how to deploy \"$1\""
       usage >&2 1
@@ -83,7 +97,7 @@ deploy() {
 
 if (( $# == 0 )); then
   deploy $(compgen -A function dotfiles_)
-elif [[ "$1" == "--help" ]]; then
+elif [[ "$1" =~ -h|--help ]]; then
   usage 0
 else
   deploy $*
