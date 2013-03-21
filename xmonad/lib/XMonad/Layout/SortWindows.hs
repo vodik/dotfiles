@@ -82,7 +82,7 @@ instance (LayoutClass l1 Window, LayoutClass l2 Window) => LayoutClass (SortLayo
         queryFilter (I (Just q)) ws = filterM (fmap getAny . runQuery q) ws
         queryFilter (I Nothing)  _  = return []
 
-    handleMessage sl@(SortLayout f ws1 ws2 name fill delta frac query l1 l2) m
+    handleMessage sl@(SortLayout _ _ _ name _ delta frac _ _ _) m
         | Just Shrink <- fromMessage m =
             let frac' = max 0 $ frac - delta
             in return . Just $ sl { mfrac = frac' }
