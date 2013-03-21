@@ -23,8 +23,8 @@ msg() {
 }
 
 link() {
+  local target="$2"
   [[ -z $2 ]] && target=".${1##*/}" \
-              || target="${2:-$target}"
 
   if [[ -e "$target" && ! -h "$target" ]]; then
     warn "$target exists in filesystem"
@@ -91,7 +91,7 @@ HERE
 
 deploy() {
   while (( $# )); do
-    fun=${1#dotfiles_}
+    local fun=${1#dotfiles_}
 
     msg "Deploying $fun..."
     if ! declare -f dotfiles_$fun >/dev/null; then
