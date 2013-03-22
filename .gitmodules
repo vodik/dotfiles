@@ -19,9 +19,6 @@
 [submodule "vim/bundle/html5-syntax"]
 	path = vim/bundle/html5-syntax
 	url = https://github.com/othree/html5-syntax.vim.git
-[submodule "vim/bundle/mw-utils"]
-	path = vim/bundle/mw-utils
-	url = https://github.com/MarcWeber/vim-addon-mw-utils.git
 [submodule "vim/bundle/nerdtree"]
 	path = vim/bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
@@ -46,9 +43,6 @@
 [submodule "vim/bundle/tagbar"]
 	path = vim/bundle/tagbar
 	url = https://github.com/majutsushi/tagbar.git
-[submodule "vim/bundle/tlib"]
-	path = vim/bundle/tlib
-	url = https://github.com/tomtom/tlib_vim.git
 [submodule "vim/bundle/tmux"]
 	path = vim/bundle/tmux
 	url = https://github.com/tsaleh/vim-tmux.git

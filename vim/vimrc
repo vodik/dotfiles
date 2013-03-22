@@ -6,7 +6,7 @@ set nocompatible
 
 filetype off
 runtime bundle/pathogen/autoload/pathogen.vim
-call pathogen#runtime_append_all_bundles()
+call pathogen#incubate()
 call pathogen#helptags()
 
 syntax on
@@ -182,8 +182,8 @@ nnoremap <silent> <leader>y :YcmDiag<CR>
 
 " pandoc config
 let g:pandoc_no_empty_implicits = 1
-let g:pandoc_no_spans           = 1
 let g:pandoc_no_folding         = 1
+let g:pandoc_use_hard_wraps     = 1
 
 " utilsnips config
 let g:UltiSnipsSnippetsDir         = "~/.vim/snippets"
