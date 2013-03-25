@@ -1,3 +1,6 @@
+bitlbee.AnnabelWinfield
+bitlbee.DennisCwik
+bitlbee.annabelwinfield
 bitlbee.david
 bitlbee.denniscwik
 bitlbee.pawi59
@@ -10,6 +13,7 @@ freenode.Tom^
 freenode.allanbrokeit
 freenode.falconindy
 freenode.geekosaur
+freenode.grawity
 freenode.gtmanfred
 freenode.ioni
 freenode.jelly1
