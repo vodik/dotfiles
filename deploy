@@ -1,7 +1,5 @@
 #!/bin/bash
 
-ROOT=$PWD
-
 ALL_OFF="$(tput sgr0)"
 BOLD="$(tput bold)"
 GREEN="${BOLD}$(tput setaf 2)"
@@ -32,51 +30,52 @@ link() {
   fi
 
   [[ -d "$target" ]] && rm "$target"
-  ln -fs "$ROOT/$1" "$target"
+  ln -fs "$root/$1" "$target"
 }
 
 # Deploy scriptlets {{{1
-dotfiles_cower()       { link cower .config/cower;                             }
-dotfiles_dircolors()   { link dircolors/dircolors;                             }
-dotfiles_fontconfig()  { link fontconfig .config/fontconfig;                   }
-dotfiles_git()         { link git/gitconfig;                                   }
-dotfiles_gtk2()        { link gtk-2.0/gtkrc-2.0;                               }
-dotfiles_gtk3()        { link gtk-3.0 .config/gtk-3.0;                         }
-dotfiles_haskell()     { link haskell/haskeline;                               }
-dotfiles_htop()        { link htop/htoprc;                                     }
-dotfiles_lxdm()        { link lxdm/dmrc;                                       }
-dotfiles_ncmpcpp()     { link ncmpcpp;                                         }
-dotfiles_mutt()        { link mutt;                                            }
-dotfiles_pam()         { link pam/pam_environment;                             }
-dotfiles_ranger()      { link ranger .config/ranger;                           }
-dotfiles_mpd()         { link mpd/mpd.conf .config/mpd.conf;                   }
-dotfiles_systemd()     { link systemd .config/systemd;                         }
-dotfiles_termite()     { link termite .config/termite;                         }
-dotfiles_tmux()        { link tmux/tmux.conf;                                  }
-dotfiles_user-dirs()   { link user-dirs/user-dirs.dirs .config/user-dirs.dirs; }
-dotfiles_vimperator()  { link vimperator/vimperatorrc;                         }
-dotfiles_weechat()     { link weechat;                                         }
-dotfiles_xmonad()      { link xmonad;                                          }
+df_cower()       { link cower .config/cower;                             }
+df_dircolors()   { link dircolors/dircolors;                             }
+df_fontconfig()  { link fontconfig .config/fontconfig;                   }
+df_git()         { link git/gitconfig;                                   }
+df_gtk2()        { link gtk-2.0/gtkrc-2.0;                               }
+df_gtk3()        { link gtk-3.0 .config/gtk-3.0;                         }
+df_haskell()     { link haskell/haskeline;                               }
+df_htop()        { link htop/htoprc;                                     }
+df_lxdm()        { link lxdm/dmrc;                                       }
+df_ncmpcpp()     { link ncmpcpp;                                         }
+df_mutt()        { link mutt;                                            }
+df_pam()         { link pam/pam_environment;                             }
+df_ranger()      { link ranger .config/ranger;                           }
+df_mpd()         { link mpd/mpd.conf .config/mpd.conf;                   }
+df_systemd()     { link systemd .config/systemd;                         }
+df_termite()     { link termite .config/termite;                         }
+df_tmux()        { link tmux/tmux.conf;                                  }
+df_user-dirs()   { link user-dirs/user-dirs.dirs .config/user-dirs.dirs; }
+df_vimperator()  { link vimperator/vimperatorrc;                         }
+df_weechat()     { link weechat;                                         }
+df_xmonad()      { link xmonad;                                          }
 
-dotfiles_shell() {
+df_shell() {
   link shell/zshrc
   link shell/zprofile
   link shell/profile
 }
 
-dotfiles_vim() {
+df_vim() {
   link vim
   link vim/vimrc
   link vim/gvimrc
 }
 
-dotfiles_X() {
+df_X() {
   link X/Xresources
   link X/xinitrc
 }
 # }}}
 
-dotfiles=($(compgen -A function dotfiles_))
+root=$PWD
+dotfiles=($(compgen -A function df_))
 
 usage() {
   cat << HERE
@@ -85,21 +84,21 @@ Automated deploy function for dotfile syncronization.
 SUPPORTED:
 HERE
 
-  printf '%s\n' ${dotfiles[@]#dotfiles_} | column
+  printf '%s\n' ${dotfiles[@]#df_} | column
   exit ${1:-0}
 }
 
 deploy() {
   while (( $# )); do
-    local fun=${1#dotfiles_}
+    local fun=${1#df_}
 
     msg "Deploying $fun..."
-    if ! declare -f dotfiles_$fun >/dev/null; then
+    if ! declare -f df_$fun >/dev/null; then
       err "don't know how to deploy \"$1\""
       usage >&2 1
     fi
 
-    (cd $HOME && dotfiles_$fun)
+    (cd $HOME && df_$fun)
     shift
   done
 }
