@@ -29,6 +29,8 @@
 [branch "upstream"]
 	remote = upstream
 	merge = master
+[remote "origin"]
+	fetch = +refs/pull/*/head:refs/remotes/origin/pull/*
 [sendemail]
 	smtpserver = smtp.gmail.com
 	smtpserverport = 587
