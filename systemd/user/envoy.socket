@@ -1,0 +1,5 @@
+[Socket]
+ListenStream=@/vodik/envoy
+
+[Install]
+WantedBy=sockets.target
