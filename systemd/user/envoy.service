@@ -7,5 +7,5 @@ StandardOutput=syslog
 StandardError=syslog
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=vodik.target
 Also=envoy.socket

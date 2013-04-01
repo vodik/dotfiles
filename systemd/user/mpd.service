@@ -7,3 +7,4 @@ ExecStop=/usr/bin/mpd --kill
 
 [Install]
 WantedBy=vodik.target
+Also=mpd.socket
