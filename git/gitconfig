@@ -23,6 +23,10 @@
 [alias]
 	co = checkout
 	br = branch
+	purr = pull --rebase
+	stat = status -sb
+	ignored = ls-files --others -i --exclude-standard
+	wipe = reset --hard HEAD
 [branch "master"]
 	remote = origin
 	merge = master
