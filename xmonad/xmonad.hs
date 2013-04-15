@@ -115,10 +115,11 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <> runOnce initHook
     <> setQuery "work" sort
     <> startService "notify"  "dunst"
+    <> startService "compton" compton
   where
-    initHook = do
-        spawn $ "nitrogen" :+ [ "--restore" ]
-        -- spawn "topbar"
+    compton  = "compton"  :+ [ "-cGb" ]
+    nitrogen = "nitrogen" :+ [ "--restore" ]
+    initHook = spawn nitrogen
 
 -- Keymap {{{1
 myKeys ws browser conf = mkKeymap conf $
