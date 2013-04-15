@@ -4,7 +4,7 @@
 
 colorscheme molokai
 
-set guifont=Envy\ Code\ R\ 9
+set guifont=Envy\ Code\ R\ 8
 set guioptions=agpi
 set guicursor=a:blinkon0
 set mousef
