@@ -15,10 +15,12 @@ freenode.falconindy
 freenode.geekosaur
 freenode.grawity
 freenode.gtmanfred
+freenode.heftig
 freenode.ioni
 freenode.jelly1
 freenode.meskarune
 freenode.sudokode
+freenode.td123
 freenode.thestinger
 freenode.tigrmesh
 freenode.zendeavor
