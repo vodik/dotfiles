@@ -61,3 +61,6 @@
 [submodule "vim/bundle/ultisnips"]
 	path = vim/bundle/ultisnips
 	url = https://github.com/SirVer/ultisnips.git
+[submodule "vim/bundle/multiple-cursors"]
+	path = vim/bundle/multiple-cursors
+	url = http://github.com/terryma/vim-multiple-cursors.git
