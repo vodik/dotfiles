@@ -133,7 +133,7 @@ myKeys ws browser conf = mkKeymap conf $
     -- scratchpads
     , ("M-`", namedScratchpadAction scratchpads "scratchpad")
     , ("M-v", namedScratchpadAction scratchpads "volume")
-    , ("M-n", spawn "gnome-control-center" :+ [ "network" ])
+    , ("M-n", spawn $ "gnome-control-center" :+ [ "network" ])
 
     -- quit, close or restart
     , ("M-S-q",   io exitSuccess)
