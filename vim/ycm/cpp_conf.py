@@ -15,8 +15,6 @@ flags = [
   '-Wall',
   '-Wextra',
   '-Werror',
-  '-Wno-long-long',
-  '-Wno-variadic-macros',
   '-fexceptions',
   '-DNDEBUG',
   '-DUSE_CLANG_COMPLETER',
