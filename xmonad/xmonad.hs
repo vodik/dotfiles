@@ -117,7 +117,7 @@ myStartupHook sort = setDefaultCursor xC_left_ptr
     <> startService "notify"  "dunst"
     <> startService "compton" compton
   where
-    compton  = "compton"  :+ [ "-cGb" ]
+    compton  = "compton"  :+ [ "-cGb", "--backend", "glx" ]
     nitrogen = "nitrogen" :+ [ "--restore" ]
     initHook = spawn nitrogen
 
