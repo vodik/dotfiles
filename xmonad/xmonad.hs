@@ -48,7 +48,7 @@ scratchpads =
     , NS "volume"     "pavucontrol" (className =? "Pavucontrol") nonFloating
     ]
   where
-    scratchpad = "TASK=show termite -r scratchpad"
+    scratchpad = "termite -r scratchpad -c ~/etc/xmonad/trans-config"
 
 tmuxSessions :: TmuxSessions
 tmuxSessions = [ TS "irc" "weechat-curses" ]
@@ -306,7 +306,7 @@ main = do
     -- let tweaks  = getTweaks machine
     let tweaks = defaultTweaks
         sort   = workspaceSort "work" machine
-        pos    = positionRationalRect 16 screen
+        pos    = positionRationalRect screen
         config = defaultConfig
             { manageHook         = myRules machine pos
             , handleEventHook    = docksEventHook <> fullscreenEventHook
