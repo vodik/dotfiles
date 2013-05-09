@@ -1,3 +1,4 @@
 Color = auto
+IgnoreRepo = vodik
 
 # vim: set noet syn=conf
