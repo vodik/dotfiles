@@ -41,4 +41,5 @@ usecc() {
     clang) export CC="clang" CXX="clang++"      ;;
     *)     echo >&2 "Compiler $cc unrecognized" ;;
   esac
+  echo "CC=$CC"
 }
