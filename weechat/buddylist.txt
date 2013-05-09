@@ -11,6 +11,7 @@ freenode.KaiSforza
 freenode.MrElendig
 freenode.Tom^
 freenode.allanbrokeit
+freenode.cinelli
 freenode.falconindy
 freenode.geekosaur
 freenode.grawity
