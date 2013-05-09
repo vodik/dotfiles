@@ -90,7 +90,7 @@ myRules ws rect = manageDocks
         , workspaceShift ws
         , role      =? "scratchpad"       -?> customFloating rect
         , className =? "Transmission-gtk" -?> doShift "work"
-        , className =? "Steam"            -?> doFloat <> doIgnore
+        , className =? "Steam"            -?> doFloat -- <> doIgnore
         , className =? "steam"            -?> doFullFloat
         ]
     <> composeOneCaught (insertPosition Below Newer)

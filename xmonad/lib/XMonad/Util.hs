@@ -50,12 +50,11 @@ applyUrgency color = withUrgencyHookC (BorderUrgencyHook color) conf
 getScreen :: IO Rectangle
 getScreen = openDisplay "" >>= fmap head . getScreenInfo
 
-positionRationalRect :: Rational -> Rectangle -> W.RationalRect
-positionRationalRect bh (Rectangle _ _ _ sh) =
-    let h  = (2 * fi sh / 5) - bh
-        ry = (fi sh - h - bh) / fi sh
+positionRationalRect :: Rectangle -> W.RationalRect
+positionRationalRect (Rectangle _ _ _ sh) =
+    let h  = (2 * fi sh / 5)
         rh = h / fi sh
-    in W.RationalRect 0 ry 1 rh
+    in W.RationalRect 0 0 1 rh
 
 fi :: (Integral a, Num b) => a -> b
 fi = fromIntegral
