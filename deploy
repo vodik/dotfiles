@@ -47,6 +47,7 @@ df_ncmpcpp()     { link ncmpcpp;                                         }
 df_mutt()        { link mutt;                                            }
 df_pam()         { link pam/pam_environment;                             }
 df_ranger()      { link ranger .config/ranger;                           }
+df_makepkg()     { link makepkg/makepkg.conf;                            }
 df_mpd()         { link mpd/mpd.conf .config/mpd.conf;                   }
 df_systemd()     { link systemd .config/systemd;                         }
 df_termite()     { link termite .config/termite;                         }
