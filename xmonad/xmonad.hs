@@ -57,7 +57,7 @@ myTerminal     = "termite"
 myBorderWidth  = 2
 myModMask      = mod4Mask
 
-xftFont        = "xft:Envy Code R:size=8"
+xftFont        = "xft:Envy Code R:size=9"
 colorBlack     = "#000000"
 colorGray      = "#484848"
 colorGrayAlt   = "#b8bcb8"
