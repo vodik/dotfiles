@@ -5,14 +5,18 @@
 *.pyc
 bin/*
 conky/*
-ncmpcpp/error.log
+gtk-3.0/bookmarks
 mutt/aliases
 mutt/gmail
 mutt/cache
+ncmpcpp/error.log
 ranger/__pycache__
 ranger/bookmarks
 ranger/history
 ranger/tagged
+vim/backups/*
+vim/tmp/*
+vim/undo/*
 weechat/irc.conf
 weechat/weechat.conf
 weechat/weeget
@@ -22,6 +26,3 @@ weechat/chanop_mode_cache.dat
 xmonad/xmonad-*-linux
 xmonad/xmonad.errors
 xmonad/history
-vim/backups/*
-vim/tmp/*
-vim/undo/*
