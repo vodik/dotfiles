@@ -15,9 +15,6 @@ export ABSROOT="$HOME/build/abs"
 [[ -d /srv/http/archlinux/vodik/os ]] && \
   hash -d repo=/srv/http/archlinux/vodik/os
 
-[[ $DESKTOP_SESSION != 'gnome' ]] && (( $UID != 0 && $+commands[envoy] )) && \
-  source <(envoy -t gpg-agent -p)
-
 [[ $TERM == xterm ]] && export TERM=xterm-256color
 
 case $TERM in
