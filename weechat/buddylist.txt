@@ -6,8 +6,8 @@ bitlbee.denniscwik
 bitlbee.pawi59
 bitlbee.tgoodlet
 freenode.Caleb
+freenode.Earnestly
 freenode.Goodboy
-freenode.KaiSforza
 freenode.MrElendig
 freenode.Tom^
 freenode.allanbrokeit
@@ -19,6 +19,7 @@ freenode.gtmanfred
 freenode.heftig
 freenode.ioni
 freenode.jelly1
+freenode.kaictl
 freenode.meskarune
 freenode.sudokode
 freenode.td123
