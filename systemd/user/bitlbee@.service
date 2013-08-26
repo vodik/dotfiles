@@ -1,0 +1,7 @@
+[Unit]
+Description=BitlBee Per-Connection Server
+After=syslog.target
+
+[Service]
+ExecStart=/usr/bin/bitlbee -I -c %h/.config/bitlbee.conf -d %h/.local/share/bitlbee
+StandardInput=socket
