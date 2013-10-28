@@ -23,7 +23,7 @@ au BufWriteCmd *.rtf setl readonly
 " CODING {{{1
 " ----------------------------
 au FileType vim             setl sw=2 ts=2 et
-au FileType c,cpp           setl cino=(0 et
+au FileType c,cpp,ragel     setl cino=(0 et
 au FileType html,xhtml,xml  setl sw=2 ts=2 et
 au FileType hamlet          setl sw=2 ts=2 et
 au FileType ruby            setl sw=2 ts=2 et
