@@ -48,7 +48,7 @@ scratchpads =
     , NS "volume"     "pavucontrol" (className =? "Pavucontrol") nonFloating
     ]
   where
-    scratchpad = "termite -r scratchpad -x 0.40"
+    scratchpad = "termite -r scratchpad"
 
 tmuxSessions :: TmuxSessions
 tmuxSessions = [ TS "irc" "weechat-curses" ]
