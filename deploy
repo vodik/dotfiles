@@ -43,8 +43,9 @@ df_gtk3()        { link gtk-3.0 .config/gtk-3.0;                         }
 df_haskell()     { link haskell/haskeline;                               }
 df_htop()        { link htop/htoprc;                                     }
 df_lxdm()        { link lxdm/dmrc;                                       }
-df_ncmpcpp()     { link ncmpcpp;                                         }
 df_mutt()        { link mutt;                                            }
+df_ncmpcpp()     { link ncmpcpp;                                         }
+df_openbox()     { link openbox .config/openbox;                         }
 df_pam()         { link pam/pam_environment;                             }
 df_ranger()      { link ranger .config/ranger;                           }
 df_makepkg()     { link makepkg/makepkg.conf;                            }
