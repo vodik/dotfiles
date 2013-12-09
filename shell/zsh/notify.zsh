@@ -1,4 +1,4 @@
-cmdignore=(vim top htop weechat-ncurses tmux git systemctl loginctl)
+cmdignore=(vim top htop ncmpcpp weechat-ncurses tmux git systemctl loginctl)
 
 function notify-send-precmd() {
   local retval=$?
