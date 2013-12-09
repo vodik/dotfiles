@@ -35,4 +35,4 @@ au FileType haskell,cabal   setl et
 " ----------------------------
 au FileType gitcommit,mail setl spell et fo+=ct
 au FileType plaintex,pod   setl spell et fo+=ct
-au FileType pandoc         setl spell et sw=2 ts=2 fo+=ct
+au FileType pandoc,tex     setl spell et sw=2 ts=2 fo+=ct
