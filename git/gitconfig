@@ -36,7 +36,7 @@
 [remote "origin"]
 	fetch = +refs/pull/*/head:refs/remotes/origin/pull/*
 [sendemail]
-	smtpserver = smtp.gmail.com
+	smtpserver = /usr/bin/msmtp
 	smtpserverport = 587
 	smtpencryption = tls
 	smtpuser = simongmzlj@gmail.com
