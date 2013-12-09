@@ -23,6 +23,7 @@ weechat/weeget
 weechat/*log*
 weechat/script/*
 weechat/chanop_mode_cache.dat
+seechar/ssl/*
 xmonad/xmonad-*-linux
 xmonad/xmonad.errors
 xmonad/history
