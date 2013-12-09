@@ -24,4 +24,5 @@ WINEARCH=win32
 WINDEBUG=-all
 WINEDLLOVERRIDES=winemenubuilder.exe=d
 
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/dbus/user_bus_socket
 # vim: ft=conf
