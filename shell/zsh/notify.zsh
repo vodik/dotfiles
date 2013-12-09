@@ -4,20 +4,19 @@ function notify-send-precmd() {
   local retval=$?
   local cmd_stat cmd_time
 
-  [[ -n $SSH_TTY ]] && return;
-  [[ -z $cmd ]] && return;
-  [[ ${cmdignore[(r)$cmd_basename]} == $cmd_basename ]] && return;
+  if [[ -z $SSH_TTY ]] && [[ -n $cmd ]] && [[ ${cmdignore[(r)$cmd_basename]} == $cmd_basename ]]; then
+    (( cmd_time = $(date +%s) - $cmd_start ))
+    (( $cmd_time < 10 )) && return;
 
-  (( cmd_time = $(date +%s) - $cmd_start ))
-  (( $cmd_time < 10 )) && return;
+    if (( $retval > 0 )); then
+      cmd_stat="returning $retval"
+    else
+      cmd_stat="successfully"
+    fi
 
-  if (( $retval > 0 )); then
-    cmd_stat="returning $retval"
-  else
-    cmd_stat="successfully"
+    notify-send -i utilities-terminal -u low "$cmd_basename completed $cmd_stat" "\"$cmd\" took $cmd_time seconds"
   fi
 
-  notify-send -i utilities-terminal -u low "$cmd_basename completed $cmd_stat" "\"$cmd\" took $cmd_time seconds"
   unset cmd cmd_basename cmd_start
 }
 
