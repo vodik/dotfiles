@@ -2,7 +2,7 @@ alias ls='ls -FNh --tabsize=0 --color=auto --show-control-chars --group-director
 alias ll='ls -l'
 alias la='ls -a'
 alias lla='ls -la'
-alias tree='tree -A'
+alias tree='tree -C'
 
 alias netcfg='sudo netcfg'
 alias netcfg-menu='sudo netcfg-menu'
