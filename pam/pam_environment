@@ -1,19 +1,16 @@
-# locale
-LANG=en_CA.utf8
-
 # default applications
-BROWSER=aurora
+BROWSER=firefox-developer-edition
 EDITOR=vim
 VISUAL=vim
 PAGER=less
 
 LESS=FRSX
-GREP_OPTIONS=--color=auto
 GREP_COLOR=4;1;31
 
 # use clang
 CC=clang
 CXX=clang++
+GCC_COLORS=error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01
 
 # sdl fix
 SDL_VIDEO_X11_DGAMOUSE=0
@@ -24,5 +21,4 @@ WINEARCH=win32
 WINDEBUG=-all
 WINEDLLOVERRIDES=winemenubuilder.exe=d
 
-DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/dbus/user_bus_socket
 # vim: ft=conf
