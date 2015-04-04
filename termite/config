@@ -1,52 +1,51 @@
 [options]
-resize_grip         = false
-scroll_on_output    = false
+resize_grip = false
+scroll_on_output = false
 scroll_on_keystroke = true
-audible_bell        = false
-visible_bell        = false
-mouse_autohide      = false
-dynamic_title       = true
-urgent_on_bell      = true
-clickable_url       = true
-font                = Envy Code R 9
-scrollback_lines    = 1000
-icon_name           = terminal
-#transparency        = 0.5
-cursor_blink        = off
-cursor_shape        = block
+audible_bell = false
+visible_bell = false
+mouse_autohide = false
+dynamic_title = true
+urgent_on_bell = true
+clickable_url = true
+font = Envy Code R 10
+scrollback_lines = 1000000
+icon_name = terminal
+cursor_blink = off
+cursor_shape = block
 
 [hints]
-font         = Envy Code R 7
-background   = #bf0040
-padding      = 1
+font = Envy Code R 7
+background = #bf0040
+padding = 1
 border_width = 2.5
-roundness    = 2.0
+roundness = 2.0
 
 [colors]
 foreground = #ddccbb
 background = #151515
 
 # black
-color0  = #3b3d3e
-color8  = #505354
+color0 = #3b3d3e
+color8 = #505354
 # red
-color1  = #f92672
-color9  = #ff5995
+color1 = #f92672
+color9 = #ff5995
 # green
-color2  = #6fb126
+color2 = #6fb126
 color10 = #b6e354
 # yellow
-color3  = #fd971f
+color3 = #fd971f
 color11 = #feed6c
 # blue
-color4  = #4682d0
+color4 = #4682d0
 color12 = #729fcf
 # magenta
-color5  = #5d38a9
+color5 = #5d38a9
 color13 = #9e6ffe
 # cyan
-color6  = #56c2d6
+color6 = #56c2d6
 color14 = #8cedff
 # white
-color7  = #ccccc6
+color7 = #ccccc6
 color15 = #f8f8f2
