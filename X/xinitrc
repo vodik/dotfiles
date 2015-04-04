@@ -1,5 +1,9 @@
 #!/bin/bash
 
+session() {
+  exec dbus-launch --exit-with-session "${@}"
+}
+
 cd
 case "$2" in
   gnome)
@@ -7,12 +11,12 @@ case "$2" in
   steam)
     openbox &
     nitrogen --restore
-    exec steam ;;
+    session steam ;;
   xbmc)
-    exec "$2" ;;
+    session "$2" ;;
   xmonad)
-    exec "$2" ;;
+    session "$2" ;;
   *)
     nitrogen --restore
-    exec "${2:-xmonad}" ;;
+    session "${2:-xmonad}" ;;
 esac
