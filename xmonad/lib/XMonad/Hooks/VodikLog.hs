@@ -44,7 +44,8 @@ dzenVodik conf xconf = do
     return xconf { logHook = logHook' }
 
 myDzen :: VodikConfig -> Executable
-myDzen conf = "dzen2" :+ [ "-y", "-16", "-h", "16"
+myDzen conf = "dzen2" :+ [ "-x", "1920", "-y", "0", "-h", "18"
+
                          , "-fn", dzenFont conf
                          , "-fg", dzenWhite conf
                          , "-bg", dzenBlack conf

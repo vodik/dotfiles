@@ -54,10 +54,10 @@ tmuxSessions :: TmuxSessions
 tmuxSessions = [ TS "irc" "weechat-curses" ]
 
 myTerminal     = "termite"
-myBorderWidth  = 2
+myBorderWidth  = 4
 myModMask      = mod4Mask
 
-xftFont        = "xft:Envy Code R:size=9"
+xftFont        = "xft:Envy Code R:size=10"
 colorBlack     = "#000000"
 colorGray      = "#484848"
 colorGrayAlt   = "#b8bcb8"
@@ -71,8 +71,8 @@ colorRed       = "#f54669"
 myLayoutRules sort tw =
     let tfull  = toggleLayouts . name "Triggered" $ noBorders Full
         tabs   = smartBorders $ tabbed shrinkText myTabTheme
-        tiled  = gaps 5 $ BalancedTall 2 step (11 % 20) [ 31 % 25 ]
-        mtiled = gaps 5 . Mirror $ BalancedTall (masterN tw) step (1/2) [ 31 % 25 ]
+        tiled  = gaps 7 $ BalancedTall 2 step (11 % 20) [ 31 % 25 ]
+        mtiled = gaps 7 . Mirror $ BalancedTall (masterN tw) step (1/2) [ 31 % 25 ]
         full   = noBorders Full
         name t = renamed [ PrependWords t ]
         step   = 1 % 50
