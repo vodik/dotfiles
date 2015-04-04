@@ -6,12 +6,12 @@ set nocompatible
 
 filetype off
 runtime bundle/pathogen/autoload/pathogen.vim
-call pathogen#incubate()
+call pathogen#infect('bundle/{}')
 call pathogen#helptags()
 
 syntax on
 filetype plugin indent on
-colorscheme diablo3
+colorscheme jellybeans
 
 " GENERAL {{{1
 " -----------------------------
@@ -81,7 +81,7 @@ set wildignore+=*.spl                          " compiled spell lists
 
 " backup
 set dir=~/.vim/tmp
-set backup   backupdir=~/.vim/backups
+set backup   backupdir=~/.vim/swap
 set undofile undodir=~/.vim/undo
 
 " AUTOCMDS {{{1
@@ -190,3 +190,15 @@ let g:UltiSnipsSnippetsDir         = "~/.vim/snippets"
 let g:UltiSnipsExpandTrigger       = "<c-j>"
 let g:UltiSnipsJumpForwardTrigger  = "<c-j>"
 let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list=1
+let g:syntastic_auto_loc_list=1
+let g:syntastic_check_on_open=1
+let g:syntastic_check_on_wq=0
+
+nnoremap <silent> <leader>cn :lnext<CR>
+nnoremap <silent> <leader>cp :lprev<CR>

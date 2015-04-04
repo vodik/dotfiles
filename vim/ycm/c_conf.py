@@ -19,6 +19,9 @@ flags = [
   '-DUSE_CLANG_COMPLETER',
   '-std=c99',
   '-x', 'c',
+  '-isystem', '/usr/local/include',
+  '-isystem', '/usr/bin/../lib/clang/3.5.0/include',
+  '-isystem', '/usr/include'
 ]
 
 if compilation_database_folder:

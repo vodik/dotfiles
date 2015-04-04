@@ -20,6 +20,12 @@ flags = [
   '-DUSE_CLANG_COMPLETER',
   '-std=c++11',
   '-x', 'c++',
+  '-isystem', '/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.9.2/../../../../include/c++/4.9.2',
+  '-isystem', '/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.9.2/../../../../include/c++/4.9.2/x86_64-unknown-linux-gnu',
+  '-isystem', '/usr/bin/../lib64/gcc/x86_64-unknown-linux-gnu/4.9.2/../../../../include/c++/4.9.2/backward',
+  '-isystem', '/usr/local/include',
+  '-isystem', '/usr/bin/../lib/clang/3.5.0/include',
+  '-isystem', '/usr/include'
 ]
 
 if compilation_database_folder:

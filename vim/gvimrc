@@ -4,12 +4,12 @@
 
 colorscheme molokai
 
-set guifont=Envy\ Code\ R\ 9
+set guifont=Envy\ Code\ R\ 10
 set guioptions=agpi
 set guicursor=a:blinkon0
 set mousef
 
-colorscheme molokai
+colorscheme jellybeans
 
 set lines=40
 set columns=90
