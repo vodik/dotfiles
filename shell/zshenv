@@ -1,0 +1,30 @@
+[[ ! -d ~/.cache/zsh ]] && mkdir -p ~/.cache/zsh
+HISTFILE=~/.cache/zsh/history
+HISTSIZE=10000
+SAVEHIST=10000
+HISTIGNORE=' '
+
+export GOPATH="$HOME/go"
+
+export LESS_TERMCAP_mb=$'\e[1m\e[32m'
+export LESS_TERMCAP_md=$'\e[1m\e[36m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[1m\e[33m\e[44m'
+export LESS_TERMCAP_se=$'\e[27m\e[0m'
+export LESS_TERMCAP_us=$'\e[4m\e[1m\e[37m'
+export LESS_TERMCAP_ue=$'\e[24m\e[0m'
+export LESS_TERMCAP_mr=$'\e[7m'
+export LESS_TERMCAP_mh=$'\e[2m'
+export GROFF_NO_SGR=1
+
+export BUILDAH_LAYERS=true
+export MISE_ENV_FILE=.env
+
+export MOZ_ENABLE_WAYLAND="1"
+
+export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
+export BROWSER="firefox-developer-edition"
+export PAGER="less"
+export EDITOR="nvim"
+
+export SUDO_PROMPT=$'\e[31mSUDO\e[m password for \e[34m%p\e[m: '

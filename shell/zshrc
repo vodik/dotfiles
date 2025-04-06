@@ -1,13 +1,12 @@
-autoload -U vcs_info
-autoload -U colors && colors
-autoload -U compinit && compinit
-autoload -U bashcompinit && bashcompinit
+autoload -Uz add-zsh-hook
+autoload -Uz vcs_info
+autoload -Uz colors && colors
+autoload -Uz compinit && compinit
+autoload -Uz bashcompinit && bashcompinit
 autoload zsh/terminfo
 
-HISTFILE=$HOME/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-HISTIGNORE=' '
+[[ ! -d ~/.cache/zsh ]] && mkdir -p ~/.cache/zsh
+compinit -d ~/.cache/zsh/zcompdump
 
 # smart urls
 autoload -U url-quote-magic
@@ -55,9 +54,6 @@ setopt bg_nice
 # zle
 unsetopt beep
 
-# prompt
-setopt prompt_subst
-
 #history
 setopt append_history \
   extended_history \
@@ -68,166 +64,52 @@ setopt append_history \
   inc_append_history \
   share_history
 
-export SUDO_PROMPT=$'\e[31mSUDO\e[m password for \e[34m%p\e[m: '
-export LESS_TERMCAP_mb=$'\e[01;31m' # begin blinking
-export LESS_TERMCAP_md=$'\e[01;31m' # begin bold
-export LESS_TERMCAP_me=$'\e[0m' # end mode
-export LESS_TERMCAP_so=$'\e[01;36m' # begin standout-mode
-export LESS_TERMCAP_se=$'\e[0m' # end standout-mode
-export LESS_TERMCAP_us=$'\e[00;36m' # begin underline
-export LESS_TERMCAP_ue=$'\e[0m' # end underline
-
-[[ -f ~/.dircolors ]] && \
-  source <(dircolors ~/.dircolors)
-
-# Arc bash completion
-source ~/.local/share/webapps/arcanist/resources/shell/bash-completion
-
-# {{{1 TERM
-[[ $TERM == xterm ]] && export TERM=xterm-256color
-case $TERM in
-  termite|vte*|xterm*|rxvt*)
-
-    function precmd {
-      print -Pn '\e];%n@%m %~\a'
-    }
-
-    function preexec {
-      local cmd=${1[(wr)^(*=*|sudo|ssh|-*)]}
-      print -Pn "\e];$cmd:q\a"
-    }
-
-    ;;
-esac
-# }}}
-
-# {{{1 ALIAS
-alias ls='ls -FNh --tabsize=0 --color=auto --show-control-chars --group-directories-first'
-alias ll='ls -l'
-alias la='ls -a'
-alias lla='ls -la'
-alias tree='tree -C'
-alias grep='grep --color=auto'
-# }}}
-
-# {{{1 FUNCTIONS
-# bg on empty line, push-input on non-empty line
-function fancy-ctrl-z {
-  if [[ $#BUFFER -eq 0 ]]; then
-    bg
-    zle redisplay
-  else
-    zle push-input
-  fi
-};
-
-function zle-line-init zle-keymap-select {
-  vimode="${${KEYMAP/vicmd/c}/(main|viins)/i}"
-  zle reset-prompt
-}
-
-zle -N fancy-ctrl-z
-zle -N zle-line-init
-zle -N zle-keymap-select
-# }}}
-
-# {{{1 KEYMAPPING
-# make zsh/terminfo work for terms with application and cursor modes
-case "$TERM" in
-  vte*|xterm*)
-    zle-line-init()   { zle-keymap-select; echoti smkx }
-    zle-line-finish() { echoti rmkx }
-    zle -N zle-line-init
-    zle -N zle-line-finish
-    ;;
-esac
+[[ -f ~/.dircolors ]] && source <(dircolors ~/.config/dircolors)
 
 # vi editing mode
 bindkey -v
 
-# shift-tab
-if [[ -n $terminfo[kcbt] ]]; then
-  bindkey "$terminfo[kcbt]" reverse-menu-complete
-fi
+bindkey "$terminfo[kdch1]" delete-char
+bindkey -M vicmd "$terminfo[kdch1]" vi-delete-char
 
-# do history expansion on space
-bindkey ' ' magic-space
+bindkey "$terminfo[kich1]" overwrite-mode
+bindkey -M vicmd "$terminfo[kich1]" vi-insert
 
-# delete
-if [[ -n $terminfo[kdch1] ]]; then
-  bindkey "$terminfo[kdch1]" delete-char
-  bindkey -M vicmd "$terminfo[kdch1]" vi-delete-char
-fi
+bindkey "$terminfo[khome]" vi-beginning-of-line
+bindkey -M vicmd "$terminfo[khome]" vi-beginning-of-line
 
-# insert
-if [[ -n $terminfo[kich1] ]]; then
-  bindkey "$terminfo[kich1]" overwrite-mode
-  bindkey -M vicmd "$terminfo[kich1]" vi-insert
-fi
+bindkey "$terminfo[kend]" vi-end-of-line
+bindkey -M vicmd "$terminfo[kend]" vi-end-of-line
 
-# home
-if [[ -n $terminfo[khome] ]]; then
-  bindkey "$terminfo[khome]" vi-beginning-of-line
-  bindkey -M vicmd "$terminfo[khome]" vi-beginning-of-line
-fi
-
-# end
-if [[ -n $terminfo[kend] ]]; then
-  bindkey "$terminfo[kend]" vi-end-of-line
-  bindkey -M vicmd "$terminfo[kend]" vi-end-of-line
-fi
-
-# backspace (and <C-h>)
-if [[ -n $terminfo[kbs] ]]; then
-  bindkey "$terminfo[kbs]" backward-delete-char
-  bindkey -M vicmd "$terminfo[kbs]" backward-char
-fi
+bindkey "$terminfo[kbs]" backward-delete-char
+bindkey -M vicmd "$terminfo[kbs]" backward-char
 
 bindkey '^H' backward-delete-char
 bindkey -M vicmd '^H' backward-char
 
-# page up (and <C-b> in vicmd)
-if [[ -n $terminfo[kpp] ]]; then
-  bindkey "$terminfo[kpp]" beginning-of-buffer-or-history
-  bindkey -M vicmd "$terminfo[kpp]" beginning-of-buffer-or-history
-fi
-
+bindkey "$terminfo[kpp]" beginning-of-buffer-or-history
+bindkey -M vicmd "$terminfo[kpp]" beginning-of-buffer-or-history
 bindkey -M vicmd '^B' beginning-of-buffer-or-history
 
-# page down (and <C-f> in vicmd)
-if [[ -n $terminfo[knp] ]]; then
-  bindkey "$terminfo[knp]" end-of-buffer-or-history
-  bindkey -M vicmd "$terminfo[knp]" end-of-buffer-or-history
-fi
-
+bindkey "$terminfo[knp]" end-of-buffer-or-history
+bindkey -M vicmd "$terminfo[knp]" end-of-buffer-or-history
 bindkey -M vicmd '^F' end-of-buffer-or-history
 
-# up arrow (history search)
-if [[ -n $terminfo[kcuu1] ]]; then
-  bindkey "$terminfo[kcuu1]" history-beginning-search-backward
-  bindkey -M vicmd "$terminfo[kcuu1]" history-beginning-search-backward
-fi
+bindkey "$terminfo[kcuu1]" history-beginning-search-backward
+bindkey -M vicmd "$terminfo[kcuu1]" history-beginning-search-backward
 
-bindkey '^[[A' history-beginning-search-backward
+bindkey "$terminfo[kcud1]" history-beginning-search-forward
+bindkey -M vicmd "$terminfo[kcud1]" history-beginning-search-forward
 
-# down arrow (history search)
-if [[ -n $terminfo[kcud1] ]]; then
-  bindkey "$terminfo[kcud1]" history-beginning-search-forward
-  bindkey -M vicmd "$terminfo[kcud1]" history-beginning-search-forward
-fi
+bindkey "$terminfo[kcub1]" backward-char
+bindkey -M vicmd "$terminfo[kcub1]" backward-char
 
-bindkey '^[[B' history-beginning-search-forward
+bindkey "$terminfo[kcuf1]" forward-char
+bindkey -M vicmd "$terminfo[kcuf1]" forward-char
 
-# left arrow (whichwrap)
-if [[ -n $terminfo[kcub1] ]]; then
-  bindkey "$terminfo[kcub1]" backward-char
-  bindkey -M vicmd "$terminfo[kcub1]" backward-char
-fi
-
-# right arrow (whichwrap)
-if [[ -n $terminfo[kcuf1] ]]; then
-  bindkey "$terminfo[kcuf1]" forward-char
-  bindkey -M vicmd "$terminfo[kcuf1]" forward-char
+# shift-tab
+if [[ -n $terminfo[kcbt] ]]; then
+  bindkey "$terminfo[kcbt]" reverse-menu-complete
 fi
 
 # shift-left
@@ -243,10 +125,20 @@ if [[ -n $terminfo[kRIT] ]]; then
 fi
 
 # ctrl-left
-bindkey '^[[1;5D' vi-backward-blank-word
-bindkey '^[[1;5C' vi-forward-blank-word
+if [[ -n $terminfo[kcub1] ]]; then
+  bindkey '^[[1;5D' vi-backward-blank-word
+fi
+
+# ctrl-right
+if [[ -n $terminfo[kcuf1] ]]; then
+  bindkey '^[[1;5C' vi-forward-blank-word
+fi
+
+bindkey ' ' magic-space
 bindkey '^i' expand-or-complete-prefix
 bindkey '^W' backward-kill-word
+bindkey '^w' push-line
+bindkey '^e' get-line
 
 bindkey -M vicmd 'h' backward-char
 bindkey -M vicmd 'l' forward-char
@@ -256,15 +148,21 @@ bindkey -M vicmd 'ga' what-cursor-position
 bindkey -M vicmd 'v' edit-command-line
 
 # fancy <C-z>
+# bg on empty line, push-input on non-empty line
+fancy-ctrl-z () {
+  if [[ $#BUFFER -eq 0 ]]; then
+    BUFFER="fg"
+    zle accept-line -w
+  else
+    zle push-input -w
+    zle clear-screen -w
+  fi
+}
+zle -N fancy-ctrl-z
+
 bindkey '^Z' fancy-ctrl-z
 bindkey -M vicmd '^Z' fancy-ctrl-z
 
-# buffer stack access
-bindkey '^w' push-line
-bindkey '^e' get-line
-# }}}
-
-# {{{1 ZSTYLE
 _force_rehash() {
   (( CURRENT = 1 )) && rehash
   return 1
@@ -295,21 +193,16 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*:match:*' original only
 zstyle ':completion:*:approximate:*' max-errors 1 numeric
 
-zstyle ':completion:*:*:*:users' ignored-patterns \
-                                           bin daemon mail ftp http nobody dbus avahi named git bitlbee mpd \
-                                           rtkit ntp usbmux gdm
-
-# COMMANDS {{{2
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:*:cd:*' tag-order local-directories directory-stack path-directories
 zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
 zstyle ':completion:*' squeeze-slashes true
 
 # vim zstyle
-zstyle ':completion:*:*:(vim|gvim):*:*files' ignored-patterns '*~|*.(old|bak|o|hi)'
-zstyle ':completion:*:*:(vim|gvim):*:*files' file-sort modification
-zstyle ':completion:*:*:(vim|gvim):*' file-sort modification
-zstyle ':completion:*:*:(vim|gvim):*' tag-order files
+zstyle ':completion:*:*:(vim|nvim|emacs):*:*files' ignored-patterns '*~|*.(old|bak|o|hi)'
+zstyle ':completion:*:*:(vim|nvim|emacs):*:*files' file-sort modification
+zstyle ':completion:*:*:(vim|nvim|emacs):*' file-sort modification
+zstyle ':completion:*:*:(vim|nvim|emacs):*' tag-order files
 
 # kill zstyle
 zstyle ':completion:*:*:kill:*' command 'ps -e -o pid,%cpu,tty,cputime,cmd'
@@ -328,14 +221,72 @@ zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipa
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-host' ignored-patterns '*.*' loopback localhost
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-domain' ignored-patterns '<->.<->.<->.<->' '^*.*' '*@*'
 zstyle ':completion:*:(ssh|scp|rsync):*:hosts-ipaddr' ignored-patterns '^<->.<->.<->.<->' '127.0.0.<->'
-# }}}
 
-# VCS {{{2
-zstyle ':vcs_info:*' enable git cvs svn
+zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:*' actionformats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{3}|%F{1}%a%F{5}]%f '
 zstyle ':vcs_info:*' formats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{5}]%f '
-zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{3}%r'
-# }}}1
+
+if hash just 2>/dev/null; then
+    _just_completion() {
+        [[ -f justfile ]] && reply=($(just --summary))
+    }
+    compctl -K _just_completion just
+fi
+
+[[ $TERM == xterm ]] && export TERM=xterm-256color
+case $TERM in
+  alacritty|foot|vte*|xterm*)
+    function precmd {
+      print -Pn '\e]2;%n@%m %~\a\e]133;A\e\\'
+    }
+
+    function preexec {
+      local cmd=${1[(wr)^(*=*|sudo|ssh|-*)]}
+      print -Pn "\e]2;$cmd:q\a"
+    }
+    ;;
+esac
+
+if [[ $INSIDE_EMACS = vterm ]]; then
+  function vterm_cmd {
+    printf "\e]51;E"
+    local r
+    while [[ $# -gt 0 ]]; do
+      r="${1//\\/\\\\}"
+      r="${r//\"/\\\"}"
+      printf '"%s" ' "$r"
+      shift
+    done
+    printf "\e\\"
+  }
+
+  function find_file {
+    vterm_cmd find-file "$(realpath "$@")"
+  }
+
+  function clear {
+    vterm_cmd vterm-clear-scrollback
+    tput clear
+  }
+fi
+
+function zle-line-init zle-keymap-select {
+  vimode="${${KEYMAP/vicmd/c}/(main|viins)/i}"
+  zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+# make zsh/terminfo work for terms with application and cursor modes
+case $TERM in
+  alacritty|foot|vte*|xterm*)
+    zle-line-init() { zle-keymap-select; echoti smkx }
+    zle-line-finish() { echoti rmkx }
+    zle -N zle-line-init
+    zle -N zle-line-finish
+    ;;
+esac
 
 function vcs_info_wrapper {
   vcs_info
@@ -344,13 +295,12 @@ function vcs_info_wrapper {
 
 PROMPT="%{$fg[red]%}%n%{$reset_color%}@%{$fg[blue]%}%m %{$fg[yellow]%}%1~%{$reset_color%}"'$(vcs_info_wrapper) $ '
 
-# Python :D
-venv() {
-  local activate=~/.python/$1/bin/activate
-  if [ -e "$activate" ] ; then
-    source "$activate"
-  else
-    echo "Error: Not found: $activate"
-  fi
-}
-venv27() { venv 27 ; }
+alias ls='ls -FNh --tabsize=0 --color=auto --show-control-chars --group-directories-first'
+alias ll='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias tree='tree -C'
+alias grep='grep --color=auto'
+alias ip='ip -c'
+
+source <(mise activate zsh)
