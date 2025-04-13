@@ -438,7 +438,8 @@
   :config
   (setq read-file-name-completion-ignore-case t
         read-buffer-completion-ignore-case t
-        completion-ignore-case t)
+        completion-ignore-case t
+        vertico-count 20)
   (setq vertico-cycle t)
   :general
   (:keymaps 'vertico-map
@@ -501,7 +502,9 @@
   :init
   (advice-add #'register-preview :override #'consult-register-window)
   :config
-  (setq consult-project-root-function #'projectile-project-root
+  (setq consult-fd-args "fd --hidden --full-path --color=never"
+        consult-ripgrep-args "rg --hidden --glob \!.git --null --line-buffered --color=never --max-columns=1000 --path-separator / --smart-case --no-heading --with-filename --line-number --search-zip"
+        consult-project-root-function #'projectile-project-root
         xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
   (consult-customize consult-find consult-fd :state (consult--file-preview))
@@ -699,11 +702,6 @@
   :straight t
   :mode ("\\.lua\\'")
   :interpreter ("lua" . lua-mode))
-
-;; GROOVY
-(use-package groovy-mode
-  :straight t
-  :mode ("Jenkinsfile\\'"))
 
 ;; WEB APIS
 (use-package verb :straight t)
@@ -1029,6 +1027,7 @@
 
 (use-package ox-rst :straight t :after ox)
 (use-package ox-gfm :straight t :after ox)
+(use-package ox-typst :straight (ox-typst :host github :repo "jmpunkt/ox-typst") :after ox)
 
 (use-package org-superstar
   :straight t
