@@ -290,7 +290,8 @@
   :general
   (:states 'normal
    :prefix "\\"
-   "tt" 'treemacs)
+   "tt" 'treemacs
+   "ts" 'treemacs-select-window)
   (:keymaps 'treemacs-mode-map
    [mouse-1] #'treemacs-single-click-expand-action))
 
