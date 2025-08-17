@@ -19,7 +19,7 @@
 (setq initial-buffer-choice nil
       inhibit-startup-screen t
       inhibit-startup-message t
-      select-enable-clipboard nil)
+      select-enable-clipboard t)
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -35,8 +35,15 @@
    (add-to-list 'default-frame-alist '(alpha-background . 97))))
 
 (set-face-attribute 'default nil :family "Iosevka SS10 Extended" :height 100)
+(set-face-attribute 'fixed-pitch nil :family "Iosevka SS10 Extended" :height 100)
 (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 100)
 
-;; Disable package.el in favor of straight.el
 (setq package-native-compile t
       package-enable-at-startup nil)
+
+(setq native-comp-jit-compilation t
+      native-comp-async-report-warnings-errors 'silent)
+
+(setq straight-check-for-modifications '(check-on-save find-when-checking))
+
+;;; early-init.el ends here
