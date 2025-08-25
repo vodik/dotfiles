@@ -1,9 +1,13 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
-(setq-default user-emacs-data-directory
-              (concat (getenv "HOME") "/.local/share/emacs"))
-(setq-default user-emacs-cache-directory
-              (concat (getenv "HOME") "/.cache/emacs"))
+(defvar user-emacs-data-directory
+  (expand-file-name "emacs/" (or (getenv "XDG_DATA_HOME") "~/.local/share")))
+(defvar user-emacs-cache-directory
+  (expand-file-name "emacs/" (or (getenv "XDG_CACHE_HOME") "~/.cache")))
+
+(dolist (dir (list user-emacs-data-directory user-emacs-cache-directory))
+  (unless (file-directory-p dir)
+    (make-directory dir t)))
 
 ;; Move customize system to a separate file to keep init.el clean
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -11,31 +15,29 @@
   (load custom-file 'noerror 'nomessage))
 
 ;;; Set up package system -- straight.el
-(defvar bootstrap-version)
-
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+(let ((bootstrap-version 5)
+      (bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
         (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq straight-recipes-gnu-elpa-use-mirror t)
-(setq straight-vc-git-default-clone-depth 1)
+(setq straight-recipes-gnu-elpa-use-mirror t
+      straight-vc-git-default-clone-depth 1
+      straight-use-package-by-default t)
 
 (require 'package)
-(setq straight-use-package-by-default t)
-(use-package diminish :straight t)
-(use-package general :straight t)
+(use-package diminish :demand t)
+(use-package general :demand t)
 
-;; PROJECT.EL - Workaround for https://github.com/radian-software/straight.el/issues/1146
+;; PROJECT.EL
+;; Defined first as workaround for https://github.com/radian-software/straight.el/issues/1146
 (use-package project
-  :straight t
   :defer t
   :custom
   (project-switch-commands
@@ -45,12 +47,7 @@
      (project-dired "Dired" ?D)
      (magit-project-status "Magit" ?g)
      (project-vterm "Vterm" ?v)))
-  :config
-  (defun project-vterm ()
-    "Open vterm in project root."
-    (interactive)
-    (let ((default-directory (project-root (project-current t))))
-      (vterm)))
+  (project-vc-extra-root-markers '(".project" "Cargo.toml" "package.json" "pyproject.toml" "requirements.txt" "go.mod"))
   :general
   (:states 'normal
    :prefix "\\"
@@ -79,7 +76,6 @@
 
 ;; EVIL
 (use-package evil
-  :straight t
   :init
   (setq evil-want-integration t
         evil-want-keybinding nil
@@ -107,21 +103,19 @@
    "j" 'evil-next-visual-line
    "k" 'evil-previous-visual-line)
   (:states 'insert
-   :keymaps 'prog-mode-map
-   "RET" 'comment-indent-new-line)
+   "C-<return>" 'comment-indent-new-line)
   (:prefix "\\" :states 'normal
    "x" 'delete-trailing-whitespace))
 
 (use-package evil-collection
-  :straight t
   :after evil
   :custom
   (evil-collection-setup-minibuffer t)
+  (evil-collection-key-blacklist '("\\" "C-c C-z"))
   :config
   (evil-collection-init))
 
 (use-package evil-textobj-tree-sitter
-  :straight t
   :after evil
   :general
   (:keymaps 'evil-outer-text-objects-map
@@ -143,20 +137,17 @@
    "[C" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "class.outer" t t))))
 
 (use-package evil-commentary
-  :straight t
   :diminish
   :after evil
   :config
   (evil-commentary-mode 1))
 
 (use-package evil-matchit
-  :straight t
   :after evil
   :config
   (global-evil-matchit-mode 1))
 
 (use-package evil-surround
-  :straight t
   :after evil
   :config
   (global-evil-surround-mode 1)
@@ -165,20 +156,16 @@
   (push '(?/ . ("/* " . " */")) evil-surround-pairs-alist))  ; Block comments
 
 (use-package evil-lion
-  :straight t
   :after evil
   :config
   (evil-lion-mode))
 
 ;; ORG MODE
 (use-package org
-  :straight t
   :defer t
   :mode (("\\.org\\'" . org-mode)
          ("\\.org_archive\\'" . org-mode))
-  :hook
-  ((org-mode . org-setup-fixed-pitch-faces)
-   (org-mode . variable-pitch-mode))
+  :hook (org-mode . variable-pitch-mode)
   :commands (org-capture)
   :custom
   (org-tags-column 0)
@@ -216,16 +203,15 @@
                         (?B :foreground "#da8548")
                         (?C :foreground "#0098dd")))
   :config
-  (defun org-setup-fixed-pitch-faces ()
-    "Set up fixed-pitch faces for org-mode code elements."
-    (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-block nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-verbatim nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-meta-line nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-document-info-keyword nil :inherit 'fixed-pitch))
+  ;; Set fixed-pitch faces for code elements when using variable-pitch-mode
+  (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-block nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-verbatim nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-meta-line nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-document-info-keyword nil :inherit 'fixed-pitch)
   (with-eval-after-load 'doom-themes
     (doom-themes-org-config))
   (require 'org-tempo)
@@ -233,8 +219,9 @@
                                '((python . t)
                                  (shell . t)
                                  (sql . t)))
+  (add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
   :general
-  ("C-c c" 'counsel-org-capture)
+  ("C-c c" 'org-capture)
   (:keymaps 'org-mode-map
    :states 'normal
    :prefix "\\"
@@ -244,7 +231,6 @@
    "ow" 'widen))
 
 (use-package evil-org
-  :straight t
   :after org
   :hook ((org-mode . evil-org-mode)
          (evil-org-mode . (lambda ()
@@ -257,18 +243,16 @@
    "C-o" 'evil-org-org-insert-heading-respect-content-below
    "C-S-o" 'evil-org-org-insert-todo-heading-respect-content-below))
 
-(use-package ox-rst :straight t :defer t :after org)
-(use-package ox-gfm :straight t :defer t :after org)
-(use-package ox-typst :straight (ox-typst :host github :repo "jmpunkt/ox-typst") :defer t :after org)
+(use-package ox-rst :defer t :after org)
+(use-package ox-gfm :defer t :after org)
+(use-package ox-typst :straight (:host github :repo "jmpunkt/ox-typst") :defer t :after org)
 
 (use-package org-superstar
-  :straight t
   :hook (org-mode . org-superstar-mode)
   :custom
   (org-superstar-headline-bullets-list '("⁖")))
 
 (use-package org-fancy-priorities
-  :straight t
   :hook (org-mode . org-fancy-priorities-mode)
   :custom
   (org-fancy-priorities-list '((?A . "❗")
@@ -277,7 +261,10 @@
 
 ;; DENOTE
 (use-package denote
-  :straight t
+  :defer t
+  :commands (denote denote-type denote-date denote-subdirectory denote-template
+             denote-link denote-find-link denote-backlinks denote-rename-file
+             denote-rename-file-using-front-matter)
   :hook ((dired-mode . denote-dired-mode)
          (find-file . denote-rename-buffer-mode))
   :custom
@@ -306,7 +293,6 @@
    "nR" 'denote-rename-file-using-front-matter))
 
 (use-package consult-notes
-  :straight t
   :after (denote consult)
   :custom
   (consult-notes-file-dir-sources
@@ -321,18 +307,17 @@
 
 ;; WHICH KEY
 (use-package which-key
-  :straight t
   :diminish
   :custom
   (which-key-add-column-padding 1)
-  (which-key-idle-delay 0.3)
+  (which-key-idle-delay 0.5)
   (which-key-max-display-columns nil)
   (which-key-min-display-lines 6)
   (which-key-side-window-slot -10)
   (which-key-sort-order #'which-key-prefix-then-key-order)
   (which-key-sort-uppercase-first nil)
-  :hook (after-init . which-key-mode)
   :config
+  (which-key-mode 1)
   (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
   (which-key-setup-side-window-bottom)
   ;; Add descriptive labels for leader key mappings
@@ -381,7 +366,6 @@
 
 ;; AVY
 (use-package avy
-  :straight t
   :defer t
   :commands avy-goto-char-timer
   :custom
@@ -401,23 +385,20 @@
 
 ;; Themes
 (use-package doom-themes
-  :straight t
   :custom
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
   :config
-  (load-theme 'doom-feather-dark t)
+  (load-theme 'doom-moonlight t)
   (doom-themes-visual-bell-config))
 
 (use-package catppuccin-theme
-  :straight t
   :defer t
   :commands (catppuccin-load-flavor load-theme)
   :custom
   (catppuccin-flavor 'frappe))
 
 (use-package ef-themes
-  :straight t
   :defer t
   :commands (ef-themes-select ef-themes-toggle load-theme)
   :custom
@@ -426,20 +407,17 @@
   (ef-themes-variable-pitch-ui t))
 
 (use-package nerd-icons
-  :straight t
   :defer t
   :custom
   (nerd-icons-scale-factor 1.0))
 
 (use-package nerd-icons-completion
-  :straight t
   :after marginalia nerd-icons
   :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
   :init
   (nerd-icons-completion-mode))
 
 (use-package doom-modeline
-  :straight t
   :custom
   (doom-modeline-github t)
   (doom-modeline-lsp t)
@@ -451,11 +429,10 @@
   (set-face-attribute 'mode-line-inactive nil :family "Iosevka Aile" :height 100))
 
 (use-package solaire-mode
-  :straight t
-  :hook (after-init . solaire-global-mode))
+  :config
+  (solaire-global-mode))
 
 (use-package writeroom-mode
-  :straight t
   :defer t
   :commands writeroom-mode
   :custom
@@ -485,13 +462,17 @@
           (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript.git" "master" "typescript/src"))
           (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))))
   :custom
-  (treesit-font-lock-level 4)
+  (treesit-font-lock-level 3)
   (treesit-simple-indent-prefer-node-types t)
   :config
-  (defun treesit-install-all-language-grammars () (interactive)
-         (dolist (lang treesit-language-source-alist)
-           (unless (treesit-language-available-p (car lang))
-             (treesit-install-language-grammar (car lang)))))
+  (defun treesit-install-all-language-grammars ()
+    "Install all configured tree-sitter language grammars."
+    (interactive)
+    (dolist (lang treesit-language-source-alist)
+      (unless (treesit-language-available-p (car lang))
+        (condition-case err
+            (treesit-install-language-grammar (car lang))
+          (error (message "Failed to install %s grammar: %s" (car lang) err))))))
   (setq major-mode-remap-alist
         '((bash-mode . bash-ts-mode)
           (c-mode . c-ts-mode)
@@ -509,11 +490,8 @@
           (typescript-mode . typescript-ts-mode)
           (yaml-mode . yaml-ts-mode)))
 
-  (with-eval-after-load 'python-ts-mode
-    (setq python-ts-mode-indent-offset 4))
-
-  (with-eval-after-load 'rust-ts-mode
-    (setq rust-ts-mode-indent-offset 4))
+  (with-eval-after-load 'c-ts-mode
+    (setq c-ts-mode-indent-offset 4))
 
   (with-eval-after-load 'js-ts-mode
     (setq js-indent-level 2
@@ -521,6 +499,9 @@
 
   (with-eval-after-load 'typescript-ts-mode
     (setq typescript-ts-mode-indent-offset 2))
+
+  (with-eval-after-load 'tsx-ts-mode
+    (setq tsx-ts-mode-indent-offset 2))
 
   (with-eval-after-load 'yaml-ts-mode
     (setq yaml-ts-mode-indent-offset 2)))
@@ -540,7 +521,7 @@
 
 ;; DIRVISH
 (use-package dirvish
-  :straight t
+  :commands (dirvish dirvish-side)
   :custom
   (dirvish-attributes '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
   (dirvish-cache-dir (concat user-emacs-cache-directory "/dirvish/"))
@@ -566,12 +547,13 @@
 
 ;; DELIMITERS
 (use-package rainbow-delimiters
-  :straight t
+  :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
 
 ;; VUNDO
 (use-package vundo
-  :straight t
+  :defer t
+  :commands vundo
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)
   (vundo-compact-display t)
@@ -592,7 +574,6 @@
 
 ;; SPELL CHECKING
 (use-package jinx
-  :straight t
   :hook (emacs-startup . global-jinx-mode)
   :general
   (:states 'normal
@@ -602,7 +583,8 @@
 
 ;; GIT
 (use-package magit
-  :straight t
+  :defer t
+  :commands (magit-status magit-dispatch magit-file-dispatch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (magit-format-file-function #'magit-format-file-nerd-icons)
@@ -614,18 +596,15 @@
    "G" #'magit-status))
 
 (use-package magit-todos
-  :straight t
   :after magit
   :hook (magit-mode . magit-todos-mode))
 
 (use-package forge
-  :straight t
   :after (magit evil-collection)
   :config
   (evil-collection-forge-setup))
 
 (use-package git-gutter-fringe
-  :straight t
   :defer t
   :config
   (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
@@ -633,15 +612,15 @@
   (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
 
 (use-package git-gutter
-  :straight t
+  :defer t
   :hook (prog-mode . git-gutter-mode)
   :config
   (require 'git-gutter-fringe))
 
-(use-package git-modes :straight t :defer t)
+(use-package git-modes :defer t)
 
 (use-package gitignore-templates
-  :straight t
+  :defer t
   :commands (gitignore-templates-insert
              gitignore-templates-new-file))
 
@@ -652,6 +631,7 @@
 
 (use-package indent-bars
   :straight (:host github :repo "jdtsmith/indent-bars")
+  :defer t
   :custom
   (indent-bars-color '(highlight :face-bg t :blend 0.2))
   (indent-bars-color-by-depth nil)
@@ -670,7 +650,6 @@
 
 ;; VERTICO
 (use-package vertico
-  :straight t
   :custom
   (completion-in-region-function #'consult-completion-in-region)
   (read-file-name-completion-ignore-case t)
@@ -685,7 +664,6 @@
 
 ;; MARGINALIA
 (use-package marginalia
-  :straight t
   :custom
   (marginalia-max-relative-age 0)
   (marginalia-align 'right)
@@ -696,7 +674,6 @@
 
 ;; ORDERLESS
 (use-package orderless
-  :straight t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
@@ -705,7 +682,6 @@
 
 ;; EMBARK
 (use-package embark
-  :straight t
   :custom
   (prefix-help-command #'embark-prefix-help-command)
   :config
@@ -729,7 +705,6 @@
 
 ;; CONSULT
 (use-package consult
-  :straight t
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   (advice-add #'register-preview :override #'consult-register-window)
@@ -757,13 +732,11 @@
    "sp" 'consult-yank-from-kill-ring))
 
 (use-package embark-consult
-  :straight t
   :after embark consult
   :demand t
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult-eglot
-  :straight t
   :after eglot consult
   :general
   (:prefix "\\"
@@ -772,12 +745,38 @@
 
 ;; EAT
 (use-package eat
-  :straight t
   :custom
-  (eat-kill-buffer-on-exit t))
+  (eat-kill-buffer-on-exit t)
+  :config
+  (evil-set-initial-state 'eat-mode 'insert)
+  (with-eval-after-load 'which-key
+    (which-key-add-keymap-based-replacements eat-mode-map
+      "C-c <escape>" "send ESC"
+      "C-c C-d" "send C-d"
+      "C-c C-c" "send C-c"
+      "C-c C-z" "send C-z"))
+  :general
+  (:keymaps 'eat-mode-map
+   "<escape>" 'eat-maybe-send-escape
+   "C-c <escape>" (lambda () (interactive) (eat-self-input 1 ?\e))
+   "C-c C-d" (lambda () (interactive) (eat-self-input 1 ?\C-d) (evil-insert-state))
+   "C-c C-c" (lambda () (interactive) (eat-self-input 1 ?\C-c) (evil-insert-state))
+   "C-c C-z" (lambda () (interactive) (eat-self-input 1 ?\C-z) (evil-insert-state))
+   "C-c C-t" 'eat-semi-char-mode)
+  (:keymaps 'eat-semi-char-mode-map
+   "C-c C-t" 'eat-char-mode)
+  (:keymaps 'eat-mode-map
+   :states 'normal
+   "p" 'eat-yank
+   "P" 'eat-yank)
+  (:keymaps 'eat-mode-map
+   :states 'insert
+   "C-y" 'eat-yank))
 
 (use-package claude-code-ide
   :straight (:host github :repo "manzaltu/claude-code-ide.el")
+  :defer t
+  :commands (claude-code-ide-menu claude-code-ide-send-prompt)
   :custom
   (claude-code-ide-terminal-backend 'eat)
   :config
@@ -789,7 +788,7 @@
    "C" 'claude-code-ide-send-prompt))
 
 ;; WGREP
-(use-package wgrep :straight t :defer t)
+(use-package wgrep :defer t)
 
 ;; CORFU
 (use-package corfu
@@ -804,14 +803,15 @@
   (corfu-quit-at-boundary nil)
   (corfu-quit-no-match t)
   (corfu-cycle t)
+  (corfu-on-exact-match 'quit)
+  (corfu-preselect 'prompt)
   (corfu-popupinfo-delay 0.5)
   (corfu-popupinfo-max-height 30)
-  :hook
-  ((after-init . global-corfu-mode)
-   (corfu-mode . corfu-popupinfo-mode)))
+  :hook (after-init . global-corfu-mode)
+  :config
+  (corfu-popupinfo-mode))
 
 (use-package kind-icon
-  :straight t
   :after corfu
   :custom
   (kind-icon-use-icons t)
@@ -823,7 +823,6 @@
 
 ;; CAPE
 (use-package cape
-  :straight t
   :after corfu
   :init
   (add-to-list 'completion-at-point-functions #'cape-file)
@@ -839,74 +838,65 @@
 
 ;; PRESCIENT
 (use-package prescient
-  :straight t
-  :hook (after-init . prescient-persist-mode))
+  :hook (after-init . prescient-persist-mode)
+  :custom
+  (prescient-save-file (expand-file-name "prescient-save.el" user-emacs-cache-directory)))
 
 (use-package corfu-prescient
-  :straight t
   :after corfu prescient
+  :hook (corfu-mode . corfu-prescient-mode)
   :custom
-  (corfu-prescient-enable-sorting t)
-  (corfu-prescient-override-sorting nil)
   (corfu-prescient-enable-filtering nil)
-  :hook (corfu-mode . corfu-prescient-mode))
+  (corfu-prescient-enable-sorting t)
+  (corfu-prescient-override-sorting t))
 
 (use-package vertico-prescient
-  :straight t
   :after vertico prescient
+  :hook (vertico-mode . vertico-prescient-mode)
   :custom
-  (vertico-prescient-enable-sorting t)
-  (vertico-prescient-override-sorting nil)
   (vertico-prescient-enable-filtering nil)
-  :hook (vertico-mode . vertico-prescient-mode))
+  (vertico-prescient-enable-sorting t)
+  (vertico-prescient-override-sorting t))
 
 ;; ELDOC
-(use-package eldoc :ensure nil :diminish)
+(use-package eldoc :straight (:type built-in) :diminish)
 
-(use-package eldoc-box :straight t :diminish)
+(use-package eldoc-box :diminish)
 
 ;; PYTHON
-(use-package python-mode
-  :straight t
+(use-package python-ts-mode
+  :straight (:type built-in)
   :mode ("\\.py\\'")
-  :interpreter (("python" . python-ts-mode))
+  :interpreter ("python" . python-ts-mode)
   :hook ((python-ts-mode . (lambda () (setq-local fill-column 88)))
-         (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t))))
-  :general
-  (:keymaps 'python-ts-mode-map
-   "TAB" #'py-indent-line))
+         (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 (use-package cython-mode
-  :straight t
   :mode ("\\.pyx\\'"))
 
 ;; GO
 (use-package go-mode
-  :straight t
   :mode ("\\.go\\'"))
 
 ;; RUST
 (use-package rust-mode
-  :straight t
   :mode ("\\.rs\\'")
-  :hook (rust-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t))))
+  :hook ((rust-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; HASKELL
 (use-package haskell-mode
-  :straight t
   :mode ("\\.l?hs\\'"))
 
 ;; ELIXIR
 (use-package elixir-ts-mode
-  :straight t
   :mode ("\\.ex\\'")
-  :hook ((elixir-ts-mode . eglot-ensure)
-         (elixir-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
+  :hook ((elixir-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; DOCKER
 (use-package dockerfile-mode
-  :straight t
-  :mode ("Dockerfile"))
+  :mode ("Dockerfile")
+  :hook ((dockerfile-ts-mode . (lambda () (setq-local tab-width 4) (setq-local standard-indent 4)))
+         (dockerfile-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; CONFIG
 (use-package conf-mode
@@ -920,11 +910,9 @@
 
 ;; PHP
 (use-package php-mode
-  :straight t
   :mode ("\\.php\\'"))
 
 (use-package web-mode
-  :straight t
   :mode (("\\.html\\'" . web-mode)
          ("\\.mustache\\'" . web-mode)
          ("\\.vue\\'" . web-mode)
@@ -935,44 +923,37 @@
 
 ;; HY
 (use-package hy-mode
-  :straight t
   :mode ("\\.hy\\'")
   :interpreter ("hy" . hy-mode))
 
 ;; SVELTE
 (use-package svelte-mode
-  :straight t
   :mode ("\\.svelte\\'"))
 
 ;; TYPESCRIPT
 (use-package typescript-mode
-  :straight t
   :mode ("\\.ts\\'"))
 
 ;; TERRAFORM
 (use-package terraform-mode
-  :straight t
   :mode ("\\.tf\\'")
   :hook (terraform-mode . terraform-format-on-save-mode))
 
 ;; LUA
 (use-package lua-mode
-  :straight t
   :mode ("\\.lua\\'")
   :interpreter ("lua" . lua-mode))
 
 ;; WEB APIS
-(use-package verb :straight t :defer t)
+(use-package verb :defer t)
 
-(use-package request :straight t :defer t)
+(use-package request :defer t)
 
 (use-package graphql-mode
-  :straight t
   :mode ("\\.gql\\'" "\\.graphql\\'"))
 
 ;; SNIPPETS
 (use-package yasnippet
-  :straight t
   :diminish yas-minor-mode
   :hook ((prog-mode . yas-minor-mode)
          (org-mode . yas-minor-mode))
@@ -991,12 +972,10 @@
    "C-c p" 'yas-prev-field))
 
 (use-package yasnippet-snippets
-  :straight t
   :defer t
   :after yasnippet)
 
 (use-package consult-yasnippet
-  :straight t
   :defer t
   :after (consult yasnippet)
   :general
@@ -1006,23 +985,22 @@
 
 ;; MISE
 (use-package mise
-  :straight t
   :hook (after-init . global-mise-mode))
 
 ;; LANGUAGE SERVER SUPPORT
 (use-package eglot
-  :straight t
   :defer t
   :hook (prog-mode . eglot-ensure)
   :config
-  (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls"))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls")))
   (setq-default eglot-workspace-configuration
                 '(:rust-analyzer (:procMacro (:enable t)
                                   :cargo (:allFeatures t
                                           :buildScripts (:enabled t)
                                           :loadOutDirsFromCheck t)
-                                  :checkOnSave t
-                                  :check (:command "clippy" :extraArgs ["--" "-W" "clippy::pedantic"])
+                                  :checkOnSave (:command "clippy"
+                                                :extraArgs ["--", "--all-targets"])
                                   :diagnostics (:experimental (:enable t))
                                   :imports (:granularity (:group "module"))
                                             :prefix "crate")
@@ -1050,7 +1028,8 @@
 
 ;; LLM
 (use-package gptel
-  :straight t
+  :defer t
+  :commands (gptel gptel-send gptel-menu)
   :custom
   (gptel-model "gpt-4o")
   (gptel-default-mode 'org-mode)
@@ -1074,7 +1053,8 @@
 
 ;; DAPE
 (use-package dape
-  :straight t
+  :defer t
+  :commands (dape dape-breakpoint-toggle)
   :custom
   (dape-buffer-window-arrangement 'right)
   :config
@@ -1100,7 +1080,6 @@
 
 ;; WHITE SPACE
 ;; (use-package ws-butler
-;;   :straight t
 ;;   :diminish
 ;;   :config
 ;;   (ws-butler-global-mode t)
@@ -1117,7 +1096,6 @@
   (:keymaps 'evil-window-map "u" 'winner-undo))
 
 (use-package ace-window
-  :straight t
   :defer t
   :commands ace-window
   :general
@@ -1125,45 +1103,37 @@
 
 ;; PKGBUILD
 (use-package pkgbuild-mode
-  :straight t
   :mode ("PKGBUILD\\'"))
 
 ;; MARKDOWN
 (use-package markdown-mode
-  :straight t
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)))
 
 ;; CONFIG FILES
-(use-package yaml-mode :straight t :mode ("\\.yml\\'" "\\.yaml\\'"))
-(use-package json-mode :straight t :mode ("\\.json\\'" "Pipfile\\.lock\\'"))
-(use-package toml-mode :straight t :mode ("\\.toml\\'" "Pipfile\\'"))
+(use-package yaml-mode :mode ("\\.yml\\'" "\\.yaml\\'"))
+(use-package json-mode :mode ("\\.json\\'" "Pipfile\\.lock\\'"))
+(use-package toml-mode :mode ("\\.toml\\'" "Pipfile\\'"))
 
 ;; JUST
-(use-package just-mode :straight t)
+(use-package just-mode)
 
-(use-package justl :straight t :defer t)
+(use-package justl :defer t)
 
 ;; GRPC
 (use-package protobuf-mode
-  :straight t
   :mode ("\\.proto\\'"))
 
 ;; SYSTEMD
 (use-package systemd
-  :straight t
   :mode ("\\.service\\'"
          "\\.socket\\'"
          "\\.mount\\'"
          "\\.device\\'"))
 
-
 ;; TERMINALS
 (use-package vterm
-  :straight t
-  :defer t
-  :commands (vterm vterm-other-window)
   :custom
   (vterm-always-compile-module t)
   (vterm-buffer-name-string "*vterm[%s]*")
@@ -1178,34 +1148,60 @@
                      ("find-file-other-window" find-file-other-window)
                      ("magit-status" magit-status)
                      ("recompile" recompile)
-                     ("update-pwd" (lambda (path) (setq default-directory path))))
-                     ("vterm-clear-scrollback" vterm-clear-scrollback))
+                     ("update-pwd" (lambda (path) (setq default-directory path)))
+                     ("vterm-clear-scrollback" vterm-clear-scrollback)))
   :config
   (evil-set-initial-state 'vterm-mode 'insert)
+  (with-eval-after-load 'which-key
+    (which-key-add-keymap-based-replacements vterm-mode-map
+      "C-c <escape>" "send ESC"
+      "C-c C-d" "send C-d"
+      "C-c C-c" "send C-c"
+      "C-c C-z" "send C-z"))
+
+  (defun vterm-display-buffer (buffer-name &optional directory)
+    "Create or get a vterm buffer with BUFFER-NAME and display it.
+If DIRECTORY is provided, use it as the default-directory."
+    (let* ((default-directory (or directory default-directory))
+           (buffer (get-buffer-create buffer-name)))
+      (with-current-buffer buffer
+        (unless (eq major-mode 'vterm-mode)
+          (vterm-mode)))
+      (select-window (display-buffer buffer))))
+
+  (defun project-vterm ()
+    "Open vterm in project root."
+    (interactive)
+    (let* ((project (project-current t))
+           (buffer-name (format "*vterm[%s]*" (project-name project))))
+      (vterm-display-buffer buffer-name (project-root project))))
 
   (defun vterm-here (&optional arg)
-    "Open vterm in project root or current directory.
-With prefix argument ARG, always create a new terminal."
+    "Open vterm in project root or current directory."
     (interactive "P")
-    (let* ((default-directory (or (when-let* ((proj (project-current)))
-                                    (project-root proj))
-                                  default-directory))
-           (vterm-buffer-name (if arg
-                                 (generate-new-buffer-name "*vterm*")
-                               "*vterm*")))
-      (pop-to-buffer (vterm))))
+    (let* ((directory (or (when-let* ((proj (project-current)))
+                           (project-root proj))
+                         default-directory))
+           (buffer-name (if arg
+                           (generate-new-buffer-name "*vterm*")
+                         "*vterm*")))
+      (vterm-display-buffer buffer-name directory)))
 
   (defun vterm-ask-directory ()
     "Open vterm in a directory you specify."
     (interactive)
-    (let ((default-directory (read-directory-name "Directory: ")))
-      (pop-to-buffer (vterm))))
+    (let ((directory (read-directory-name "Directory: "))
+          (buffer-name (generate-new-buffer-name "*vterm*")))
+      (vterm-display-buffer buffer-name directory)))
 
   :general
   (:keymaps 'vterm-mode-map
-   "C-c <escape>" 'vterm-send-escape
-   "C-c C-d" 'vterm-send-C-d
-   "C-c C-t" 'vterm-copy-mode)
+   "C-c <escape>" (lambda () (interactive) (vterm-send-key "<escape>"))
+   "C-c C-d" (lambda () (interactive) (vterm-send-key "d" nil nil t) (evil-insert-state))
+   "C-c C-c" (lambda () (interactive) (vterm-send-key "c" nil nil t) (evil-insert-state))
+   "C-c C-z" (lambda () (interactive) (vterm-send-key "z" nil nil t) (evil-insert-state))
+   "C-c C-t" 'vterm-copy-mode
+   "C-l" 'vterm-clear)
   (:keymaps 'vterm-mode-map
    :states 'normal
    "p" 'vterm-yank
@@ -1224,9 +1220,14 @@ With prefix argument ARG, always create a new terminal."
   :straight (:type built-in)
   :hook (compilation-filter . ansi-color-compilation-filter))
 
+(use-package page-break-lines
+  :diminish
+  :hook (after-init . global-page-break-lines-mode))
+
 ;; HELPFUL
 (use-package helpful
-  :straight t
+  :defer t
+  :commands (helpful-callable helpful-variable helpful-key helpful-command helpful-symbol helpful-function)
   :general
   ([remap describe-function] 'helpful-callable
    [remap describe-variable] 'helpful-variable
@@ -1241,21 +1242,6 @@ With prefix argument ARG, always create a new terminal."
    "hc" 'helpful-command
    "hs" 'helpful-symbol
    "hF" 'helpful-function))
-
-;; DASHBOARD
-(use-package dashboard
-  :straight t
-  :custom
-  (dashboard-startup-banner 'logo)
-  (dashboard-projects-backend 'project-el)
-  (dashboard-page-separator "\n\f\n")
-  :config
-  (dashboard-setup-startup-hook))
-
-(use-package page-break-lines
-  :straight t
-  :diminish
-  :hook (after-init . global-page-break-lines-mode))
 
 ;; LINE NUMBERS
 (use-package display-line-numbers
@@ -1277,8 +1263,25 @@ With prefix argument ARG, always create a new terminal."
   :custom
   (flymake-show-diagnostics-at-end-of-line 'fancy))
 
+(use-package autorevert
+  :straight (:type built-in)
+  :diminish auto-revert-mode
+  :hook (after-init . global-auto-revert-mode))
+
+(use-package savehist
+  :straight (:type built-in)
+  :hook (after-init . savehist-mode)
+  :custom
+  (savehist-file (expand-file-name "savehist" user-emacs-cache-directory)))
+
 (use-package emacs
-  :ensure nil
+  :straight (:type built-in)
+  :hook
+  ((after-init . (lambda ()
+                   (set-face-attribute 'default nil :family "Iosevka SS10 Extended" :height 100)
+                   (set-face-attribute 'fixed-pitch nil :family "Iosevka SS10 Extended" :height 100)
+                   (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 100)))
+   (text-mode . turn-on-visual-line-mode))
   :custom
   (ring-bell-function 'ignore)
   (indent-tabs-mode nil)
@@ -1292,31 +1295,41 @@ With prefix argument ARG, always create a new terminal."
   (comint-move-point-for-output t)
   (comint-input-ring-size 5000)
   (eshell-scroll-to-bottom-on-output t)
+
+  (window-sides-vertical t)
+
   (display-buffer-base-action
    '((display-buffer-reuse-window
       display-buffer-reuse-mode-window
       display-buffer-use-some-window)
      (reusable-frames . nil)
      (inhibit-same-window . nil)))
+
   (display-buffer-alist
-   '(("\\*\\(vterm\\|eat\\|eshell\\|shell\\|term\\).*\\*"
-      (display-buffer-in-side-window)
-      (side . bottom)
-      (slot . 0)
-      (window-height . 0.33)
-      (inhibit-same-window . t)
-      (mode . (vterm-mode eat-mode eshell-mode shell-mode term-mode))
-      (dedicated . t)
-      (window-parameters . ((no-other-window . t)
-                            (no-delete-other-windows . t))))
-     ("\\*\\(compilation\\|grep\\|ripgrep\\|Embark Export\\|Embark Collect\\|Occur\\).*\\*"
-      (display-buffer-at-bottom)
-      (window-height . 0.35)
+   '(((or (major-mode . vterm-mode)
+          (major-mode . eat-mode)
+          (major-mode . eshell-mode)
+          (major-mode . shell-mode)
+          (major-mode . term-mode))
+      (display-buffer-reuse-mode-window display-buffer-in-side-window)
+      (window-height . 0.20)
       (dedicated . t))
-     ("\\*\\(Help\\|helpful\\|Man\\|eldoc\\).*\\*"
+
+     ((or (major-mode . compilation-mode)
+          (major-mode . grep-mode)
+          (major-mode . occur-mode)
+          (major-mode . embark-collect-mode))
+      (display-buffer-reuse-mode-window display-buffer-at-bottom)
+      (window-height . 0.30)
+      (mode . (compilation-mode grep-mode occur-mode embark-collect-mode)))
+
+     ((or (major-mode . help-mode)
+          (major-mode . helpful-mode)
+          (major-mode . Man-mode)
+          "\\*[Ee]ldoc.*\\*")
       (display-buffer-in-side-window)
       (side . right)
-      (window-width . 0.35))))
+      (window-width . 0.25))))
   :config
   (show-paren-mode 1)
 
@@ -1344,22 +1357,12 @@ With prefix argument ARG, always create a new terminal."
     (unless (file-directory-p lock-file-dir)
       (mkdir lock-file-dir t))
     (setq lock-file-name-transforms
-          `((".*" ,lock-file-dir t)))))
+          `((".*" ,lock-file-dir t))))
 
-(global-auto-revert-mode t)
-
-(eval-after-load "auto-revert-mode"
-  '(diminish 'auto-revert-mode))
-
-(defun sort-lines-nocase ()
-  (interactive)
-  (let ((sort-fold-case t))
-    (call-interactively 'sort-lines)))
-
-(setenv "DOCKER_BUILDKIT" "1")
-(setenv "COMPOSE_DOCKER_CLI_BUILD" "1")
-
-(add-hook 'org-babel-after-execute-hook 'org-redisplay-inline-images)
-(add-hook 'text-mode-hook 'turn-on-visual-line-mode)
+  (defun sort-lines-nocase ()
+    "Sort lines case-insensitively."
+    (interactive)
+    (let ((sort-fold-case t))
+      (call-interactively 'sort-lines))))
 
 ;;; init.el ends here
