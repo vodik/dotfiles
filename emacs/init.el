@@ -14,6 +14,9 @@
 (when (file-exists-p custom-file)
   (load custom-file 'noerror 'nomessage))
 
+;; Auth sources - explicit security configuration
+(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
+
 ;;; Set up package system -- straight.el
 (let ((bootstrap-version 5)
       (bootstrap-file
@@ -27,13 +30,14 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq straight-recipes-gnu-elpa-use-mirror t
-      straight-vc-git-default-clone-depth 1
+(setq straight-vc-git-default-clone-depth 1
       straight-use-package-by-default t)
 
 (require 'package)
 (use-package diminish :demand t)
 (use-package general :demand t)
+
+(use-package transient :demand t)
 
 ;; PROJECT.EL
 ;; Defined first as workaround for https://github.com/radian-software/straight.el/issues/1146
@@ -41,13 +45,19 @@
   :defer t
   :custom
   (project-switch-commands
-   '((consult-fd "Find file" ?f)
+   '((project-consult-fd "Find file" ?f)
      (consult-ripgrep "Ripgrep" ?r)
      (project-find-dir "Find dir" ?d)
      (project-dired "Dired" ?D)
      (magit-project-status "Magit" ?g)
      (project-vterm "Vterm" ?v)))
-  (project-vc-extra-root-markers '(".project" "Cargo.toml" "package.json" "pyproject.toml" "requirements.txt" "go.mod"))
+  (project-vc-extra-root-markers '(".git" ".project" "Cargo.lock" "package.json" "pyproject.toml" "requirements.txt" "go.mod"))
+  :config
+  (defun project-consult-fd ()
+    "Run consult-fd with file preview in project context."
+    (interactive)
+    (let ((this-command 'consult-fd))
+      (consult-fd)))
   :general
   (:states 'normal
    :prefix "\\"
@@ -59,7 +69,6 @@
 ;; LIGATURES
 (use-package ligature
   :straight (:host github :repo "mickeynp/ligature.el")
-  :defer t
   :hook (prog-mode . ligature-mode)
   :config
   (ligature-set-ligatures
@@ -102,8 +111,8 @@
   (:states 'visual
    "j" 'evil-next-visual-line
    "k" 'evil-previous-visual-line)
-  (:states 'insert
-   "C-<return>" 'comment-indent-new-line)
+  ;; (:states 'insert
+  ;;  "C-<return>" 'comment-indent-new-line)
   (:prefix "\\" :states 'normal
    "x" 'delete-trailing-whitespace))
 
@@ -175,7 +184,7 @@
   (org-src-preserve-indentation nil)
   (org-src-window-setup 'other-window)
   (org-default-notes-file "~/notes/inbox.org")
-  (org-confirm-babel-evaluate nil)
+  (org-confirm-babel-evaluate t)
   (org-directory "~/notes")
   (org-odt-preferred-output-format "docx")
   (org-startup-indented t)
@@ -231,21 +240,20 @@
    "ow" 'widen))
 
 (use-package evil-org
-  :after org
   :hook ((org-mode . evil-org-mode)
          (evil-org-mode . (lambda ()
                             (evil-org-set-key-theme))))
   :config
   (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys)
-  :general
-  (:states 'normal
-   "C-o" 'evil-org-org-insert-heading-respect-content-below
-   "C-S-o" 'evil-org-org-insert-todo-heading-respect-content-below))
+  (evil-org-agenda-set-keys))
+  ;; :general
+  ;; (:states 'normal
+  ;;  "C-o" 'evil-org-org-insert-heading-respect-content-below
+  ;;  "C-S-o" 'evil-org-org-insert-todo-heading-respect-content-below))
 
-(use-package ox-rst :defer t :after org)
-(use-package ox-gfm :defer t :after org)
-(use-package ox-typst :straight (:host github :repo "jmpunkt/ox-typst") :defer t :after org)
+(use-package ox-rst :after org)
+(use-package ox-gfm :after org)
+(use-package ox-typst :straight (:host github :repo "jmpunkt/ox-typst") :after org)
 
 (use-package org-superstar
   :hook (org-mode . org-superstar-mode)
@@ -323,9 +331,14 @@
   ;; Add descriptive labels for leader key mappings
   (which-key-add-key-based-replacements
     "\\" "<leader>"
+    "\\a" "AI/agents"
+    "\\aa" "agent shell (claude code)"
+    "\\ac" "chatgpt shell"
+    "\\am" "swap model"
+    "\\ap" "prompt compose"
+    "\\as" "send region"
     "\\c" "code"
     "\\ca" "code actions"
-    "\\cc" "claude code"
     "\\cf" "format buffer"
     "\\cr" "rename"
     "\\d" "debug"
@@ -342,10 +355,6 @@
     "\\p" "projects"
     "\\pp" "project list"
     "\\pl" "project buffers"
-    "\\q" "AI/GPT"
-    "\\qb" "gptel buffer"
-    "\\qs" "send to AI"
-    "\\qS" "AI menu"
     "\\s" "search"
     "\\sa" "apropos"
     "\\sf" "find files"
@@ -366,7 +375,6 @@
 
 ;; AVY
 (use-package avy
-  :defer t
   :commands avy-goto-char-timer
   :custom
   (avy-background t)
@@ -393,13 +401,11 @@
   (doom-themes-visual-bell-config))
 
 (use-package catppuccin-theme
-  :defer t
   :commands (catppuccin-load-flavor load-theme)
   :custom
   (catppuccin-flavor 'frappe))
 
 (use-package ef-themes
-  :defer t
   :commands (ef-themes-select ef-themes-toggle load-theme)
   :custom
   (ef-themes-to-toggle '(ef-dark ef-light))
@@ -433,7 +439,6 @@
   (solaire-global-mode))
 
 (use-package writeroom-mode
-  :defer t
   :commands writeroom-mode
   :custom
   (writeroom-width 110))
@@ -455,6 +460,8 @@
           (json . ("https://github.com/tree-sitter/tree-sitter-json.git"))
           (markdown . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown.git" "split_parser" "tree-sitter-markdown/src"))
           (markdown_inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown.git" "split_parser" "tree-sitter-markdown-inline/src"))
+          (ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/ocaml/src"))
+          (ocaml_interface . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/interface/src"))
           (python . ("https://github.com/tree-sitter/tree-sitter-python.git"))
           (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby.git"))
           (rust . ("https://github.com/tree-sitter/tree-sitter-rust.git"))
@@ -488,7 +495,8 @@
           (ruby-mode . ruby-ts-mode)
           (rust-mode . rust-ts-mode)
           (typescript-mode . typescript-ts-mode)
-          (yaml-mode . yaml-ts-mode)))
+          (yaml-mode . yaml-ts-mode)
+          (tuareg-mode . tuareg-ts-mode)))
 
   (with-eval-after-load 'c-ts-mode
     (setq c-ts-mode-indent-offset 4))
@@ -547,12 +555,10 @@
 
 ;; DELIMITERS
 (use-package rainbow-delimiters
-  :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
 
 ;; VUNDO
 (use-package vundo
-  :defer t
   :commands vundo
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)
@@ -583,8 +589,6 @@
 
 ;; GIT
 (use-package magit
-  :defer t
-  :commands (magit-status magit-dispatch magit-file-dispatch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (magit-format-file-function #'magit-format-file-nerd-icons)
@@ -605,14 +609,12 @@
   (evil-collection-forge-setup))
 
 (use-package git-gutter-fringe
-  :defer t
   :config
   (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
   (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
 
 (use-package git-gutter
-  :defer t
   :hook (prog-mode . git-gutter-mode)
   :config
   (require 'git-gutter-fringe))
@@ -620,7 +622,6 @@
 (use-package git-modes :defer t)
 
 (use-package gitignore-templates
-  :defer t
   :commands (gitignore-templates-insert
              gitignore-templates-new-file))
 
@@ -631,7 +632,6 @@
 
 (use-package indent-bars
   :straight (:host github :repo "jdtsmith/indent-bars")
-  :defer t
   :custom
   (indent-bars-color '(highlight :face-bg t :blend 0.2))
   (indent-bars-color-by-depth nil)
@@ -773,43 +773,54 @@
    :states 'insert
    "C-y" 'eat-yank))
 
-(use-package claude-code-ide
-  :straight (:host github :repo "manzaltu/claude-code-ide.el")
+(use-package shell-maker)
+
+(use-package acp
+  :straight (:host github :repo "xenodium/acp.el"))
+
+(use-package agent-shell
+  :straight (:host github :repo "xenodium/agent-shell")
   :defer t
-  :commands (claude-code-ide-menu claude-code-ide-send-prompt)
-  :custom
-  (claude-code-ide-terminal-backend 'eat)
+  ;; FIXME: Disable jarring header with oversized icon (3x font height).
+  ;; Remove this hook once upstream makes icon size configurable.
+  :hook (agent-shell-mode . (lambda () (setq-local header-line-format nil)))
   :config
-  (claude-code-ide-emacs-tools-setup)
+  (setq agent-shell-anthropic-claude-environment
+        (agent-shell-make-environment-variables
+         "ANTHROPIC_AUTH_TOKEN" (or (getenv "ANTHROPIC_AUTH_TOKEN")
+                                    (auth-source-pick-first-password :host anthropic-host))
+         "ANTHROPIC_BASE_URL" anthropic-base-url))
   :general
   (:states 'normal
    :prefix "\\"
-   "cc" 'claude-code-ide-menu
-   "C" 'claude-code-ide-send-prompt))
+   "aa" 'agent-shell-anthropic-start-claude-code)
+  (:keymaps 'agent-shell-mode-map
+   "RET" 'newline
+   "C-<return>" 'shell-maker-submit))
 
 ;; WGREP
 (use-package wgrep :defer t)
 
 ;; CORFU
-(use-package corfu
-  :straight (:files (:defaults "extensions/*"))
-  :diminish
-  :after orderless
-  :custom
-  (corfu-auto t)
-  (corfu-auto-delay 0.25)
-  (corfu-auto-prefix 1)
-  (corfu-count 14)
-  (corfu-quit-at-boundary nil)
-  (corfu-quit-no-match t)
-  (corfu-cycle t)
-  (corfu-on-exact-match 'quit)
-  (corfu-preselect 'prompt)
-  (corfu-popupinfo-delay 0.5)
-  (corfu-popupinfo-max-height 30)
-  :hook (after-init . global-corfu-mode)
-  :config
-  (corfu-popupinfo-mode))
+;; (use-package corfu
+;;   :straight (:files (:defaults "extensions/*"))
+;;   :diminish
+;;   :after orderless
+;;   :custom
+;;   (corfu-auto t)
+;;   (corfu-auto-delay 0.25)
+;;   (corfu-auto-prefix 1)
+;;   (corfu-count 14)
+;;   (corfu-quit-at-boundary nil)
+;;   (corfu-quit-no-match t)
+;;   (corfu-cycle t)
+;;   (corfu-on-exact-match 'quit)
+;;   (corfu-preselect 'valid)
+;;   (corfu-popupinfo-delay 0.5)
+;;   (corfu-popupinfo-max-height 30)
+;;   :hook (after-init . global-corfu-mode)
+;;   :config
+;;   (corfu-popupinfo-mode))
 
 (use-package kind-icon
   :after corfu
@@ -856,7 +867,7 @@
   :custom
   (vertico-prescient-enable-filtering nil)
   (vertico-prescient-enable-sorting t)
-  (vertico-prescient-override-sorting t))
+  (vertico-prescient-override-sorting nil))
 
 ;; ELDOC
 (use-package eldoc :straight (:type built-in) :diminish)
@@ -868,7 +879,7 @@
   :straight (:type built-in)
   :mode ("\\.py\\'")
   :interpreter ("python" . python-ts-mode)
-  :hook ((python-ts-mode . (lambda () (setq-local fill-column 88)))
+  :hook ((python-ts-mode . (lambda () (setq-local fill-column 86)))
          (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 (use-package cython-mode
@@ -881,11 +892,19 @@
 ;; RUST
 (use-package rust-mode
   :mode ("\\.rs\\'")
-  :hook ((rust-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
+  :hook ((rust-ts-mode . (lambda () (setq-local fill-column 98)))
+         (rust-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; HASKELL
 (use-package haskell-mode
   :mode ("\\.l?hs\\'"))
+
+;; OCAML
+(use-package tuareg
+  :mode (("\\.ml\\'" . tuareg-mode)
+         ("\\.mli\\'" . tuareg-mode)
+         ("\\.mll\\'" . tuareg-mode)
+         ("\\.mly\\'" . tuareg-mode)))
 
 ;; ELIXIR
 (use-package elixir-ts-mode
@@ -945,9 +964,9 @@
   :interpreter ("lua" . lua-mode))
 
 ;; WEB APIS
-(use-package verb :defer t)
+(use-package verb)
 
-(use-package request :defer t)
+(use-package request)
 
 (use-package graphql-mode
   :mode ("\\.gql\\'" "\\.graphql\\'"))
@@ -972,11 +991,9 @@
    "C-c p" 'yas-prev-field))
 
 (use-package yasnippet-snippets
-  :defer t
   :after yasnippet)
 
 (use-package consult-yasnippet
-  :defer t
   :after (consult yasnippet)
   :general
   (:states 'normal
@@ -990,7 +1007,7 @@
 ;; LANGUAGE SERVER SUPPORT
 (use-package eglot
   :defer t
-  :hook (prog-mode . eglot-ensure)
+  :hook ((python-ts-mode rust-ts-mode go-ts-mode elixir-ts-mode typescript-ts-mode tsx-ts-mode c-ts-mode c++-ts-mode) . eglot-ensure)
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls")))
@@ -999,8 +1016,9 @@
                                   :cargo (:allFeatures t
                                           :buildScripts (:enabled t)
                                           :loadOutDirsFromCheck t)
-                                  :checkOnSave (:command "clippy"
-                                                :extraArgs ["--", "--all-targets"])
+                                  :check (:command "clippy"
+                                          :extraArgs ["--tests" "--" "-D" "warnings"])
+                                  :checkOnSave t
                                   :diagnostics (:experimental (:enable t))
                                   :imports (:granularity (:group "module"))
                                             :prefix "crate")
@@ -1023,33 +1041,45 @@
 (use-package breadcrumb
   :straight (:host github :repo "joaotavora/breadcrumb")
   :diminish
-  :defer t
   :hook (prog-mode . breadcrumb-mode))
 
 ;; LLM
-(use-package gptel
+(defvar anthropic-base-url (or (getenv "ANTHROPIC_BASE_URL") "https://api.anthropic.com"))
+(defvar anthropic-host
+  (if (string-match "^https?://\\([^/]+\\)" anthropic-base-url)
+      (match-string 1 anthropic-base-url)
+    "api.anthropic.com"))
+
+(use-package chatgpt-shell
   :defer t
-  :commands (gptel gptel-send gptel-menu)
+  :commands (chatgpt-shell chatgpt-shell-send-region chatgpt-shell-prompt-compose chatgpt-shell-swap-model)
   :custom
-  (gptel-model "gpt-4o")
-  (gptel-default-mode 'org-mode)
-  (gptel-prompt-prefix-alist
-   '((markdown-mode . "# ")
-     (org-mode . "* ")
-     (text-mode . "# ")))
+  (chatgpt-shell-openai-key
+   (lambda ()
+     (or (getenv "OPENAI_API_KEY")
+         (auth-source-pick-first-password :host "api.openai.com"))))
+  (chatgpt-shell-anthropic-key
+   (lambda ()
+     (or (getenv "ANTHROPIC_AUTH_TOKEN")
+         (auth-source-pick-first-password :host anthropic-host))))
+  (chatgpt-shell-anthropic-api-url-base anthropic-base-url)
+  (chatgpt-shell-ollama-api-url-base "http://localhost:11434")
+  (chatgpt-shell-model-version "claude-3-5-sonnet")
   :config
-  (gptel-make-ollama "Ollama"
-    :host "localhost:11434"
-    :stream t
-    :models '(deepseek-r1:7b
-              deepseek-r1:14b
-              deepseek-r1:32b))
+  (when (featurep 'chatgpt-shell-ollama)
+    (chatgpt-shell-ollama-load-models))
   :general
   (:states 'normal
    :prefix "\\"
-   "qb" 'gptel
-   "qs" 'gptel-send
-   "qS" 'gptel-menu))
+   "ac" 'chatgpt-shell
+   "am" 'chatgpt-shell-swap-model
+   "ap" 'chatgpt-shell-prompt-compose)
+  (:states 'visual
+   :prefix "\\"
+   "as" 'chatgpt-shell-send-region)
+  (:keymaps 'chatgpt-shell-mode-map
+   "RET" 'newline
+   "C-<return>" 'shell-maker-submit))
 
 ;; DAPE
 (use-package dape
@@ -1096,7 +1126,6 @@
   (:keymaps 'evil-window-map "u" 'winner-undo))
 
 (use-package ace-window
-  :defer t
   :commands ace-window
   :general
   (:keymaps 'evil-window-map "!" 'ace-window))
@@ -1117,9 +1146,9 @@
 (use-package toml-mode :mode ("\\.toml\\'" "Pipfile\\'"))
 
 ;; JUST
-(use-package just-mode)
+(use-package just-mode :defer t)
 
-(use-package justl :defer t)
+(use-package justl)
 
 ;; GRPC
 (use-package protobuf-mode
@@ -1226,7 +1255,6 @@ If DIRECTORY is provided, use it as the default-directory."
 
 ;; HELPFUL
 (use-package helpful
-  :defer t
   :commands (helpful-callable helpful-variable helpful-key helpful-command helpful-symbol helpful-function)
   :general
   ([remap describe-function] 'helpful-callable
@@ -1312,7 +1340,7 @@ If DIRECTORY is provided, use it as the default-directory."
           (major-mode . shell-mode)
           (major-mode . term-mode))
       (display-buffer-reuse-mode-window display-buffer-in-side-window)
-      (window-height . 0.20)
+      (window-height . 0.2)
       (dedicated . t))
 
      ((or (major-mode . compilation-mode)
@@ -1320,8 +1348,14 @@ If DIRECTORY is provided, use it as the default-directory."
           (major-mode . occur-mode)
           (major-mode . embark-collect-mode))
       (display-buffer-reuse-mode-window display-buffer-at-bottom)
-      (window-height . 0.30)
+      (window-height . 0.3)
       (mode . (compilation-mode grep-mode occur-mode embark-collect-mode)))
+
+     ((or (major-mode . agent-shell-mode)
+          (major-mode . chatgpt-shell-mode))
+      (display-buffer-reuse-mode-window display-buffer-pop-up-window)
+      (window-width . 0.2)
+      (window-height . 0.4))
 
      ((or (major-mode . help-mode)
           (major-mode . helpful-mode)
@@ -1344,7 +1378,7 @@ If DIRECTORY is provided, use it as the default-directory."
     (unless (file-directory-p backup-dir)
       (mkdir backup-dir t))
     (setq-default backup-directory-alist `(("." . ,backup-dir))))
-    
+
   (let* ((auto-save-dir (concat user-emacs-cache-directory "/auto-save/")))
     (unless (file-directory-p auto-save-dir)
       (mkdir auto-save-dir t))
@@ -1352,7 +1386,7 @@ If DIRECTORY is provided, use it as the default-directory."
           `((".*" ,auto-save-dir t)))
     (setq auto-save-list-file-prefix
           (concat auto-save-dir "session.")))
-    
+
   (let* ((lock-file-dir (concat user-emacs-cache-directory "/lock-files/")))
     (unless (file-directory-p lock-file-dir)
       (mkdir lock-file-dir t))

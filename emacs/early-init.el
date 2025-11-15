@@ -24,7 +24,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
-(blink-cursor-mode 0)
+(blink-cursor-mode -1)
 
 (pcase system-type
   ('darwin
@@ -34,6 +34,7 @@
    (add-to-list 'default-frame-alist '(alpha-background . 97))))
 
 (setq package-enable-at-startup nil
+      straight-cache-autoloads nil  ;; https://github.com/magit/magit/issues/5476
       native-comp-async-report-warnings-errors 'silent
       native-comp-jit-compilation t
       straight-check-for-modifications '(check-on-save find-when-checking))
