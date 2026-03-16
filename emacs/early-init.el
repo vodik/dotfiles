@@ -13,7 +13,7 @@
 
 (setq load-prefer-newer t)
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+(setq use-short-answers t)
 
 (setq initial-buffer-choice nil
       inhibit-startup-screen t

@@ -18,7 +18,7 @@
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
 ;;; Set up package system -- straight.el
-(let ((bootstrap-version 5)
+(let ((bootstrap-version 7)
       (bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
   (unless (file-exists-p bootstrap-file)
@@ -33,6 +33,7 @@
 (setq straight-vc-git-default-clone-depth 1
       straight-use-package-by-default t)
 
+;; Required for compatibility - some packages assume package.el is loaded
 (require 'package)
 (use-package diminish :demand t)
 (use-package general :demand t)
@@ -69,7 +70,6 @@
 ;; LIGATURES
 (use-package ligature
   :straight (:host github :repo "mickeynp/ligature.el")
-  :hook (prog-mode . ligature-mode)
   :config
   (ligature-set-ligatures
    'prog-mode
@@ -99,7 +99,6 @@
   (evil-ex-define-cmd "Quita[ll]" 'evil-quit-all)
   (evil-ex-define-cmd "Qa[ll]" "quitall")
   (evil-ex-define-cmd "bd[elete]" (lambda () (interactive) (kill-buffer)))
-  (define-key evil-motion-state-map "\\" nil)
   :general
   (:states 'normal
    "j" 'evil-next-visual-line
@@ -130,11 +129,11 @@
   (:keymaps 'evil-outer-text-objects-map
    "f" (evil-textobj-tree-sitter-get-textobj "function.outer")
    "c" (evil-textobj-tree-sitter-get-textobj "class.outer")
-   "a" (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
+   "o" (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
   (:keymaps 'evil-inner-text-objects-map
    "f" (evil-textobj-tree-sitter-get-textobj "function.inner")
    "c" (evil-textobj-tree-sitter-get-textobj "class.inner")
-   "a" (evil-textobj-tree-sitter-get-textobj ("conditional.inner" "loop.inner")))
+   "o" (evil-textobj-tree-sitter-get-textobj ("conditional.inner" "loop.inner")))
   (:keymaps 'evil-normal-state-map
    "]f" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer"))
    "]F" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer" nil t))
@@ -160,14 +159,33 @@
   :after evil
   :config
   (global-evil-surround-mode 1)
-  (push '(?` . ("`" . "'")) evil-surround-pairs-alist)  ; Markdown code
-  (push '(?$ . ("${" . "}")) evil-surround-pairs-alist)  ; Template literals
-  (push '(?/ . ("/* " . " */")) evil-surround-pairs-alist))  ; Block comments
+  (add-to-list 'evil-surround-pairs-alist '(?` . ("`" . "'")))   ; Markdown code
+  (add-to-list 'evil-surround-pairs-alist '(?$ . ("${" . "}")))  ; Template literals
+  (add-to-list 'evil-surround-pairs-alist '(?/ . ("/* " . " */")))) ; Block comments
 
 (use-package evil-lion
   :after evil
   :config
   (evil-lion-mode))
+
+(use-package evil-args
+  :after evil
+  :general
+  (:keymaps 'evil-inner-text-objects-map
+   "a" 'evil-inner-arg)
+  (:keymaps 'evil-outer-text-objects-map
+   "a" 'evil-outer-arg)
+  (:keymaps 'evil-normal-state-map
+   "L" 'evil-forward-arg
+   "H" 'evil-backward-arg)
+  (:keymaps 'evil-motion-state-map
+   "L" 'evil-forward-arg
+   "H" 'evil-backward-arg))
+
+(use-package evil-embrace
+  :after evil-surround
+  :config
+  (evil-embrace-enable-evil-surround-integration))
 
 ;; ORG MODE
 (use-package org
@@ -255,17 +273,28 @@
 (use-package ox-gfm :after org)
 (use-package ox-typst :straight (:host github :repo "jmpunkt/ox-typst") :after org)
 
-(use-package org-superstar
-  :hook (org-mode . org-superstar-mode)
-  :custom
-  (org-superstar-headline-bullets-list '("⁖")))
-
 (use-package org-fancy-priorities
   :hook (org-mode . org-fancy-priorities-mode)
   :custom
   (org-fancy-priorities-list '((?A . "❗")
                                (?B . "↑")
                                (?C . "↓"))))
+
+(use-package org-modern
+  :hook (org-mode . org-modern-mode)
+  :custom
+  (org-modern-star 'replace)
+  (org-modern-table nil)
+  (org-modern-keyword nil)
+  (org-modern-block-name nil))
+
+(use-package org-appear
+  :hook (org-mode . org-appear-mode)
+  :custom
+  (org-appear-autolinks t)
+  (org-appear-autosubmarkers t)
+  (org-appear-autoentities t)
+  (org-appear-autokeywords t))
 
 ;; DENOTE
 (use-package denote
@@ -332,7 +361,7 @@
   (which-key-add-key-based-replacements
     "\\" "<leader>"
     "\\a" "AI/agents"
-    "\\aa" "agent shell (claude code)"
+    "\\aa" "agent shell (opencode)"
     "\\ac" "chatgpt shell"
     "\\am" "swap model"
     "\\ap" "prompt compose"
@@ -424,15 +453,17 @@
   (nerd-icons-completion-mode))
 
 (use-package doom-modeline
+  :hook (after-init . doom-modeline-mode)
   :custom
   (doom-modeline-github t)
   (doom-modeline-lsp t)
   (doom-modeline-major-mode-icon t)
   (doom-modeline-major-mode-color-icon t)
-  :hook (after-init . doom-modeline-mode)
-  :config
-  (set-face-attribute 'mode-line nil :family "Iosevka Aile" :height 100)
-  (set-face-attribute 'mode-line-inactive nil :family "Iosevka Aile" :height 100))
+  (doom-modeline-modal-use-evil-tag t)
+  (doom-modeline-modal-icon nil))
+  ;; :config
+  ;; (set-face-attribute 'mode-line nil :family "Iosevka Aile" :height 100)
+  ;; (set-face-attribute 'mode-line-inactive nil :family "Iosevka Aile" :height 100))
 
 (use-package solaire-mode
   :config
@@ -513,8 +544,6 @@
 
   (with-eval-after-load 'yaml-ts-mode
     (setq yaml-ts-mode-indent-offset 2)))
-
-(add-to-list 'auto-mode-alist '("/\\.envrc.*" . bash-ts-mode))
 
 ;; EXPREG
 (use-package expreg
@@ -651,7 +680,6 @@
 ;; VERTICO
 (use-package vertico
   :custom
-  (completion-in-region-function #'consult-completion-in-region)
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   (completion-ignore-case t)
@@ -709,6 +737,7 @@
   :init
   (advice-add #'register-preview :override #'consult-register-window)
   :custom
+  (completion-in-region-function #'consult-completion-in-region)
   (consult-fd-args "fd --hidden --full-path --color=never")
   (consult-ripgrep-args "rg --hidden --glob \!.git --null --line-buffered --color=never --max-columns=1000 --path-separator / --smart-case --no-heading --with-filename --line-number --search-zip")
   (consult-project-function (lambda (_) (when-let* ((proj (project-current)))
@@ -781,46 +810,34 @@
 (use-package agent-shell
   :straight (:host github :repo "xenodium/agent-shell")
   :defer t
-  ;; FIXME: Disable jarring header with oversized icon (3x font height).
-  ;; Remove this hook once upstream makes icon size configurable.
-  :hook (agent-shell-mode . (lambda () (setq-local header-line-format nil)))
-  :config
-  (setq agent-shell-anthropic-claude-environment
-        (agent-shell-make-environment-variables
-         "ANTHROPIC_AUTH_TOKEN" (or (getenv "ANTHROPIC_AUTH_TOKEN")
-                                    (auth-source-pick-first-password :host anthropic-host))
-         "ANTHROPIC_BASE_URL" anthropic-base-url))
   :general
   (:states 'normal
    :prefix "\\"
-   "aa" 'agent-shell-anthropic-start-claude-code)
-  (:keymaps 'agent-shell-mode-map
-   "RET" 'newline
-   "C-<return>" 'shell-maker-submit))
+   "aa" 'agent-shell-opencode-start-agent))
 
 ;; WGREP
 (use-package wgrep :defer t)
 
 ;; CORFU
-;; (use-package corfu
-;;   :straight (:files (:defaults "extensions/*"))
-;;   :diminish
-;;   :after orderless
-;;   :custom
-;;   (corfu-auto t)
-;;   (corfu-auto-delay 0.25)
-;;   (corfu-auto-prefix 1)
-;;   (corfu-count 14)
-;;   (corfu-quit-at-boundary nil)
-;;   (corfu-quit-no-match t)
-;;   (corfu-cycle t)
-;;   (corfu-on-exact-match 'quit)
-;;   (corfu-preselect 'valid)
-;;   (corfu-popupinfo-delay 0.5)
-;;   (corfu-popupinfo-max-height 30)
-;;   :hook (after-init . global-corfu-mode)
-;;   :config
-;;   (corfu-popupinfo-mode))
+(use-package corfu
+  :straight (:files (:defaults "extensions/*"))
+  :diminish
+  :after orderless
+  :custom
+  (corfu-auto t)
+  (corfu-auto-delay 0.25)
+  (corfu-auto-prefix 3)
+  (corfu-count 14)
+  (corfu-quit-at-boundary nil)
+  (corfu-quit-no-match t)
+  (corfu-cycle t)
+  (corfu-on-exact-match 'quit)
+  (corfu-preselect 'valid)
+  (corfu-popupinfo-delay 0.5)
+  (corfu-popupinfo-max-height 30)
+  :hook (after-init . global-corfu-mode)
+  :config
+  (corfu-popupinfo-mode))
 
 (use-package kind-icon
   :after corfu
@@ -880,7 +897,7 @@
   :mode ("\\.py\\'")
   :interpreter ("python" . python-ts-mode)
   :hook ((python-ts-mode . (lambda () (setq-local fill-column 86)))
-         (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
+         (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t)))))
 
 (use-package cython-mode
   :mode ("\\.pyx\\'"))
@@ -892,8 +909,8 @@
 ;; RUST
 (use-package rust-mode
   :mode ("\\.rs\\'")
-  :hook ((rust-ts-mode . (lambda () (setq-local fill-column 98)))
-         (rust-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
+  :hook ((rust-mode . (lambda () (setq-local fill-column 98)))
+         (rust-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t)))))
 
 ;; HASKELL
 (use-package haskell-mode
@@ -909,13 +926,13 @@
 ;; ELIXIR
 (use-package elixir-ts-mode
   :mode ("\\.ex\\'")
-  :hook ((elixir-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
+  :hook (elixir-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t))))
 
 ;; DOCKER
 (use-package dockerfile-mode
   :mode ("Dockerfile")
-  :hook ((dockerfile-ts-mode . (lambda () (setq-local tab-width 4) (setq-local standard-indent 4)))
-         (dockerfile-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
+  :hook ((dockerfile-mode . (lambda () (setq-local tab-width 4) (setq-local standard-indent 4)))
+         (dockerfile-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t)))))
 
 ;; CONFIG
 (use-package conf-mode
@@ -964,9 +981,9 @@
   :interpreter ("lua" . lua-mode))
 
 ;; WEB APIS
-(use-package verb)
+(use-package verb :defer t)
 
-(use-package request)
+(use-package request :defer t)
 
 (use-package graphql-mode
   :mode ("\\.gql\\'" "\\.graphql\\'"))
@@ -1009,8 +1026,12 @@
   :defer t
   :hook ((python-ts-mode rust-ts-mode go-ts-mode elixir-ts-mode typescript-ts-mode tsx-ts-mode c-ts-mode c++-ts-mode) . eglot-ensure)
   :config
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls")))
+  (defun eglot-format-buffer-safe ()
+    "Format buffer if eglot is active."
+    (when (eglot-managed-p) (eglot-format)))
+
+  (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls"))
+
   (setq-default eglot-workspace-configuration
                 '(:rust-analyzer (:procMacro (:enable t)
                                   :cargo (:allFeatures t
@@ -1020,8 +1041,8 @@
                                           :extraArgs ["--tests" "--" "-D" "warnings"])
                                   :checkOnSave t
                                   :diagnostics (:experimental (:enable t))
-                                  :imports (:granularity (:group "module"))
-                                            :prefix "crate")
+                                  :imports (:granularity (:group "module")
+                                            :prefix "crate"))
                   :pylsp (:plugins (:jedi (:enabled t :include_params t :fuzzy t)
                                     :rope (:enabled t)
                                     :ruff (:enabled t :format ["I"])))))
@@ -1041,7 +1062,12 @@
 (use-package breadcrumb
   :straight (:host github :repo "joaotavora/breadcrumb")
   :diminish
-  :hook (prog-mode . breadcrumb-mode))
+  :hook (prog-mode . breadcrumb-mode)
+  :custom
+  (breadcrumb-project-max-length 0.3)
+  (breadcrumb-imenu-max-length 0.5)
+  (breadcrumb-project-crumb-separator "/")
+  (breadcrumb-imenu-crumb-separator " » "))
 
 ;; LLM
 (defvar anthropic-base-url (or (getenv "ANTHROPIC_BASE_URL") "https://api.anthropic.com"))
@@ -1076,10 +1102,7 @@
    "ap" 'chatgpt-shell-prompt-compose)
   (:states 'visual
    :prefix "\\"
-   "as" 'chatgpt-shell-send-region)
-  (:keymaps 'chatgpt-shell-mode-map
-   "RET" 'newline
-   "C-<return>" 'shell-maker-submit))
+   "as" 'chatgpt-shell-send-region))
 
 ;; DAPE
 (use-package dape
@@ -1148,7 +1171,7 @@
 ;; JUST
 (use-package just-mode :defer t)
 
-(use-package justl)
+(use-package justl :defer t)
 
 ;; GRPC
 (use-package protobuf-mode
@@ -1172,6 +1195,7 @@
   (vterm-max-scrollback 10000)
   (vterm-shell "zsh")
   (vterm-eval-cmds '(("compile" compile)
+                     ("dired" dired)
                      ("find-file" find-file)
                      ("find-file-other-frame" find-file-other-frame)
                      ("find-file-other-window" find-file-other-window)
@@ -1306,9 +1330,9 @@ If DIRECTORY is provided, use it as the default-directory."
   :straight (:type built-in)
   :hook
   ((after-init . (lambda ()
-                   (set-face-attribute 'default nil :family "Iosevka SS10 Extended" :height 100)
-                   (set-face-attribute 'fixed-pitch nil :family "Iosevka SS10 Extended" :height 100)
-                   (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 100)))
+                   (set-face-attribute 'default nil :family "Iosevka SS10 Extended" :height 110)
+                   (set-face-attribute 'fixed-pitch nil :family "Iosevka SS10 Extended" :height 110)
+                   (set-face-attribute 'variable-pitch nil :family "Iosevka Aile" :height 110)))
    (text-mode . turn-on-visual-line-mode))
   :custom
   (ring-bell-function 'ignore)
