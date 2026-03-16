@@ -375,6 +375,7 @@
     "\\dd" "start debugger"
     "\\g" "git dispatch"
     "\\G" "git status"
+    "\\L" "bufler switch buffers"
     "\\l" "list buffers"
     "\\o" "narrow"
     "\\ob" "narrow block"
@@ -396,6 +397,7 @@
     "\\u" "undo tree"
     "\\v" "vterm in project"
     "\\V" "vterm ask directory"
+    "\\w" "ace window"
     "\\x" "delete trailing whitespace"
     "\\." "embark act"
     "\\;" "embark dwim"
@@ -426,7 +428,7 @@
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
   :config
-  (load-theme 'doom-moonlight t)
+  ;; (load-theme 'doom-moonlight t)
   (doom-themes-visual-bell-config))
 
 (use-package catppuccin-theme
@@ -435,11 +437,13 @@
   (catppuccin-flavor 'frappe))
 
 (use-package ef-themes
-  :commands (ef-themes-select ef-themes-toggle load-theme)
+  ;; :commands (ef-themes-select ef-themes-toggle load-theme)
   :custom
   (ef-themes-to-toggle '(ef-dark ef-light))
   (ef-themes-mixed-fonts t)
-  (ef-themes-variable-pitch-ui t))
+  (ef-themes-variable-pitch-ui t)
+  :config
+  (load-theme 'ef-maris-dark t))
 
 (use-package nerd-icons
   :defer t
@@ -771,6 +775,16 @@
   (:prefix "\\"
    :states 'normal
    "ss" 'consult-eglot-symbols))
+
+;; BUFLER
+(use-package bufler
+  :custom
+  (bufler-groups-function #'bufler-groups-flat)
+  :config
+  (bufler-mode 1)
+  :general
+  (:prefix "\\" :states 'normal
+   "L" 'bufler-switch-buffer))
 
 ;; EAT
 (use-package eat
@@ -1150,8 +1164,17 @@
 
 (use-package ace-window
   :commands ace-window
+  :custom
+  (ace-window-display-mode 'avy)
   :general
-  (:keymaps 'evil-window-map "!" 'ace-window))
+  (:keymaps 'evil-window-map
+   "!" 'ace-window
+   "w" 'ace-window))
+
+(use-package ace-popup-menu
+  :after ace-window
+  :config
+  (ace-popup-menu-mode 1))
 
 ;; PKGBUILD
 (use-package pkgbuild-mode
