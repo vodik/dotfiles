@@ -9,16 +9,12 @@
   (unless (file-directory-p dir)
     (make-directory dir t)))
 
-;; Move customize system to a separate file to keep init.el clean
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file 'noerror 'nomessage))
 
-;; Auth sources - explicit security configuration
-(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
-
 ;;; Set up package system -- straight.el
-(let ((bootstrap-version 7)
+(let ((bootstrap-version 5)
       (bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
   (unless (file-exists-p bootstrap-file)
@@ -30,22 +26,12 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-(setq straight-vc-git-default-clone-depth 1
+(setq straight-recipes-gnu-elpa-use-mirror t
+      straight-vc-git-default-clone-depth 1
       straight-use-package-by-default t)
-
-(when (eq system-type 'darwin)
-  (use-package exec-path-from-shell
-    :demand t
-    :config
-    (dolist (var '("SSH_AUTH_SOCK" "SSH_AGENT_PID" "GPG_AGENT_INFO"
-                   "ANTHROPIC_BASE_URL" "ANTHROPIC_API_KEY"))
-      (add-to-list 'exec-path-from-shell-variables var))
-    (exec-path-from-shell-initialize)))
 
 (use-package diminish :demand t)
 (use-package general :demand t)
-
-(use-package transient :demand t)
 
 ;; PROJECT.EL
 ;; Defined first as workaround for https://github.com/radian-software/straight.el/issues/1146
@@ -58,64 +44,18 @@
      (project-find-dir "Find dir" ?d)
      (project-dired "Dired" ?D)
      (magit-project-status "Magit" ?g)
-     (project-vterm "Vterm" ?v)
-     (project-compile "Compile" ?c)))
-  (project-vc-extra-root-markers '(".project" "Cargo.lock" "package.json" "pyproject.toml" "requirements.txt" "go.mod"))
+     (project-vterm "Vterm" ?v)))
+  (project-vc-extra-root-markers '(".project" "Cargo.toml" "package.json" "pyproject.toml" "requirements.txt" "go.mod"))
   :config
   (defun project-consult-fd ()
     "Run consult-fd with file preview in project context."
     (interactive)
     (let ((this-command 'consult-fd))
       (consult-fd)))
-
-  (defun project-default-command (root kind)
-    "Detect the build system in ROOT and return a command for KIND."
-    (let ((has (lambda (f) (file-exists-p (expand-file-name f root)))))
-      (cond
-       ((funcall has "Cargo.toml")
-        (pcase kind (:compile "cargo check") (:test "cargo test")))
-       ((funcall has "go.mod")
-        (pcase kind (:compile "go build ./...") (:test "go test ./...")))
-       ((funcall has "pyproject.toml")
-        (pcase kind (:compile "uv build") (:test "uv run pytest")))
-       ((funcall has "setup.py")
-        (pcase kind (:compile "python setup.py build") (:test "python -m pytest")))
-       ((funcall has "package.json")
-        (let ((runner (cond
-                       ((funcall has "bun.lockb") "bun run")
-                       ((funcall has "pnpm-lock.yaml") "pnpm run")
-                       ((funcall has "yarn.lock") "yarn")
-                       (t "npm run"))))
-          (pcase kind
-            (:compile (concat runner " build"))
-            (:test (concat runner " test")))))
-       ((funcall has "mix.exs")
-        (pcase kind (:compile "mix compile") (:test "mix test")))
-       ((funcall has "CMakeLists.txt")
-        (pcase kind (:compile "cmake --build build") (:test "ctest --test-dir build")))
-       ((funcall has "justfile") "just")
-       (t "make -k"))))
-
-  (define-advice project-compile (:around (fn) detect-build-system)
-    "Set `compile-command' to a project-aware default before prompting."
-    (let* ((project (project-current t))
-           (default-directory (project-root project))
-           (compile-command (project-default-command default-directory :compile)))
-      (funcall fn)))
-
-  (defun project-test ()
-    "Run tests in the current project with a detected default command."
-    (interactive)
-    (let* ((project (project-current t))
-           (default-directory (project-root project))
-           (compile-command (project-default-command default-directory :test)))
-      (call-interactively #'compile)))
   :general
   (:states 'normal
    :prefix "\\"
-   "pp" '(project-switch-project :wk "project list")
-   "pc" '(project-compile :wk "compile")
-   "pt" '(project-test :wk "test")))
+   "pp" 'project-switch-project))
 
 (use-package recentf
   :hook (after-init . recentf-mode))
@@ -123,6 +63,8 @@
 ;; LIGATURES
 (use-package ligature
   :straight (:host github :repo "mickeynp/ligature.el")
+  :defer t
+  :hook (prog-mode . ligature-mode)
   :config
   (ligature-set-ligatures
    'prog-mode
@@ -152,21 +94,22 @@
   (evil-ex-define-cmd "Quita[ll]" 'evil-quit-all)
   (evil-ex-define-cmd "Qa[ll]" "quitall")
   (evil-ex-define-cmd "bd[elete]" (lambda () (interactive) (kill-buffer)))
+  (define-key evil-motion-state-map "\\" nil)
   :general
   (:states 'normal
-   "j" '(evil-next-visual-line :wk "next line")
-   "k" '(evil-previous-visual-line :wk "prev line")
-   "gr" '(xref-find-references :wk "find refs")
-   "gd" '(xref-find-definitions :wk "find def"))
+   "j" 'evil-next-visual-line
+   "k" 'evil-previous-visual-line
+   "gr" 'xref-find-references
+   "gd" 'xref-find-definitions)
   (:states 'motion
    "\\" nil)
   (:states 'visual
    "j" 'evil-next-visual-line
    "k" 'evil-previous-visual-line)
-  ;; (:states 'insert
-  ;;  "C-<return>" 'comment-indent-new-line)
+  (:states 'insert
+   "C-<return>" 'comment-indent-new-line)
   (:prefix "\\" :states 'normal
-   "x" '(delete-trailing-whitespace :wk "delete trailing ws")))
+   "x" 'delete-trailing-whitespace))
 
 (use-package evil-collection
   :after evil
@@ -178,30 +121,15 @@
 
 (use-package evil-textobj-tree-sitter
   :after evil
-  :config
-  ;; Upstream parameter query uses ","? syntax that Emacs treesit rejects
-  (defvar evil-textobj-tree-sitter-parameter-query
-    (let ((q "(parameters (_) @parameter.inner) @parameter.outer
-(argument_list (_) @parameter.inner) @parameter.outer"))
-      `((python-ts-mode . ,(concat q "\n(lambda_parameters (_) @parameter.inner) @parameter.outer"))
-        (rust-ts-mode . ,q)
-        (go-ts-mode . ,q)
-        (c-ts-mode . ,q)
-        (c++-ts-mode . ,q)
-        (typescript-ts-mode . ,(concat q "\n(formal_parameters (_) @parameter.inner) @parameter.outer"))
-        (tsx-ts-mode . ,(concat q "\n(formal_parameters (_) @parameter.inner) @parameter.outer"))
-        (elixir-ts-mode . "(arguments (_) @parameter.inner) @parameter.outer"))))
   :general
   (:keymaps 'evil-outer-text-objects-map
    "f" (evil-textobj-tree-sitter-get-textobj "function.outer")
    "c" (evil-textobj-tree-sitter-get-textobj "class.outer")
-   "a" (evil-textobj-tree-sitter-get-textobj "parameter.outer" evil-textobj-tree-sitter-parameter-query)
-   "o" (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
+   "a" (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
   (:keymaps 'evil-inner-text-objects-map
    "f" (evil-textobj-tree-sitter-get-textobj "function.inner")
    "c" (evil-textobj-tree-sitter-get-textobj "class.inner")
-   "a" (evil-textobj-tree-sitter-get-textobj "parameter.inner" evil-textobj-tree-sitter-parameter-query)
-   "o" (evil-textobj-tree-sitter-get-textobj ("conditional.inner" "loop.inner")))
+   "a" (evil-textobj-tree-sitter-get-textobj ("conditional.inner" "loop.inner")))
   (:keymaps 'evil-normal-state-map
    "]f" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer"))
    "]F" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "function.outer" nil t))
@@ -210,11 +138,7 @@
    "]c" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "class.outer"))
    "]C" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "class.outer" nil t))
    "[c" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "class.outer" t))
-   "[C" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "class.outer" t t))
-   "]a" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "parameter.inner" nil nil evil-textobj-tree-sitter-parameter-query))
-   "]A" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "parameter.inner" nil t evil-textobj-tree-sitter-parameter-query))
-   "[a" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "parameter.inner" t nil evil-textobj-tree-sitter-parameter-query))
-   "[A" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "parameter.inner" t t evil-textobj-tree-sitter-parameter-query))))
+   "[C" (lambda () (interactive) (evil-textobj-tree-sitter-goto-textobj "class.outer" t t))))
 
 (use-package evil-commentary
   :diminish
@@ -231,23 +155,20 @@
   :after evil
   :config
   (global-evil-surround-mode 1)
-  (add-to-list 'evil-surround-pairs-alist '(?` . ("`" . "'")))   ; Markdown code
-  (add-to-list 'evil-surround-pairs-alist '(?$ . ("${" . "}")))  ; Template literals
-  (add-to-list 'evil-surround-pairs-alist '(?/ . ("/* " . " */")))) ; Block comments
+  (push '(?` . ("`" . "'")) evil-surround-pairs-alist)  ; Markdown code
+  (push '(?$ . ("${" . "}")) evil-surround-pairs-alist)  ; Template literals
+  (push '(?/ . ("/* " . " */")) evil-surround-pairs-alist))  ; Block comments
 
 (use-package evil-lion
   :after evil
   :config
   (evil-lion-mode))
 
-(use-package evil-embrace
-  :after evil-surround
-  :config
-  (evil-embrace-enable-evil-surround-integration))
-
 ;; ORG MODE
 (use-package org
   :defer t
+  :mode (("\\.org\\'" . org-mode)
+         ("\\.org_archive\\'" . org-mode))
   :hook (org-mode . variable-pitch-mode)
   :commands (org-capture)
   :custom
@@ -258,7 +179,7 @@
   (org-src-preserve-indentation nil)
   (org-src-window-setup 'other-window)
   (org-default-notes-file "~/notes/inbox.org")
-  (org-confirm-babel-evaluate t)
+  (org-confirm-babel-evaluate nil)
   (org-directory "~/notes")
   (org-odt-preferred-output-format "docx")
   (org-startup-indented t)
@@ -308,26 +229,32 @@
   (:keymaps 'org-mode-map
    :states 'normal
    :prefix "\\"
-   "ob" '(org-narrow-to-block :wk "narrow block")
-   "os" '(org-narrow-to-subtree :wk "narrow subtree")
-   "oe" '(org-narrow-to-element :wk "narrow element")
-   "ow" '(widen :wk "widen")))
+   "ob" 'org-narrow-to-block
+   "os" 'org-narrow-to-subtree
+   "oe" 'org-narrow-to-element
+   "ow" 'widen))
 
 (use-package evil-org
+  :after org
   :hook ((org-mode . evil-org-mode)
          (evil-org-mode . (lambda ()
                             (evil-org-set-key-theme))))
   :config
   (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-  ;; :general
-  ;; (:states 'normal
-  ;;          "C-o" 'evil-org-org-insert-heading-respect-content-below
-  ;;          "C-S-o" 'evil-org-org-insert-todo-heading-respect-content-below))
+  (evil-org-agenda-set-keys)
+  :general
+  (:states 'normal
+   "C-o" 'evil-org-org-insert-heading-respect-content-below
+   "C-S-o" 'evil-org-org-insert-todo-heading-respect-content-below))
 
-(use-package ox-rst :after org)
-(use-package ox-gfm :after org)
-(use-package ox-typst :straight (:host github :repo "jmpunkt/ox-typst") :after org)
+(use-package ox-rst :defer t :after org)
+(use-package ox-gfm :defer t :after org)
+(use-package ox-typst :straight (:host github :repo "jmpunkt/ox-typst") :defer t :after org)
+
+(use-package org-superstar
+  :hook (org-mode . org-superstar-mode)
+  :custom
+  (org-superstar-headline-bullets-list '("⁖")))
 
 (use-package org-fancy-priorities
   :hook (org-mode . org-fancy-priorities-mode)
@@ -336,28 +263,12 @@
                                (?B . "↑")
                                (?C . "↓"))))
 
-(use-package org-modern
-  :hook (org-mode . org-modern-mode)
-  :custom
-  (org-modern-star 'replace)
-  (org-modern-table nil)
-  (org-modern-keyword nil)
-  (org-modern-block-name nil))
-
-(use-package org-appear
-  :hook (org-mode . org-appear-mode)
-  :custom
-  (org-appear-autolinks t)
-  (org-appear-autosubmarkers t)
-  (org-appear-autoentities t)
-  (org-appear-autokeywords t))
-
 ;; DENOTE
 (use-package denote
   :defer t
   :commands (denote denote-type denote-date denote-subdirectory denote-template
-                    denote-link denote-find-link denote-backlinks denote-rename-file
-                    denote-rename-file-using-front-matter)
+             denote-link denote-find-link denote-backlinks denote-rename-file
+             denote-rename-file-using-front-matter)
   :hook ((dired-mode . denote-dired-mode)
          (find-file . denote-rename-buffer-mode))
   :custom
@@ -374,16 +285,16 @@
   :general
   (:states 'normal
    :prefix "\\"
-   "nn" '(denote :wk "new note")
-   "nN" '(denote-type :wk "new (type)")
-   "nd" '(denote-date :wk "new (date)")
-   "ns" '(denote-subdirectory :wk "new (subdir)")
-   "nt" '(denote-template :wk "new (template)")
-   "nl" '(denote-link :wk "link note")
-   "nL" '(denote-find-link :wk "find link")
-   "nb" '(denote-backlinks :wk "backlinks")
-   "nr" '(denote-rename-file :wk "rename file")
-   "nR" '(denote-rename-file-using-front-matter :wk "rename (front-matter)")))
+   "nn" 'denote
+   "nN" 'denote-type
+   "nd" 'denote-date
+   "ns" 'denote-subdirectory
+   "nt" 'denote-template
+   "nl" 'denote-link
+   "nL" 'denote-find-link
+   "nb" 'denote-backlinks
+   "nr" 'denote-rename-file
+   "nR" 'denote-rename-file-using-front-matter))
 
 (use-package consult-notes
   :after (denote consult)
@@ -395,8 +306,8 @@
   :general
   (:states 'normal
    :prefix "\\"
-   "nf" '(consult-notes :wk "find notes")
-   "nF" '(consult-notes-search-in-all-notes :wk "search all notes")))
+   "nf" 'consult-notes
+   "nF" 'consult-notes-search-in-all-notes))
 
 ;; WHICH KEY
 (use-package which-key
@@ -412,16 +323,62 @@
   :config
   (which-key-mode 1)
   (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
-  (which-key-setup-side-window-bottom))
+  (which-key-setup-side-window-bottom)
+  ;; Add descriptive labels for leader key mappings
+  (which-key-add-key-based-replacements
+    "\\" "<leader>"
+    "\\c" "code"
+    "\\ca" "code actions"
+    "\\cai" "acp init"
+    "\\cas" "acp send"
+    "\\cc" "claude code"
+    "\\cf" "format buffer"
+    "\\cr" "rename"
+    "\\d" "debug"
+    "\\db" "toggle breakpoint"
+    "\\dd" "start debugger"
+    "\\g" "git dispatch"
+    "\\G" "git status"
+    "\\l" "list buffers"
+    "\\o" "narrow"
+    "\\ob" "narrow block"
+    "\\oe" "narrow element"
+    "\\os" "narrow subtree"
+    "\\ow" "widen"
+    "\\p" "projects"
+    "\\pp" "project list"
+    "\\pl" "project buffers"
+    "\\q" "AI/GPT"
+    "\\qb" "gptel buffer"
+    "\\qs" "send to AI"
+    "\\qS" "AI menu"
+    "\\s" "search"
+    "\\sa" "apropos"
+    "\\sf" "find files"
+    "\\sl" "search lines"
+    "\\so" "outline"
+    "\\sp" "paste from kill ring"
+    "\\sr" "ripgrep"
+    "\\ss" "symbols"
+    "\\t" "file tree"
+    "\\u" "undo tree"
+    "\\v" "vterm in project"
+    "\\V" "vterm ask directory"
+    "\\x" "delete trailing whitespace"
+    "\\." "embark act"
+    "\\;" "embark dwim"
+    "\\/" "search buffer"
+    "\\=" "format buffer"))
 
 ;; AVY
 (use-package avy
+  :defer t
   :commands avy-goto-char-timer
   :custom
   (avy-background t)
   :general
   (:states 'normal
-           "gs" '(avy-goto-char-timer :wk "goto char")))
+   "gs" 'avy-goto-char-timer))
 
 ;; SMOOTH SCROLLING
 (use-package pixel-scroll
@@ -438,22 +395,22 @@
   (doom-themes-enable-bold t)
   (doom-themes-enable-italic t)
   :config
-  (load-theme 'doom-feather-dark t)
+  (load-theme 'doom-moonlight t)
   (doom-themes-visual-bell-config))
 
 (use-package catppuccin-theme
+  :defer t
   :commands (catppuccin-load-flavor load-theme)
   :custom
   (catppuccin-flavor 'frappe))
 
 (use-package ef-themes
-  ;; :commands (ef-themes-select ef-themes-toggle load-theme)
+  :defer t
+  :commands (ef-themes-select ef-themes-toggle load-theme)
   :custom
   (ef-themes-to-toggle '(ef-dark ef-light))
   (ef-themes-mixed-fonts t)
   (ef-themes-variable-pitch-ui t))
-;; :config
-;; (load-theme 'ef-maris-dark t))
 
 (use-package nerd-icons
   :defer t
@@ -467,20 +424,22 @@
   (nerd-icons-completion-mode))
 
 (use-package doom-modeline
-  :hook (after-init . doom-modeline-mode)
   :custom
   (doom-modeline-github t)
   (doom-modeline-lsp t)
   (doom-modeline-major-mode-icon t)
   (doom-modeline-major-mode-color-icon t)
-  (doom-modeline-modal-use-evil-tag t)
-  (doom-modeline-modal-icon nil))
+  :hook (after-init . doom-modeline-mode)
+  :config
+  (set-face-attribute 'mode-line nil :family "Iosevka Aile" :height 100)
+  (set-face-attribute 'mode-line-inactive nil :family "Iosevka Aile" :height 100))
 
 (use-package solaire-mode
   :config
   (solaire-global-mode))
 
 (use-package writeroom-mode
+  :defer t
   :commands writeroom-mode
   :custom
   (writeroom-width 110))
@@ -488,29 +447,72 @@
 ;; TREE SITTER
 (use-package treesit
   :straight (:type built-in)
+  :init
+  (setq treesit-language-source-alist
+        '((bash . ("https://github.com/tree-sitter/tree-sitter-bash.git"))
+          (c . ("https://github.com/tree-sitter/tree-sitter-c.git"))
+          (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp.git"))
+          (css . ("https://github.com/tree-sitter/tree-sitter-css.git"))
+          (dockerfile . ("https://github.com/camdencheek/tree-sitter-dockerfile.git"))
+          (elixir . ("https://github.com/tree-sitter/tree-sitter-elixir.git"))
+          (go . ("https://github.com/tree-sitter/tree-sitter-go.git"))
+          (html . ("https://github.com/tree-sitter/tree-sitter-html.git"))
+          (javascript . ("https://github.com/tree-sitter/tree-sitter-javascript.git"))
+          (json . ("https://github.com/tree-sitter/tree-sitter-json.git"))
+          (markdown . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown.git" "split_parser" "tree-sitter-markdown/src"))
+          (markdown_inline . ("https://github.com/tree-sitter-grammars/tree-sitter-markdown.git" "split_parser" "tree-sitter-markdown-inline/src"))
+          (python . ("https://github.com/tree-sitter/tree-sitter-python.git"))
+          (ruby . ("https://github.com/tree-sitter/tree-sitter-ruby.git"))
+          (rust . ("https://github.com/tree-sitter/tree-sitter-rust.git"))
+          (tsx . ("https://github.com/tree-sitter/tree-sitter-typescript.git" "master" "tsx/src"))
+          (typescript . ("https://github.com/tree-sitter/tree-sitter-typescript.git" "master" "typescript/src"))
+          (yaml . ("https://github.com/ikatyang/tree-sitter-yaml"))))
   :custom
-  (treesit-enabled-modes t)
-  (treesit-auto-install-grammar 'always)
   (treesit-font-lock-level 3)
-  (treesit-language-source-alist
-   '((ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/ocaml/src"))
-     (ocaml_interface . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/interface/src"))))
-  (major-mode-remap-alist
-   '((html-mode . mhtml-ts-mode)
-     (tuareg-mode . tuareg-ts-mode)
-     (zig-mode . zig-ts-mode))))
+  (treesit-simple-indent-prefer-node-types t)
+  :config
+  (defun treesit-install-all-language-grammars ()
+    "Install all configured tree-sitter language grammars."
+    (interactive)
+    (dolist (lang treesit-language-source-alist)
+      (unless (treesit-language-available-p (car lang))
+        (condition-case err
+            (treesit-install-language-grammar (car lang))
+          (error (message "Failed to install %s grammar: %s" (car lang) err))))))
+  (setq major-mode-remap-alist
+        '((bash-mode . bash-ts-mode)
+          (c-mode . c-ts-mode)
+          (c++-mode . c++-ts-mode)
+          (css-mode . css-ts-mode)
+          (dockerfile-mode . dockerfile-ts-mode)
+          (elixir-mode . elixir-ts-mode)
+          (go-mode . go-ts-mode)
+          (html-mode . html-ts-mode)
+          (js2-mode . js-ts-mode)
+          (json-mode . json-ts-mode)
+          (python-mode . python-ts-mode)
+          (ruby-mode . ruby-ts-mode)
+          (rust-mode . rust-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (yaml-mode . yaml-ts-mode)))
 
-(use-package c-ts-mode
-  :straight (:type built-in)
-  :defer t
-  :custom
-  (c-ts-indent-offset 4))
+  (with-eval-after-load 'c-ts-mode
+    (setq c-ts-mode-indent-offset 4))
 
-(use-package js
-  :straight (:type built-in)
-  :defer t
-  :custom
-  (js-indent-level 2))
+  (with-eval-after-load 'js-ts-mode
+    (setq js-indent-level 2
+          js-ts-mode-indent-offset 2))
+
+  (with-eval-after-load 'typescript-ts-mode
+    (setq typescript-ts-mode-indent-offset 2))
+
+  (with-eval-after-load 'tsx-ts-mode
+    (setq tsx-ts-mode-indent-offset 2))
+
+  (with-eval-after-load 'yaml-ts-mode
+    (setq yaml-ts-mode-indent-offset 2)))
+
+(add-to-list 'auto-mode-alist '("/\\.envrc.*" . bash-ts-mode))
 
 ;; EXPREG
 (use-package expreg
@@ -528,7 +530,7 @@
   :commands (dirvish dirvish-side)
   :custom
   (dirvish-attributes '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
-  (dirvish-cache-dir (expand-file-name "dirvish/" user-emacs-cache-directory))
+  (dirvish-cache-dir (concat user-emacs-cache-directory "/dirvish/"))
   (dirvish-enable-mouse t)
   (dirvish-hide-cursor nil)
   (dirvish-reuse-session t)
@@ -542,7 +544,7 @@
   :general
   (:states 'normal
    :prefix "\\"
-   "t" '(dirvish-side :wk "file tree"))
+   "t" 'dirvish-side)
   (:keymaps 'dirvish-mode-map
    :states 'normal
    "TAB" 'dirvish-subtree-toggle
@@ -551,16 +553,18 @@
 
 ;; DELIMITERS
 (use-package rainbow-delimiters
+  :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
 
 ;; VUNDO
 (use-package vundo
+  :defer t
   :commands vundo
   :custom
   (vundo-glyph-alist vundo-unicode-symbols)
   (vundo-compact-display t)
   :general
-  (:prefix "\\" :states 'normal "u" '(vundo :wk "undo tree"))
+  (:prefix "\\" :states 'normal "u" #'vundo)
   (:keymaps 'vundo-mode-map
    "l" #'vundo-forward
    "h" #'vundo-backward
@@ -576,55 +580,53 @@
 
 ;; SPELL CHECKING
 (use-package jinx
-  :hook ((emacs-startup . global-jinx-mode)
-         (chatgpt-shell-mode . jinx-mode)
-         (agent-shell-mode . jinx-mode))
+  :hook (emacs-startup . global-jinx-mode)
   :general
   (:states 'normal
-   "z=" '(jinx-correct :wk "correct spelling")
-   "]s" '(jinx-next :wk "next misspell")
-   "[s" '(jinx-previous :wk "prev misspell")))
+   "z=" #'jinx-correct
+   "]s" #'jinx-next
+   "[s" #'jinx-previous))
 
 ;; GIT
 (use-package magit
+  :defer t
+  :commands (magit-status magit-dispatch magit-file-dispatch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (magit-format-file-function #'magit-format-file-nerd-icons)
+  (magit-popup-show-common-commands nil)
   :hook (magit-process-mode . goto-address-mode)
   :general
   (:prefix "\\" :states 'normal
-   "g" '(magit-dispatch :wk "git dispatch")
-   "G" '(magit-status :wk "git status")))
+   "g" #'magit-dispatch
+   "G" #'magit-status))
 
 (use-package magit-todos
   :after magit
   :hook (magit-mode . magit-todos-mode))
 
 (use-package forge
-  :after magit
-  :custom
-  (forge-add-default-bindings nil))
-
-(use-package diff-hl
-  :hook ((prog-mode . diff-hl-mode)
-         (dired-mode . diff-hl-dired-mode)
-         (magit-post-refresh . diff-hl-magit-post-refresh))
-  :custom
-  (diff-hl-draw-borders nil)
+  :after (magit evil-collection)
   :config
-  (diff-hl-flydiff-mode)
-  (define-fringe-bitmap 'diff-hl-bmp-thin [224] nil nil '(center repeated))
-  (define-fringe-bitmap 'diff-hl-bmp-thin-deleted [128 192 224 240] nil nil 'bottom)
-  (setq diff-hl-fringe-bmp-function
-        (lambda (type _pos)
-          (if (eq type 'delete) 'diff-hl-bmp-thin-deleted 'diff-hl-bmp-thin)))
-  (set-face-attribute 'diff-hl-insert nil :background 'unspecified)
-  (set-face-attribute 'diff-hl-delete nil :background 'unspecified)
-  (set-face-attribute 'diff-hl-change nil :background 'unspecified))
+  (evil-collection-forge-setup))
+
+(use-package git-gutter-fringe
+  :defer t
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
+
+(use-package git-gutter
+  :defer t
+  :hook (prog-mode . git-gutter-mode)
+  :config
+  (require 'git-gutter-fringe))
 
 (use-package git-modes :defer t)
 
 (use-package gitignore-templates
+  :defer t
   :commands (gitignore-templates-insert
              gitignore-templates-new-file))
 
@@ -635,6 +637,7 @@
 
 (use-package indent-bars
   :straight (:host github :repo "jdtsmith/indent-bars")
+  :defer t
   :custom
   (indent-bars-color '(highlight :face-bg t :blend 0.2))
   (indent-bars-color-by-depth nil)
@@ -654,6 +657,7 @@
 ;; VERTICO
 (use-package vertico
   :custom
+  (completion-in-region-function #'consult-completion-in-region)
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   (completion-ignore-case t)
@@ -702,19 +706,19 @@
    "C-f" #'consult-fd)
   (:prefix "\\"
    :states 'normal
-   "." '(embark-act :wk "embark act")
-   ";" '(embark-dwim :wk "embark dwim")))
+   "." #'embark-act
+   ";" #'embark-dwim))
 
 ;; CONSULT
 (use-package consult
+  :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   (advice-add #'register-preview :override #'consult-register-window)
   :custom
-  (completion-in-region-function #'consult-completion-in-region)
   (consult-fd-args "fd --hidden --full-path --color=never")
   (consult-ripgrep-args "rg --hidden --glob \!.git --null --line-buffered --color=never --max-columns=1000 --path-separator / --smart-case --no-heading --with-filename --line-number --search-zip")
-  (consult-project-function (lambda (_) (when-let* ((proj (project-current)))
-                                          (project-root proj))))
+  ;; (consult-project-function (lambda (_) (when-let* ((proj (project-current)
+  ;;                                         (project-root proj))))
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   :config
@@ -722,28 +726,28 @@
   :general
   (:prefix "\\"
    :states 'normal
-   "l" '(consult-buffer :wk "list buffers")
-   "L" '(consult-buffer-other-window :wk "list buffers (other window)")
-   "pl" '(project-switch-to-buffer :wk "project buffers")
-   "/" '(consult-line :wk "search buffer")
-   "sa" '(xref-find-apropos :wk "apropos")
-   "sf" '(consult-fd :wk "find files")
-   "sl" '(consult-line :wk "search lines")
-   "so" '(consult-outline :wk "outline")
-   "sr" '(consult-ripgrep :wk "ripgrep")
-   "sp" '(consult-yank-from-kill-ring :wk "paste from kill ring")))
+   "l" 'consult-buffer
+   "L" 'consult-buffer-other-window
+   "pl" 'project-switch-to-buffer
+   "/" 'consult-line
+   "sa" 'xref-find-apropos
+   "sf" 'consult-fd
+   "sl" 'consult-line
+   "so" 'consult-outline
+   "sr" 'consult-ripgrep
+   "sp" 'consult-yank-from-kill-ring))
 
 (use-package embark-consult
   :after embark consult
-  :demand t)
+  :demand t
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package consult-eglot
   :after eglot consult
   :general
   (:prefix "\\"
    :states 'normal
-   "ss" '(consult-eglot-symbols :wk "symbols")))
-
+   "ss" 'consult-eglot-symbols))
 
 ;; EAT
 (use-package eat
@@ -775,24 +779,66 @@
    :states 'insert
    "C-y" 'eat-yank))
 
-(use-package shell-maker
-  :commands shell-maker-process-send-string)
-
-(use-package acp
-  :commands acp-shell
-  :straight (:host github :repo "xenodium/acp.el"))
-
-(use-package agent-shell
-  :straight (:host github :repo "xenodium/agent-shell")
+(use-package claude-code-ide
+  :straight (:host github :repo "manzaltu/claude-code-ide.el")
   :defer t
+  :commands (claude-code-ide-menu claude-code-ide-send-prompt)
   :custom
-  (agent-shell-anthropic-authentication
-   (agent-shell-anthropic-make-authentication :login t))
+  (claude-code-ide-terminal-backend 'eat)
+  :config
+  (claude-code-ide-emacs-tools-setup)
   :general
   (:states 'normal
    :prefix "\\"
-   "aa" '(agent-shell-anthropic-start-claude-code :wk "agent shell (claude-code)")
-   "ao" '(agent-shell-opencode-start-agent :wk "agent shell (opencode)")))
+   "cc" 'claude-code-ide-menu
+   "C" 'claude-code-ide-send-prompt))
+
+(use-package acp
+  :straight (:host github :repo "xenodium/acp.el")
+  :defer t
+  :commands (acp-send-request acp-make-client)
+  :config
+  ;; Create ACP client for claude-code
+  (defvar acp-claude-code-client nil
+    "ACP client for claude-code integration.")
+  
+  (defun acp-claude-code-init ()
+    "Initialize ACP client for claude-code."
+    (interactive)
+    (setq acp-claude-code-client
+          (acp-make-client
+           :command "claude-code-acp"
+           :command-params '()
+           :environment-variables 
+           (when (getenv "ANTHROPIC_API_KEY")
+             (list (format "ANTHROPIC_API_KEY=%s" (getenv "ANTHROPIC_API_KEY"))))))
+    (acp-send-request
+     :client acp-claude-code-client
+     :request (acp-make-initialize-request :protocol-version 1)
+     :on-success (lambda (response)
+                   (message "ACP initialized for claude-code: %s" response))
+     :on-failure (lambda (error)
+                   (message "ACP initialization failed: %s" error))))
+  
+  (defun acp-claude-code-send (prompt)
+    "Send PROMPT to claude-code via ACP."
+    (interactive "sPrompt: ")
+    (unless acp-claude-code-client
+      (acp-claude-code-init))
+    (acp-send-request
+     :client acp-claude-code-client
+     :request (acp-make-request :method "textDocument/completion"
+                                :params `(:prompt ,prompt))
+     :on-success (lambda (response)
+                   (message "Response: %s" response))
+     :on-failure (lambda (error)
+                   (message "Request failed: %s" error))))
+  
+  :general
+  (:states 'normal
+   :prefix "\\"
+   "ai" 'acp-claude-code-init
+   "as" 'acp-claude-code-send))
 
 ;; WGREP
 (use-package wgrep :defer t)
@@ -805,44 +851,49 @@
   :custom
   (corfu-auto t)
   (corfu-auto-delay 0.25)
-  (corfu-auto-prefix 3)
+  (corfu-auto-prefix 1)
   (corfu-count 14)
   (corfu-quit-at-boundary nil)
   (corfu-quit-no-match t)
   (corfu-cycle t)
   (corfu-on-exact-match 'quit)
-  (corfu-preselect 'valid)
+  (corfu-preselect 'prompt)
   (corfu-popupinfo-delay 0.5)
   (corfu-popupinfo-max-height 30)
   :hook (after-init . global-corfu-mode)
   :config
   (corfu-popupinfo-mode))
 
-(use-package nerd-icons-corfu
-  :after corfu nerd-icons
+(use-package kind-icon
+  :after corfu
+  :custom
+  (kind-icon-use-icons t)
+  (kind-icon-default-face 'corfu-default)
+  (kind-icon-blend-background nil)
+  (kind-icon-blend-frac 0.08)
   :config
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 ;; CAPE
 (use-package cape
   :after corfu
   :init
-  (add-to-list 'completion-at-point-functions #'cape-file t)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
-  (add-to-list 'completion-at-point-functions #'cape-keyword t)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
   :custom
   (cape-dabbrev-min-length 3)
   :general
   (:states 'insert
-   "C-x C-f" '(cape-file :wk "complete file")
-   "C-x C-w" '(cape-dabbrev :wk "complete dabbrev")
-   "C-x C-:" '(cape-emoji :wk "complete emoji")))
+   "C-x C-f" #'cape-file
+   "C-x C-w" #'cape-dabbrev
+   "C-x C-:" #'cape-emoji))
 
 ;; PRESCIENT
 (use-package prescient
   :hook (after-init . prescient-persist-mode)
   :custom
-  (prescient-save-file (expand-file-name "prescient-save.el" user-emacs-data-directory)))
+  (prescient-save-file (expand-file-name "prescient-save.el" user-emacs-cache-directory)))
 
 (use-package corfu-prescient
   :after corfu prescient
@@ -858,7 +909,7 @@
   :custom
   (vertico-prescient-enable-filtering nil)
   (vertico-prescient-enable-sorting t)
-  (vertico-prescient-override-sorting nil))
+  (vertico-prescient-override-sorting t))
 
 ;; ELDOC
 (use-package eldoc :straight (:type built-in) :diminish)
@@ -868,60 +919,60 @@
 ;; PYTHON
 (use-package python-ts-mode
   :straight (:type built-in)
-  :defer t
-  :hook ((python-ts-mode . (lambda () (setq-local fill-column 86)))
-         (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t)))))
+  :mode ("\\.py\\'")
+  :interpreter ("python" . python-ts-mode)
+  :hook ((python-ts-mode . (lambda () (setq-local fill-column 88)))
+         (python-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 (use-package cython-mode
   :mode ("\\.pyx\\'"))
 
 ;; GO
-(use-package go-ts-mode
-  :straight (:type built-in)
-  :defer t
-  :hook (go-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t))))
+(use-package go-mode
+  :mode ("\\.go\\'"))
 
 ;; RUST
-(use-package rust-ts-mode
-  :straight (:type built-in)
-  :defer t
-  :hook ((rust-ts-mode . (lambda () (setq-local fill-column 98)))
-         (rust-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t)))))
+(use-package rust-mode
+  :mode ("\\.rs\\'")
+  :hook ((rust-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; HASKELL
 (use-package haskell-mode
   :mode ("\\.l?hs\\'"))
 
-;; OCAML
-(use-package tuareg
-  :mode (("\\.ml\\'" . tuareg-mode)
-         ("\\.mli\\'" . tuareg-mode)
-         ("\\.mll\\'" . tuareg-mode)
-         ("\\.mly\\'" . tuareg-mode)))
-
 ;; ELIXIR
 (use-package elixir-ts-mode
-  :defer t
-  :hook (elixir-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t))))
+  :mode ("\\.ex\\'")
+  :hook ((elixir-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; DOCKER
-(use-package dockerfile-ts-mode
-  :straight (:type built-in)
-  :defer t
+(use-package dockerfile-mode
+  :mode ("Dockerfile")
   :hook ((dockerfile-ts-mode . (lambda () (setq-local tab-width 4) (setq-local standard-indent 4)))
-         (dockerfile-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t)))))
+         (dockerfile-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format nil t)))))
 
 ;; CONFIG
 (use-package conf-mode
   :straight (:type built-in)
-  :defer t)
-
-(dolist (pattern '("\\.editorconfig\\'" "\\.env\\'"))
-  (add-to-list 'auto-mode-alist (cons pattern 'conf-mode)))
+  :mode (("\\.editorconfig\\'" . conf-mode)
+         ("\\.conf\\'" . conf-mode)
+         ("\\.cnf\\'" . conf-mode)
+         ("\\.cfg\\'" . conf-mode)
+         ("\\.env\\'" . conf-mode)
+         ("\\.ini\\'" . conf-mode)))
 
 ;; PHP
 (use-package php-mode
   :mode ("\\.php\\'"))
+
+(use-package web-mode
+  :mode (("\\.html\\'" . web-mode)
+         ("\\.mustache\\'" . web-mode)
+         ("\\.vue\\'" . web-mode)
+         ("\\.blade\\.php\\'" . web-mode))
+  :custom
+  (web-mode-engines-alist '(("blade" . "\\.blade\\.")))
+  (web-mode-markup-indent-offset 2))
 
 ;; HY
 (use-package hy-mode
@@ -933,11 +984,8 @@
   :mode ("\\.svelte\\'"))
 
 ;; TYPESCRIPT
-(use-package typescript-ts-mode
-  :straight (:type built-in)
-  :defer t
-  :custom
-  (typescript-ts-indent-offset 2))
+(use-package typescript-mode
+  :mode ("\\.ts\\'"))
 
 ;; TERRAFORM
 (use-package terraform-mode
@@ -977,14 +1025,16 @@
    "C-c p" 'yas-prev-field))
 
 (use-package yasnippet-snippets
+  :defer t
   :after yasnippet)
 
 (use-package consult-yasnippet
+  :defer t
   :after (consult yasnippet)
   :general
   (:states 'normal
    :prefix "\\"
-   "y" '(consult-yasnippet :wk "yasnippet")))
+   "y" 'consult-yasnippet))
 
 ;; MISE
 (use-package mise
@@ -993,37 +1043,30 @@
 ;; LANGUAGE SERVER SUPPORT
 (use-package eglot
   :defer t
-  :hook ((python-ts-mode rust-ts-mode go-ts-mode elixir-ts-mode typescript-ts-mode tsx-ts-mode c-ts-mode c++-ts-mode zig-ts-mode) . eglot-ensure)
+  :hook (prog-mode . eglot-ensure)
   :config
-  (defun eglot-format-buffer-safe ()
-    "Format buffer if eglot is active."
-    (when (eglot-managed-p) (eglot-format-buffer)))
-
-  (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls"))
-
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls")))
   (setq-default eglot-workspace-configuration
                 '(:rust-analyzer (:procMacro (:enable t)
                                   :cargo (:allFeatures t
                                           :buildScripts (:enabled t)
                                           :loadOutDirsFromCheck t)
-                                  :check (:command "clippy"
-                                          :extraArgs ["--tests" "--" "-D" "warnings"])
-                                  :checkOnSave t
+                                  :checkOnSave (:command "clippy"
+                                                :extraArgs ["--", "--all-targets"])
                                   :diagnostics (:experimental (:enable t))
-                                  :imports (:granularity (:group "module")
-                                            :prefix "crate"))
+                                  :imports (:granularity (:group "module"))
+                                            :prefix "crate")
                   :pylsp (:plugins (:jedi (:enabled t :include_params t :fuzzy t)
                                     :rope (:enabled t)
-                                    :ruff (:enabled t :format ["I"])))
-                  :zls (:enable_build_on_save t
-                        :build_on_save_step "check")))
+                                    :ruff (:enabled t :format ["I"])))))
   :general
   (:states 'normal
    :prefix "\\"
-   "ca" '(eglot-code-actions :wk "code actions")
-   "cr" '(eglot-rename :wk "rename")
-   "cf" '(eglot-format-buffer :wk "format buffer")
-   "=" '(eglot-format-buffer :wk "format buffer")))
+   "ca" 'eglot-code-actions
+   "cr" 'eglot-rename
+   "cf" 'eglot-format-buffer
+   "=" 'eglot-format-buffer))
 
 (use-package eglot-booster
   :straight (:host github :repo "jdtsmith/eglot-booster")
@@ -1033,47 +1076,33 @@
 (use-package breadcrumb
   :straight (:host github :repo "joaotavora/breadcrumb")
   :diminish
-  :hook (prog-mode . breadcrumb-mode)
-  :custom
-  (breadcrumb-project-max-length 0.3)
-  (breadcrumb-imenu-max-length 0.5)
-  (breadcrumb-project-crumb-separator "/")
-  (breadcrumb-imenu-crumb-separator " » "))
+  :defer t
+  :hook (prog-mode . breadcrumb-mode))
 
 ;; LLM
-(defvar anthropic-base-url (or (getenv "ANTHROPIC_BASE_URL") "https://api.anthropic.com"))
-(defvar anthropic-host
-  (if (string-match "^https?://\\([^/]+\\)" anthropic-base-url)
-      (match-string 1 anthropic-base-url)
-    "api.anthropic.com"))
-
-(use-package chatgpt-shell
+(use-package gptel
   :defer t
-  :commands (chatgpt-shell chatgpt-shell-send-region chatgpt-shell-prompt-compose chatgpt-shell-swap-model)
+  :commands (gptel gptel-send gptel-menu)
   :custom
-  (chatgpt-shell-openai-key
-   (lambda ()
-     (or (getenv "OPENAI_API_KEY")
-         (auth-source-pick-first-password :host "api.openai.com"))))
-  (chatgpt-shell-anthropic-key
-   (lambda ()
-     (or (getenv "ANTHROPIC_API_KEY")
-         (auth-source-pick-first-password :host anthropic-host))))
-  (chatgpt-shell-anthropic-api-url-base anthropic-base-url)
-  (chatgpt-shell-ollama-api-url-base "http://localhost:11434")
-  (chatgpt-shell-model-version "claude-sonnet-4-20250514")
+  (gptel-model "gpt-4o")
+  (gptel-default-mode 'org-mode)
+  (gptel-prompt-prefix-alist
+   '((markdown-mode . "# ")
+     (org-mode . "* ")
+     (text-mode . "# ")))
   :config
-  (with-eval-after-load 'chatgpt-shell-ollama
-    (chatgpt-shell-ollama-load-models))
+  (gptel-make-ollama "Ollama"
+    :host "localhost:11434"
+    :stream t
+    :models '(deepseek-r1:7b
+              deepseek-r1:14b
+              deepseek-r1:32b))
   :general
   (:states 'normal
    :prefix "\\"
-   "ac" '(chatgpt-shell :wk "chatgpt shell")
-   "am" '(chatgpt-shell-swap-model :wk "swap model")
-   "ap" '(chatgpt-shell-prompt-compose :wk "prompt compose"))
-  (:states 'visual
-   :prefix "\\"
-   "as" '(chatgpt-shell-send-region :wk "send region")))
+   "qb" 'gptel
+   "qs" 'gptel-send
+   "qS" 'gptel-menu))
 
 ;; DAPE
 (use-package dape
@@ -1089,50 +1118,41 @@
   :general
   (:states 'normal
    :prefix "\\"
-   "dd" '(dape :wk "start debugger")
-   "db" '(dape-breakpoint-toggle :wk "toggle breakpoint")
-   "dB" '(dape-breakpoint-remove-all :wk "remove all breakpoints")
-   "dc" '(dape-continue :wk "continue")
-   "dn" '(dape-next :wk "next")
-   "ds" '(dape-step-in :wk "step in")
-   "do" '(dape-step-out :wk "step out")
-   "dr" '(dape-restart :wk "restart")
-   "dq" '(dape-quit :wk "quit debugger")
-   "di" '(dape-info :wk "debugger info")
-   "dR" '(dape-repl :wk "debugger repl")
-   "dw" '(dape-watch-dwim :wk "watch dwim")))
+   "dd" 'dape  ; Start debugger
+   "db" 'dape-breakpoint-toggle
+   "dB" 'dape-breakpoint-remove-all
+   "dc" 'dape-continue
+   "dn" 'dape-next
+   "ds" 'dape-step-in
+   "do" 'dape-step-out
+   "dr" 'dape-restart
+   "dq" 'dape-quit
+   "di" 'dape-info
+   "dR" 'dape-repl
+   "dw" 'dape-watch-dwim))
 
 ;; WHITE SPACE
-(use-package ws-butler
-  :diminish
-  :custom
-  (ws-butler-keep-whitespace-before-point nil)
-  (ws-butler-trim-predicate (lambda (_ end)
-                              (not (eq 'font-lock-string-face
-                                       (get-text-property end 'face)))))
-  :config
-  (ws-butler-global-mode t))
+;; (use-package ws-butler
+;;   :diminish
+;;   :config
+;;   (ws-butler-global-mode t)
+;;   (setq ws-butler-keep-whitespace-before-point nil
+;;         ws-butler-trim-predicate (lambda (_ end)
+;;                                    (not (eq 'font-lock-string-face
+;;                                             (get-text-property end 'face))))))
 
 ;; WINDOW MANAGEMENT
 (use-package winner
   :straight (:type built-in)
   :init (winner-mode)
   :general
-  (:keymaps 'evil-window-map "u" '(winner-undo :wk "undo window")))
+  (:keymaps 'evil-window-map "u" 'winner-undo))
 
 (use-package ace-window
+  :defer t
   :commands ace-window
-  :config
-  (ace-window-display-mode 1)
   :general
-  (:keymaps 'evil-window-map
-   "!" '(ace-window :wk "ace window")
-   "w" '(ace-window :wk "ace window")))
-
-(use-package ace-popup-menu
-  :after ace-window
-  :config
-  (ace-popup-menu-mode 1))
+  (:keymaps 'evil-window-map "!" 'ace-window))
 
 ;; PKGBUILD
 (use-package pkgbuild-mode
@@ -1145,27 +1165,18 @@
          ("\\.md\\'" . markdown-mode)))
 
 ;; CONFIG FILES
-(use-package toml-ts-mode
-  :straight (:type built-in)
-  :defer t)
-
-(dolist (pattern '("Pipfile\\'" "uv\\.lock\\'" "Cargo\\.lock\\'"))
-  (add-to-list 'auto-mode-alist (cons pattern 'toml-ts-mode)))
-(add-to-list 'auto-mode-alist '("Pipfile\\.lock\\'" . js-json-mode))
+(use-package yaml-mode :mode ("\\.yml\\'" "\\.yaml\\'"))
+(use-package json-mode :mode ("\\.json\\'" "Pipfile\\.lock\\'"))
+(use-package toml-mode :mode ("\\.toml\\'" "Pipfile\\'"))
 
 ;; JUST
-(use-package just-mode :defer t)
+(use-package just-mode)
 
 (use-package justl :defer t)
 
 ;; GRPC
 (use-package protobuf-mode
   :mode ("\\.proto\\'"))
-
-;; ZIG
-(use-package zig-ts-mode
-  :straight (:host codeberg :repo "meow_king/zig-ts-mode")
-  :hook (zig-ts-mode . (lambda () (add-hook 'before-save-hook #'eglot-format-buffer-safe nil t))))
 
 ;; SYSTEMD
 (use-package systemd
@@ -1185,7 +1196,6 @@
   (vterm-max-scrollback 10000)
   (vterm-shell "zsh")
   (vterm-eval-cmds '(("compile" compile)
-                     ("dired" dired)
                      ("find-file" find-file)
                      ("find-file-other-frame" find-file-other-frame)
                      ("find-file-other-window" find-file-other-window)
@@ -1218,16 +1228,16 @@ If DIRECTORY is provided, use it as the default-directory."
     (let* ((project (project-current t))
            (buffer-name (format "*vterm[%s]*" (project-name project))))
       (vterm-display-buffer buffer-name (project-root project))))
-
+  
   (defun vterm-here (&optional arg)
     "Open vterm in project root or current directory."
     (interactive "P")
     (let* ((directory (or (when-let* ((proj (project-current)))
-                            (project-root proj))
-                          default-directory))
+                           (project-root proj))
+                         default-directory))
            (buffer-name (if arg
-                            (generate-new-buffer-name "*vterm*")
-                          "*vterm*")))
+                           (generate-new-buffer-name "*vterm*")
+                         "*vterm*")))
       (vterm-display-buffer buffer-name directory)))
 
   (defun vterm-ask-directory ()
@@ -1256,8 +1266,8 @@ If DIRECTORY is provided, use it as the default-directory."
    "C-c C-t" 'vterm-copy-mode)
   (:prefix "\\"
    :states 'normal
-   "v" '(vterm-here :wk "vterm in project")
-   "V" '(vterm-ask-directory :wk "vterm ask directory")))
+   "v" 'vterm-here
+   "V" 'vterm-ask-directory))
 
 (use-package ansi-color
   :straight (:type built-in)
@@ -1269,21 +1279,22 @@ If DIRECTORY is provided, use it as the default-directory."
 
 ;; HELPFUL
 (use-package helpful
+  :defer t
   :commands (helpful-callable helpful-variable helpful-key helpful-command helpful-symbol helpful-function)
   :general
-  ([remap describe-function] '(helpful-callable :wk "callable")
-   [remap describe-variable] '(helpful-variable :wk "variable")
-   [remap describe-key] '(helpful-key :wk "key")
-   [remap describe-command] '(helpful-command :wk "command")
-   [remap describe-symbol] '(helpful-symbol :wk "symbol"))
+  ([remap describe-function] 'helpful-callable
+   [remap describe-variable] 'helpful-variable
+   [remap describe-key] 'helpful-key
+   [remap describe-command] 'helpful-command
+   [remap describe-symbol] 'helpful-symbol)
   (:states 'normal
    :prefix "\\"
-   "hf" '(helpful-callable :wk "callable")
-   "hv" '(helpful-variable :wk "variable")
-   "hk" '(helpful-key :wk "key")
-   "hc" '(helpful-command :wk "command")
-   "hs" '(helpful-symbol :wk "symbol")
-   "hF" '(helpful-function :wk "function")))
+   "hf" 'helpful-callable
+   "hv" 'helpful-variable
+   "hk" 'helpful-key
+   "hc" 'helpful-command
+   "hs" 'helpful-symbol
+   "hF" 'helpful-function))
 
 ;; LINE NUMBERS
 (use-package display-line-numbers
@@ -1302,7 +1313,6 @@ If DIRECTORY is provided, use it as the default-directory."
 ;; FLYMAKE
 (use-package flymake
   :straight (:type built-in)
-  :defer t
   :custom
   (flymake-show-diagnostics-at-end-of-line 'fancy))
 
@@ -1315,7 +1325,7 @@ If DIRECTORY is provided, use it as the default-directory."
   :straight (:type built-in)
   :hook (after-init . savehist-mode)
   :custom
-  (savehist-file (expand-file-name "savehist" user-emacs-data-directory)))
+  (savehist-file (expand-file-name "savehist" user-emacs-cache-directory)))
 
 (use-package emacs
   :straight (:type built-in)
@@ -1339,7 +1349,6 @@ If DIRECTORY is provided, use it as the default-directory."
   (comint-input-ring-size 5000)
   (eshell-scroll-to-bottom-on-output t)
 
-  (kill-buffer-quit-windows t)
   (window-sides-vertical t)
 
   (display-buffer-base-action
@@ -1356,7 +1365,7 @@ If DIRECTORY is provided, use it as the default-directory."
           (major-mode . shell-mode)
           (major-mode . term-mode))
       (display-buffer-reuse-mode-window display-buffer-in-side-window)
-      (window-height . 0.2)
+      (window-height . 0.20)
       (dedicated . t))
 
      ((or (major-mode . compilation-mode)
@@ -1364,14 +1373,8 @@ If DIRECTORY is provided, use it as the default-directory."
           (major-mode . occur-mode)
           (major-mode . embark-collect-mode))
       (display-buffer-reuse-mode-window display-buffer-at-bottom)
-      (window-height . 0.3)
+      (window-height . 0.30)
       (mode . (compilation-mode grep-mode occur-mode embark-collect-mode)))
-
-     ((or (major-mode . agent-shell-mode)
-          (major-mode . chatgpt-shell-mode))
-      (display-buffer-reuse-mode-window display-buffer-pop-up-window)
-      (window-width . 0.4)
-      (window-height . 0.4))
 
      ((or (major-mode . help-mode)
           (major-mode . helpful-mode)
@@ -1380,10 +1383,6 @@ If DIRECTORY is provided, use it as the default-directory."
       (display-buffer-in-side-window)
       (side . right)
       (window-width . 0.25))))
-
-  (quit-window-kill-buffer '(help-mode helpful-mode Man-mode
-                                       compilation-mode grep-mode occur-mode
-                                       embark-collect-mode))
   :config
   (show-paren-mode 1)
 
@@ -1398,7 +1397,7 @@ If DIRECTORY is provided, use it as the default-directory."
     (unless (file-directory-p backup-dir)
       (mkdir backup-dir t))
     (setq-default backup-directory-alist `(("." . ,backup-dir))))
-
+    
   (let* ((auto-save-dir (concat user-emacs-cache-directory "/auto-save/")))
     (unless (file-directory-p auto-save-dir)
       (mkdir auto-save-dir t))
@@ -1406,7 +1405,7 @@ If DIRECTORY is provided, use it as the default-directory."
           `((".*" ,auto-save-dir t)))
     (setq auto-save-list-file-prefix
           (concat auto-save-dir "session.")))
-
+    
   (let* ((lock-file-dir (concat user-emacs-cache-directory "/lock-files/")))
     (unless (file-directory-p lock-file-dir)
       (mkdir lock-file-dir t))

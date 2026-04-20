@@ -13,7 +13,7 @@
 
 (setq load-prefer-newer t)
 
-(setq use-short-answers t)
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 (setq initial-buffer-choice nil
       inhibit-startup-screen t
@@ -24,7 +24,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
-(blink-cursor-mode -1)
+(blink-cursor-mode 0)
 
 (pcase system-type
   ('darwin
