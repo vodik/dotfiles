@@ -785,7 +785,7 @@
 (use-package agent-shell
   :straight (:host github :repo "xenodium/agent-shell")
   :defer t
-  :custom
+  :config
   (agent-shell-anthropic-authentication
    (agent-shell-anthropic-make-authentication :login t))
   :general
