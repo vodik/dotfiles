@@ -494,7 +494,8 @@
   (treesit-font-lock-level 3)
   (treesit-language-source-alist
    '((ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/ocaml/src"))
-     (ocaml_interface . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/interface/src"))))
+     (ocaml_interface . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/interface/src"))
+     (svelte . ("https://github.com/tree-sitter-grammars/tree-sitter-svelte"))))
   (major-mode-remap-alist
    '((html-mode . mhtml-ts-mode)
      (tuareg-mode . tuareg-ts-mode)
@@ -786,8 +787,8 @@
   :straight (:host github :repo "xenodium/agent-shell")
   :defer t
   :config
-  (agent-shell-anthropic-authentication
-   (agent-shell-anthropic-make-authentication :login t))
+  (setq agent-shell-anthropic-authentication
+        (agent-shell-anthropic-make-authentication :login t))
   :general
   (:states 'normal
    :prefix "\\"
@@ -929,7 +930,8 @@
   :interpreter ("hy" . hy-mode))
 
 ;; SVELTE
-(use-package svelte-mode
+(use-package svelte-ts-mode
+  :straight (:host github :repo "leafOfTree/svelte-ts-mode")
   :mode ("\\.svelte\\'"))
 
 ;; TYPESCRIPT
@@ -993,13 +995,14 @@
 ;; LANGUAGE SERVER SUPPORT
 (use-package eglot
   :defer t
-  :hook ((python-ts-mode rust-ts-mode go-ts-mode elixir-ts-mode typescript-ts-mode tsx-ts-mode c-ts-mode c++-ts-mode zig-ts-mode) . eglot-ensure)
+  :hook ((python-ts-mode rust-ts-mode go-ts-mode elixir-ts-mode typescript-ts-mode tsx-ts-mode c-ts-mode c++-ts-mode zig-ts-mode svelte-ts-mode) . eglot-ensure)
   :config
   (defun eglot-format-buffer-safe ()
     "Format buffer if eglot is active."
     (when (eglot-managed-p) (eglot-format-buffer)))
 
   (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls"))
+  (add-to-list 'eglot-server-programs '(svelte-ts-mode "svelteserver" "--stdio"))
 
   (setq-default eglot-workspace-configuration
                 '(:rust-analyzer (:procMacro (:enable t)
