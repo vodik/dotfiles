@@ -1,12 +1,16 @@
-autoload -Uz add-zsh-hook
-autoload -Uz vcs_info
-autoload -Uz colors && colors
-autoload -Uz compinit && compinit
-autoload -Uz bashcompinit && bashcompinit
-autoload zsh/terminfo
-
 [[ ! -d ~/.cache/zsh ]] && mkdir -p ~/.cache/zsh
-compinit -d ~/.cache/zsh/zcompdump
+[[ ! -d ~/.config/zsh/completions ]] && mkdir -p ~/.config/zsh/completions
+
+typeset -U fpath
+fpath=(~/.config/zsh/completions $fpath)
+
+autoload -U add-zsh-hook
+autoload -U vcs_info
+autoload -U compinit && compinit -d ~/.cache/zsh/zcompdump
+autoload -U bashcompinit && bashcompinit
+
+autoload -U edit-command-line
+zle -N edit-command-line
 
 # smart urls
 autoload -U url-quote-magic
@@ -55,16 +59,21 @@ setopt bg_nice
 unsetopt beep
 
 #history
+HISTFILE=~/.config/zsh/history
+HISTSIZE=50000
+SAVEHIST=50000
+
 setopt append_history \
   extended_history \
   hist_expire_dups_first \
   hist_ignore_dups \
   hist_ignore_space \
   hist_verify \
-  inc_append_history \
   share_history
 
-[[ -f ~/.dircolors ]] && source <(dircolors ~/.config/dircolors)
+[[ -f ~/.config/dircolors ]] && source <(dircolors ~/.config/dircolors)
+
+zmodload zsh/terminfo
 
 # vi editing mode
 bindkey -v
@@ -136,8 +145,8 @@ fi
 
 bindkey ' ' magic-space
 bindkey '^i' expand-or-complete-prefix
-bindkey '^W' backward-kill-word
-bindkey '^w' push-line
+bindkey '^w' backward-kill-word
+bindkey '^q' push-line
 bindkey '^e' get-line
 
 bindkey -M vicmd 'h' backward-char
@@ -185,7 +194,6 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*' verbose yes
 
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' completer _oldlist _expand _force_rehash _complete _match _approximate
 zstyle ':completion:*' menu select=2
 
@@ -226,74 +234,49 @@ zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:*' actionformats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{3}|%F{1}%a%F{5}]%f '
 zstyle ':vcs_info:*' formats '%F{5}(%f%s%F{5})%F{3}-%F{5}[%F{2}%b%F{5}]%f '
 
-if hash just 2>/dev/null; then
-    _just_completion() {
-        [[ -f justfile ]] && reply=($(just --summary))
-    }
-    compctl -K _just_completion just
-fi
+_hook_vcs() {
+  vcs_info
+}
+
+_hook_title() {
+  print -Pn '\e]2;%n@%m %~\a'
+}
+
+_hook_osc133() {
+  print -Pn '\e]133;A\e\\'
+}
+
+_hook_title_preexec() {
+  local cmd=${1[(wr)^(*=*|sudo|ssh|-*)]}
+  print -Pn "\e]2;$cmd:q\a"
+}
 
 [[ $TERM == xterm ]] && export TERM=xterm-256color
 case $TERM in
   alacritty|foot|vte*|xterm*)
-    function precmd {
-      print -Pn '\e]2;%n@%m %~\a\e]133;A\e\\'
-    }
-
-    function preexec {
-      local cmd=${1[(wr)^(*=*|sudo|ssh|-*)]}
-      print -Pn "\e]2;$cmd:q\a"
-    }
+    add-zsh-hook precmd _hook_vcs
+    add-zsh-hook precmd _hook_title
+    add-zsh-hook precmd _hook_osc133
+    add-zsh-hook preexec _hook_title_preexec
     ;;
 esac
 
-if [[ $INSIDE_EMACS = vterm ]]; then
-  function vterm_cmd {
-    printf "\e]51;E"
-    local r
-    while [[ $# -gt 0 ]]; do
-      r="${1//\\/\\\\}"
-      r="${r//\"/\\\"}"
-      printf '"%s" ' "$r"
-      shift
-    done
-    printf "\e\\"
-  }
+function zle-line-init() {
+  echoti smkx
+}
 
-  function find_file {
-    vterm_cmd find-file "$(realpath "$@")"
-  }
-
-  function clear {
-    vterm_cmd vterm-clear-scrollback
-    tput clear
-  }
-fi
-
-function zle-line-init zle-keymap-select {
-  vimode="${${KEYMAP/vicmd/c}/(main|viins)/i}"
-  zle reset-prompt
+function zle-line-finish() {
+  echoti rmkx
 }
 
 zle -N zle-line-init
-zle -N zle-keymap-select
-
-# make zsh/terminfo work for terms with application and cursor modes
-case $TERM in
-  alacritty|foot|vte*|xterm*)
-    zle-line-init() { zle-keymap-select; echoti smkx }
-    zle-line-finish() { echoti rmkx }
-    zle -N zle-line-init
-    zle -N zle-line-finish
-    ;;
-esac
+zle -N zle-line-finish
 
 function vcs_info_wrapper {
-  vcs_info
-  [[ -n "$vcs_info_msg_0_" ]] && echo " %{$fg[grey]%}${vcs_info_msg_0_/ /}%{$reset_color%}"
+  [[ -n "$vcs_info_msg_0_" ]] && echo " %F{grey}${vcs_info_msg_0_/ /}%f"
 }
 
-PROMPT="%{$fg[red]%}%n%{$reset_color%}@%{$fg[blue]%}%m %{$fg[yellow]%}%1~%{$reset_color%}"'$(vcs_info_wrapper) $ '
+PROMPT='%F{red}%n%f@%F{blue}%m %F{yellow}%1~%f$(vcs_info_wrapper) $ '
 
 alias ls='ls -FNh --tabsize=0 --color=auto --show-control-chars --group-directories-first'
 alias ll='ls -l'

@@ -1,9 +1,3 @@
-[[ ! -d ~/.cache/zsh ]] && mkdir -p ~/.cache/zsh
-HISTFILE=~/.cache/zsh/history
-HISTSIZE=10000
-SAVEHIST=10000
-HISTIGNORE=' '
-
 export GOPATH="$HOME/go"
 
 export LESS_TERMCAP_mb=$'\e[1m\e[32m'
@@ -20,9 +14,6 @@ export GROFF_NO_SGR=1
 export BUILDAH_LAYERS=true
 export MISE_ENV_FILE=.env
 
-export MOZ_ENABLE_WAYLAND="1"
-
-export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin"
 export BROWSER="firefox-developer-edition"
 export PAGER="less"
 export EDITOR="nvim"
