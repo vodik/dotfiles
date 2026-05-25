@@ -511,6 +511,7 @@
 (use-package js
   :straight (:type built-in)
   :defer t
+  :hook ((js-ts-mode js-mode) . (lambda () (setq-local tab-width 2)))
   :custom
   (js-indent-level 2))
 
@@ -528,6 +529,7 @@
 ;; DIRVISH
 (use-package dirvish
   :commands (dirvish dirvish-side)
+  :hook (after-init . dirvish-override-dired-mode)
   :custom
   (dirvish-attributes '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
   (dirvish-cache-dir (expand-file-name "dirvish/" user-emacs-cache-directory))
@@ -540,7 +542,6 @@
   (dirvish-side-width 35)
   (dirvish-side-window-parameters '((no-other-window . nil)))
   (dirvish-subtree-state-style 'nerd)
-  :hook (after-init . dirvish-override-dired-mode)
   :general
   (:states 'normal
    :prefix "\\"
@@ -589,10 +590,10 @@
 
 ;; GIT
 (use-package magit
+  :hook (magit-process-mode . goto-address-mode)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (magit-format-file-function #'magit-format-file-nerd-icons)
-  :hook (magit-process-mode . goto-address-mode)
   :general
   (:prefix "\\" :states 'normal
    "g" '(magit-dispatch :wk "git dispatch")
@@ -638,6 +639,8 @@
 
 (use-package indent-bars
   :straight (:host github :repo "jdtsmith/indent-bars")
+  :hook ((python-base-mode . indent-bars-mode)
+         (yaml-ts-mode . indent-bars-mode))
   :custom
   (indent-bars-color '(highlight :face-bg t :blend 0.2))
   (indent-bars-color-by-depth nil)
@@ -650,29 +653,27 @@
   (indent-bars-zigzag nil)
   (indent-bars-treesit-support t)
   (indent-bars-no-descend-string t)
-  (indent-bars-treesit-ignore-blank-lines-types '("module"))
-  :hook ((python-base-mode . indent-bars-mode)
-         (yaml-ts-mode . indent-bars-mode)))
+  (indent-bars-treesit-ignore-blank-lines-types '("module")))
 
 ;; VERTICO
 (use-package vertico
+  :hook (after-init . vertico-mode)
   :custom
   (read-file-name-completion-ignore-case t)
   (read-buffer-completion-ignore-case t)
   (completion-ignore-case t)
   (vertico-count 20)
   (vertico-cycle t)
-  :hook (after-init . vertico-mode)
   :general
   (:keymaps 'vertico-map
    "C-<return>" 'vertico-exit))
 
 ;; MARGINALIA
 (use-package marginalia
+  :hook (after-init . marginalia-mode)
   :custom
   (marginalia-max-relative-age 0)
   (marginalia-align 'right)
-  :hook (after-init . marginalia-mode)
   :general
   (:keymaps 'minibuffer-local-map
    "M-A" 'marginalia-cycle))
@@ -811,6 +812,7 @@
   :straight (:files (:defaults "extensions/*"))
   :diminish
   :after orderless
+  :hook (after-init . global-corfu-mode)
   :custom
   (corfu-auto t)
   (corfu-auto-delay 0.25)
@@ -823,7 +825,6 @@
   (corfu-preselect 'valid)
   (corfu-popupinfo-delay 0.5)
   (corfu-popupinfo-max-height 30)
-  :hook (after-init . global-corfu-mode)
   :config
   (corfu-popupinfo-mode))
 
@@ -940,12 +941,14 @@
 ;; SVELTE
 (use-package svelte-ts-mode
   :straight (:host github :repo "leafOfTree/svelte-ts-mode")
-  :mode ("\\.svelte\\'"))
+  :mode ("\\.svelte\\'")
+  :hook (svelte-ts-mode . (lambda () (setq-local tab-width 2))))
 
 ;; TYPESCRIPT
 (use-package typescript-ts-mode
   :straight (:type built-in)
   :defer t
+  :hook ((typescript-ts-mode tsx-ts-mode) . (lambda () (setq-local tab-width 2)))
   :custom
   (typescript-ts-indent-offset 2))
 
@@ -1013,7 +1016,17 @@
 ;; LANGUAGE SERVER SUPPORT
 (use-package eglot
   :defer t
-  :hook ((python-ts-mode rust-ts-mode go-ts-mode elixir-ts-mode typescript-ts-mode tsx-ts-mode c-ts-mode c++-ts-mode zig-ts-mode svelte-ts-mode) . eglot-ensure)
+  :hook ((c++-ts-mode
+          c-ts-mode
+          elixir-ts-mode
+          go-ts-mode
+          js-ts-mode
+          python-ts-mode
+          rust-ts-mode
+          svelte-ts-mode
+          tsx-ts-mode
+          typescript-ts-mode
+          zig-ts-mode) . eglot-ensure)
   :config
   (defun eglot-format-buffer-safe ()
     "Format buffer if eglot is active."
@@ -1021,9 +1034,16 @@
 
   (add-to-list 'eglot-server-programs '(elixir-ts-mode "elixir-ls"))
   (add-to-list 'eglot-server-programs '(svelte-ts-mode "svelteserver" "--stdio"))
+  (add-to-list 'eglot-server-programs '(((js-ts-mode :language-id "javascript")
+                                         (tsx-ts-mode :language-id "typescriptreact")
+                                         (typescript-ts-mode :language-id "typescript"))
+                                        "vtsls" "--stdio"))
 
   (setq-default eglot-workspace-configuration
-                '(:rust-analyzer (:procMacro (:enable t)
+                '(:pylsp (:plugins (:jedi (:enabled t :include_params t :fuzzy t)
+                                    :rope (:enabled t)
+                                    :ruff (:enabled t :format ["I"])))
+                  :rust-analyzer (:procMacro (:enable t)
                                   :cargo (:allFeatures t
                                           :buildScripts (:enabled t)
                                           :loadOutDirsFromCheck t)
@@ -1033,9 +1053,8 @@
                                   :diagnostics (:experimental (:enable t))
                                   :imports (:granularity (:group "module")
                                             :prefix "crate"))
-                  :pylsp (:plugins (:jedi (:enabled t :include_params t :fuzzy t)
-                                    :rope (:enabled t)
-                                    :ruff (:enabled t :format ["I"])))
+                  :typescript (:tsdk "./node_modules/typescript/lib")
+                  :vtsls (:autoUseWorkspaceTsdk t)
                   :zls (:enable_build_on_save t
                         :build_on_save_step "check")))
   :general
@@ -1309,16 +1328,14 @@ If DIRECTORY is provided, use it as the default-directory."
 ;; LINE NUMBERS
 (use-package display-line-numbers
   :straight (:type built-in)
+  :hook (prog-mode . display-line-numbers-mode)
   :custom
-  (display-line-numbers-type 'relative)
-  :hook
-  (prog-mode . display-line-numbers-mode))
+  (display-line-numbers-type 'relative))
 
 ;; LINE HIGHLIGHTING
 (use-package hl-line
   :straight (:type built-in)
-  :hook
-  ((text-mode prog-mode) . hl-line-mode))
+  :hook ((text-mode prog-mode) . hl-line-mode))
 
 ;; FLYMAKE
 (use-package flymake
