@@ -278,6 +278,8 @@ function vcs_info_wrapper {
 
 PROMPT='%F{red}%n%f@%F{blue}%m %F{yellow}%1~%f$(vcs_info_wrapper) $ '
 
+[[ $INSIDE_EMACS = vterm && -f ~/.config/emacs/emacs.zsh ]] && source ~/.config/emacs/emacs.zsh
+
 alias ls='ls -FNh --tabsize=0 --color=auto --show-control-chars --group-directories-first'
 alias ll='ls -l'
 alias la='ls -a'
