@@ -173,24 +173,26 @@
   :custom
   (evil-collection-setup-minibuffer t)
   (evil-collection-key-blacklist '("\\" "C-c C-z"))
-  :config
+  :init
   (evil-collection-init))
 
 (use-package evil-textobj-tree-sitter
   :after evil
   :config
-  ;; Upstream parameter query uses ","? syntax that Emacs treesit rejects
-  (defvar evil-textobj-tree-sitter-parameter-query
-    (let ((q "(parameters (_) @parameter.inner) @parameter.outer
-(argument_list (_) @parameter.inner) @parameter.outer"))
-      `((python-ts-mode . ,(concat q "\n(lambda_parameters (_) @parameter.inner) @parameter.outer"))
-        (rust-ts-mode . ,q)
-        (go-ts-mode . ,q)
-        (c-ts-mode . ,q)
-        (c++-ts-mode . ,q)
-        (typescript-ts-mode . ,(concat q "\n(formal_parameters (_) @parameter.inner) @parameter.outer"))
-        (tsx-ts-mode . ,(concat q "\n(formal_parameters (_) @parameter.inner) @parameter.outer"))
-        (elixir-ts-mode . "(arguments (_) @parameter.inner) @parameter.outer"))))
+  ;; Emacs 31+ uses standard tree-sitter predicates (#match?, #eq?) while
+  ;; upstream query files use the Emacs 30 format (#match, #equal).
+  ;; See https://github.com/meain/evil-textobj-tree-sitter/issues/135
+  (when (>= emacs-major-version 31)
+    (advice-add 'evil-textobj-tree-sitter--get-query :filter-return
+                (lambda (query)
+                  (when query
+                    (setq query (replace-regexp-in-string
+                                 "(#match \"\\([^\"]*\\)\" \\(@[^ )]+\\))"
+                                 "(#match? \\2 \"\\1\")"
+                                 query))
+                    (setq query (replace-regexp-in-string
+                                 "#equal " "#eq? " query))
+                    query))))
   :general
   (:keymaps 'evil-outer-text-objects-map
    "f" (evil-textobj-tree-sitter-get-textobj "function.outer")
@@ -231,7 +233,7 @@
   :after evil
   :config
   (global-evil-surround-mode 1)
-  (add-to-list 'evil-surround-pairs-alist '(?` . ("`" . "'")))   ; Markdown code
+  (add-to-list 'evil-surround-pairs-alist '(?` . ("`" . "`")))   ; Markdown code
   (add-to-list 'evil-surround-pairs-alist '(?$ . ("${" . "}")))  ; Template literals
   (add-to-list 'evil-surround-pairs-alist '(?/ . ("/* " . " */")))) ; Block comments
 
@@ -254,6 +256,7 @@
   (org-tags-column 0)
   (org-log-done 'time)
   (org-deadline-warning-days 14)
+  (org-src-fontify-natively t)
   (org-src-preserve-indentation nil)
   (org-src-window-setup 'other-window)
   (org-default-notes-file "~/notes/inbox.org")
@@ -462,7 +465,7 @@
 (use-package nerd-icons-completion
   :after marginalia nerd-icons
   :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
-  :init
+  :config
   (nerd-icons-completion-mode))
 
 (use-package doom-modeline
@@ -493,12 +496,11 @@
   (treesit-font-lock-level 3)
   (treesit-language-source-alist
    '((ocaml . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/ocaml/src"))
-     (ocaml_interface . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/interface/src"))
-     (svelte . ("https://github.com/tree-sitter-grammars/tree-sitter-svelte"))))
-  (major-mode-remap-alist
-   '((html-mode . mhtml-ts-mode)
-     (tuareg-mode . tuareg-ts-mode)
-     (zig-mode . zig-ts-mode))))
+     (ocaml_interface . ("https://github.com/tree-sitter/tree-sitter-ocaml.git" "master" "grammars/interface/src"))))
+  :config
+  (add-to-list 'major-mode-remap-alist '(html-mode . mhtml-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(tuareg-mode . tuareg-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(zig-mode . zig-ts-mode)))
 
 (use-package c-ts-mode
   :straight (:type built-in)
@@ -787,8 +789,14 @@
   :straight (:host github :repo "xenodium/agent-shell")
   :defer t
   :config
-  (setq agent-shell-anthropic-authentication
-        (agent-shell-anthropic-make-authentication :login t))
+  (agent-shell-anthropic-authentication
+   (agent-shell-anthropic-make-authentication
+    :api-key (lambda ()
+               (or (getenv "ANTHROPIC_API_KEY")
+                   (auth-source-pick-first-password :host anthropic-host)))))
+  (agent-shell-anthropic-claude-environment
+   (agent-shell-make-environment-variables
+    "ANTHROPIC_BASE_URL" anthropic-base-url))
   :general
   (:states 'normal
    :prefix "\\"
@@ -945,6 +953,16 @@
 (use-package terraform-mode
   :mode ("\\.tf\\'")
   :hook (terraform-mode . terraform-format-on-save-mode))
+
+;; KUBERNETES
+(use-package kubed
+  :defer t
+  :general
+  (:states 'normal
+   :prefix "\\"
+   "kk" '(kubed-transient :wk "kubernetes")
+   "kn" '(kubed-set-namespace :wk "set namespace")
+   "kc" '(kubed-set-context :wk "set context")))
 
 ;; LUA
 (use-package lua-mode
