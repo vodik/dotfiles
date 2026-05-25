@@ -34,8 +34,19 @@
    (add-to-list 'default-frame-alist '(alpha-background . 97))))
 
 (setq package-enable-at-startup nil
+      ;; Display the architecture using gcc -march=native -Q --help=target | grep march
+      cpu-architecture "znver4"
       native-comp-async-report-warnings-errors 'silent
       native-comp-jit-compilation t
+      native-comp-compiler-options `("-O2"
+                                     ,(format "-march=%s" cpu-architecture)
+                                     ,(format "-mtune=%s" cpu-architecture)
+                                     "-g0"
+                                     "-fno-omit-frame-pointer"
+                                     "-fno-finite-math-only")
+      native-comp-driver-options '("-Wl,-z,pack-relative-relocs"
+                                   "-Wl,-O2"
+                                   "-Wl,--as-needed")
       straight-check-for-modifications '(check-on-save find-when-checking))
 
 ;;; early-init.el ends here

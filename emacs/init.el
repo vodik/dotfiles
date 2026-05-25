@@ -254,7 +254,6 @@
   (org-tags-column 0)
   (org-log-done 'time)
   (org-deadline-warning-days 14)
-  (org-src-fontify-natively t)
   (org-src-preserve-indentation nil)
   (org-src-window-setup 'other-window)
   (org-default-notes-file "~/notes/inbox.org")
@@ -612,13 +611,14 @@
          (magit-post-refresh . diff-hl-magit-post-refresh))
   :custom
   (diff-hl-draw-borders nil)
-  :config
-  (diff-hl-flydiff-mode)
+  :init
   (define-fringe-bitmap 'diff-hl-bmp-thin [224] nil nil '(center repeated))
   (define-fringe-bitmap 'diff-hl-bmp-thin-deleted [128 192 224 240] nil nil 'bottom)
   (setq diff-hl-fringe-bmp-function
         (lambda (type _pos)
           (if (eq type 'delete) 'diff-hl-bmp-thin-deleted 'diff-hl-bmp-thin)))
+  :config
+  (diff-hl-flydiff-mode)
   (set-face-attribute 'diff-hl-insert nil :background 'unspecified)
   (set-face-attribute 'diff-hl-delete nil :background 'unspecified)
   (set-face-attribute 'diff-hl-change nil :background 'unspecified))

@@ -11,7 +11,9 @@ osc_vterm_eval() {
     printf "\e]51;E"
     local arg
     for arg in "$@"; do
-        printf '"%s" ' "${arg//\\/\\\\//\"/\\\"}"
+        arg="${arg//\\/\\\\}"
+        arg="${arg//\"/\\\"}"
+        printf '"%s" ' "$arg"
     done
     printf "\e\\"
 }
@@ -32,6 +34,7 @@ osc_copy() {
 
 clear() {
     osc_vterm_eval vterm-clear-scrollback
+    tput clear
 }
 
 if (( $+commands[evt] )); then
@@ -63,25 +66,25 @@ recompile() {
     osc_vterm_eval recompile
 }
 
-_emacs_vterm_precmd() {
+_emacs_hook_vterm_pwd() {
     osc_vterm_eval update-pwd "$PWD"
-    osc_title "%n@%m:%~"
+}
+
+_emacs_hook_vterm_annotate() {
     osc_vterm_annotate "$(print -Pn '%n@%m:%~')"
 }
 
-_emacs_vterm_preexec() {
+_emacs_hook_vterm_preexec() {
     local cmd="${1[(wr)^(*=*|sudo|ssh|-*)]:gs/%/%%}"
     osc_title "$cmd"
 }
 
-_emacs_vterm_chpwd() {
+_emacs_hook_vterm_chpwd() {
     osc_vterm_eval update-pwd "$PWD"
 }
 
 autoload -U add-zsh-hook
-add-zsh-hook precmd _emacs_vterm_precmd
-add-zsh-hook preexec _emacs_vterm_preexec
-add-zsh-hook chpwd _emacs_vterm_chpwd
-
-# Don't override C-l - let vterm handle it directly
-# bindkey -s '^L' 'clear\n'
+add-zsh-hook precmd _emacs_hook_vterm_pwd
+add-zsh-hook precmd _emacs_hook_vterm_annotate
+add-zsh-hook preexec _emacs_hook_vterm_preexec
+add-zsh-hook chpwd _emacs_hook_vterm_chpwd
